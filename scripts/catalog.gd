@@ -397,10 +397,33 @@ static func get_item(type_id: String) -> Dictionary:
 	var norm = normalize_type(type_id)
 	return ITEMS.get(norm, {})
 
+const CATEGORY_ALIASES = {
+	"boden": "ground",
+	"böden": "ground",
+	"ground": "ground",
+	"gebäude": "buildings",
+	"gebaeude": "buildings",
+	"buildings": "buildings",
+	"natur": "nature",
+	"nature": "nature",
+	"tiere": "creatures",
+	"lebewesen": "creatures",
+	"creatures": "creatures",
+	"animals": "creatures",
+	"deko": "deco",
+	"deco": "deco",
+	"dekoration": "deco",
+}
+
+static func normalize_category(cat: String) -> String:
+	var lower = cat.to_lower().strip_edges()
+	return CATEGORY_ALIASES.get(lower, lower)
+
 static func get_items_by_category(category: String) -> Array[Dictionary]:
+	var norm_cat = normalize_category(category)
 	var list: Array[Dictionary] = []
 	for item in ITEMS.values():
-		if item["category"] == category:
+		if item["category"] == norm_cat:
 			list.append(item)
 	return list
 

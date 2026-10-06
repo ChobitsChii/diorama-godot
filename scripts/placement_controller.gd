@@ -6,6 +6,7 @@ extends Node3D
 signal mode_changed(new_mode: int)
 signal selection_changed(has_selection: bool, entry: Dictionary)
 signal item_placed(entry: Dictionary)
+signal creature_interacted(creature_id: String, speech: String, pos: Vector3)
 
 enum Mode {
 	EXPLORE = 0,
@@ -225,15 +226,47 @@ func _handle_explore_click(gx: int, gz: int) -> void:
 	if not node or not is_instance_valid(node):
 		return
 	
+	var item_type = top_item.get("type", "")
+	var creature_speech = {
+		"cat": "Miau! 🐾",
+		"dog": "Wuff! 🐶",
+		"duck": "Quak! 🦆",
+		"rabbit": "Schnupper! 🐰",
+		"boy": "Hallo! 👋",
+		"girl": "Juhu! ✨",
+	}
+	
+	if creature_speech.has(item_type):
+		creature_interacted.emit(item_type, creature_speech[item_type], node.global_position)
+		if item_type == "cat":
+			if node.has_method("interact"):
+				node.interact()
+			else:
+				AudioManager.play("cat_meow")
+				_animate_explore_bounce(node)
+		elif item_type == "dog":
+			AudioManager.play("dog_bark")
+			_animate_explore_bounce(node)
+		elif item_type == "duck":
+			AudioManager.play("duck_quack")
+			_animate_explore_bounce(node)
+		else:
+			AudioManager.play("ui_pop")
+			_animate_explore_bounce(node)
+		return
+	
 	if node.has_method("interact"):
 		node.interact()
 	elif node.has_method("toggle_light"):
 		node.toggle_light()
 	else:
 		AudioManager.play("pop")
-		var tween = create_tween()
-		tween.tween_property(node, "scale", Vector3(1.08, 0.94, 1.08), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-		tween.tween_property(node, "scale", Vector3.ONE, 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
+		_animate_explore_bounce(node)
+
+func _animate_explore_bounce(node: Node3D) -> void:
+	var tween = create_tween()
+	tween.tween_property(node, "scale", Vector3(1.12, 0.9, 1.12), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	tween.tween_property(node, "scale", Vector3.ONE, 0.14).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 func _handle_select_click(gx: int, gz: int) -> void:
 	# 1. If an item is already selected/lifted

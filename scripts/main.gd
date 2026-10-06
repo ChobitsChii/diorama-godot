@@ -42,6 +42,9 @@ func _ready() -> void:
 	)
 	hud.grid_size_requested.connect(_on_grid_size_requested)
 	hud.reset_island_requested.connect(_on_reset_island_requested)
+	placement_controller.creature_interacted.connect(func(_type_id, speech, pos):
+		hud.show_speech_bubble(speech, pos)
+	)
 	
 	# 5. Populate Island: Load from local save if exists, otherwise generate starter island
 	if storage_manager.has_save_file():
