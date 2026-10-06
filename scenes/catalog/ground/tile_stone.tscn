@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
+diffuse_mode = 2
+albedo_color = Color(0.611765, 0.639216, 0.686275, 1)
+roughness = 0.85
+metallic = 0.05
+
+[sub_resource type="BoxMesh" id="BoxMesh_stone"]
+material = SubResource("StandardMaterial3D_stone")
+size = Vector3(0.98, 0.22, 0.98)
+
+[node name="TileStone" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
+mesh = SubResource("BoxMesh_stone")

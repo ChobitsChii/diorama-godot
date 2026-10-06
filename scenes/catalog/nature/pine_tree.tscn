@@ -1,0 +1,53 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Trunk"]
+diffuse_mode = 2
+albedo_color = Color(0.435294, 0.305882, 0.215686, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_Pine"]
+diffuse_mode = 2
+albedo_color = Color(0.176471, 0.415686, 0.309804, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="Mesh_Trunk"]
+material = SubResource("Mat_Trunk")
+top_radius = 0.1
+bottom_radius = 0.14
+height = 0.8
+
+[sub_resource type="CylinderMesh" id="Mesh_FoliageBottom"]
+material = SubResource("Mat_Pine")
+top_radius = 0.0
+bottom_radius = 0.58
+height = 0.7
+
+[sub_resource type="CylinderMesh" id="Mesh_FoliageMid"]
+material = SubResource("Mat_Pine")
+top_radius = 0.0
+bottom_radius = 0.45
+height = 0.65
+
+[sub_resource type="CylinderMesh" id="Mesh_FoliageTop"]
+material = SubResource("Mat_Pine")
+top_radius = 0.0
+bottom_radius = 0.32
+height = 0.6
+
+[node name="PineTree" type="Node3D"]
+
+[node name="Trunk" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.4, 0)
+mesh = SubResource("Mesh_Trunk")
+
+[node name="FoliageBottom" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+mesh = SubResource("Mesh_FoliageBottom")
+
+[node name="FoliageMid" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.35, 0)
+mesh = SubResource("Mesh_FoliageMid")
+
+[node name="FoliageTop" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.75, 0)
+mesh = SubResource("Mesh_FoliageTop")

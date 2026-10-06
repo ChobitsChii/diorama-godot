@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+diffuse_mode = 2
+albedo_color = Color(0.705882, 0.517647, 0.333333, 1)
+roughness = 0.8
+metallic = 0.05
+
+[sub_resource type="BoxMesh" id="BoxMesh_wood"]
+material = SubResource("StandardMaterial3D_wood")
+size = Vector3(0.98, 0.22, 0.98)
+
+[node name="TileWood" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
+mesh = SubResource("BoxMesh_wood")

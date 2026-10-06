@@ -1,0 +1,42 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Wood"]
+diffuse_mode = 2
+albedo_color = Color(0.705882, 0.517647, 0.333333, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_Iron"]
+diffuse_mode = 2
+albedo_color = Color(0.121569, 0.160784, 0.215686, 1)
+roughness = 0.6
+metallic = 0.7
+
+[sub_resource type="BoxMesh" id="Mesh_Seat"]
+material = SubResource("Mat_Wood")
+size = Vector3(0.9, 0.06, 0.35)
+
+[sub_resource type="BoxMesh" id="Mesh_Back"]
+material = SubResource("Mat_Wood")
+size = Vector3(0.9, 0.3, 0.05)
+
+[sub_resource type="BoxMesh" id="Mesh_Leg"]
+material = SubResource("Mat_Iron")
+size = Vector3(0.06, 0.28, 0.35)
+
+[node name="Bench" type="Node3D"]
+
+[node name="Seat" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.28, 0)
+mesh = SubResource("Mesh_Seat")
+
+[node name="Backrest" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, -0.15)
+mesh = SubResource("Mesh_Back")
+
+[node name="LegLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.38, 0.14, 0)
+mesh = SubResource("Mesh_Leg")
+
+[node name="LegRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.38, 0.14, 0)
+mesh = SubResource("Mesh_Leg")

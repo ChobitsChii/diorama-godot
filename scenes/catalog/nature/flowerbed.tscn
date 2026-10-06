@@ -1,0 +1,59 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Dirt"]
+diffuse_mode = 2
+albedo_color = Color(0.360784, 0.227451, 0.113725, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_YellowFlower"]
+diffuse_mode = 2
+albedo_color = Color(0.980392, 0.8, 0.082353, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_RedFlower"]
+diffuse_mode = 2
+albedo_color = Color(0.937255, 0.266667, 0.266667, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_PurpleFlower"]
+diffuse_mode = 2
+albedo_color = Color(0.658824, 0.333333, 0.968627, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_DirtBase"]
+material = SubResource("Mat_Dirt")
+size = Vector3(0.8, 0.06, 0.8)
+
+[sub_resource type="SphereMesh" id="Mesh_FlowerYellow"]
+material = SubResource("Mat_YellowFlower")
+radius = 0.08
+height = 0.16
+
+[sub_resource type="SphereMesh" id="Mesh_FlowerRed"]
+material = SubResource("Mat_RedFlower")
+radius = 0.09
+height = 0.18
+
+[sub_resource type="SphereMesh" id="Mesh_FlowerPurple"]
+material = SubResource("Mat_PurpleFlower")
+radius = 0.08
+height = 0.16
+
+[node name="Flowerbed" type="Node3D"]
+
+[node name="Soil" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0)
+mesh = SubResource("Mesh_DirtBase")
+
+[node name="Flower1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, 0.12, -0.2)
+mesh = SubResource("Mesh_FlowerRed")
+
+[node name="Flower2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.18, 0.11, -0.15)
+mesh = SubResource("Mesh_FlowerYellow")
+
+[node name="Flower3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.1, 0.12, 0.22)
+mesh = SubResource("Mesh_FlowerPurple")
+
+[node name="Flower4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 0.11, 0.18)
+mesh = SubResource("Mesh_FlowerRed")

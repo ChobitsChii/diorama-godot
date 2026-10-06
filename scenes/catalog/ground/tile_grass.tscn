@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_grass"]
+diffuse_mode = 2
+albedo_color = Color(0.282353, 0.733333, 0.470588, 1)
+roughness = 0.75
+metallic = 0.05
+
+[sub_resource type="BoxMesh" id="BoxMesh_grass"]
+material = SubResource("StandardMaterial3D_grass")
+size = Vector3(0.98, 0.22, 0.98)
+
+[node name="TileGrass" type="Node3D"]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
+mesh = SubResource("BoxMesh_grass")

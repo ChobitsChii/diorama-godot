@@ -1,0 +1,51 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main_script"]
+[ext_resource type="Script" path="res://scripts/day_night_controller.gd" id="2_day_night"]
+[ext_resource type="Script" path="res://scripts/camera_controller.gd" id="3_camera_ctrl"]
+[ext_resource type="Script" path="res://scripts/island_base.gd" id="4_island_base"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="5_hud_scene"]
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 1
+background_color = Color(0.803922, 0.905882, 1, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.858824, 0.917647, 0.996078, 1)
+ambient_light_energy = 0.75
+tonemap_mode = 2
+
+[node name="Main" type="Node3D"]
+script = ExtResource("1_main_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="SunLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.707107, 0.477714, -0.521334, 0, 0.737277, 0.67559, 0.707107, -0.477714, 0.521334, 0, 20, 0)
+light_color = Color(1, 0.972549, 0.933333, 1)
+light_energy = 1.35
+shadow_enabled = true
+shadow_bias = 0.04
+directional_shadow_max_distance = 60.0
+
+[node name="DayNightController" type="Node" parent="." node_paths=PackedStringArray("world_environment", "sun_light")]
+script = ExtResource("2_day_night")
+world_environment = NodePath("../WorldEnvironment")
+sun_light = NodePath("../SunLight")
+
+[node name="CameraController" type="Node3D" parent="."]
+script = ExtResource("3_camera_ctrl")
+
+[node name="Camera3D" type="Camera3D" parent="CameraController"]
+projection = 1
+size = 13.0
+current = true
+
+[node name="IslandBase" type="Node3D" parent="."]
+script = ExtResource("4_island_base")
+
+[node name="GridContainer" type="Node3D" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="HUD" parent="CanvasLayer" instance=ExtResource("5_hud_scene")]

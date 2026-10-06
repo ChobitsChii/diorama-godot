@@ -1,0 +1,41 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_Trunk"]
+diffuse_mode = 2
+albedo_color = Color(0.435294, 0.305882, 0.215686, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_Leaf"]
+diffuse_mode = 2
+albedo_color = Color(0.25098, 0.568627, 0.423529, 1)
+roughness = 0.75
+
+[sub_resource type="CylinderMesh" id="Mesh_Trunk"]
+material = SubResource("Mat_Trunk")
+top_radius = 0.1
+bottom_radius = 0.15
+height = 0.9
+
+[sub_resource type="SphereMesh" id="Mesh_Crown"]
+material = SubResource("Mat_Leaf")
+radius = 0.55
+height = 1.0
+
+[sub_resource type="SphereMesh" id="Mesh_CrownTop"]
+material = SubResource("Mat_Leaf")
+radius = 0.42
+height = 0.75
+
+[node name="LeafyTree" type="Node3D"]
+
+[node name="Trunk" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("Mesh_Trunk")
+
+[node name="CrownMain" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+mesh = SubResource("Mesh_Crown")
+
+[node name="CrownTop" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.1, 1.6, 0.05)
+mesh = SubResource("Mesh_CrownTop")
