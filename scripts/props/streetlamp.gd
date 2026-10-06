@@ -18,6 +18,7 @@ func set_night_mode(night: bool) -> void:
 
 func toggle_light() -> void:
 	is_turned_on = not is_turned_on
+	AudioSynthesizer.play("lamp_click")
 	_update_visuals()
 
 func _update_visuals() -> void:

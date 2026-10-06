@@ -1,17 +1,45 @@
 [gd_scene format=3]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_water"]
+[sub_resource type="StandardMaterial3D" id="Mat_WaterDeep"]
 diffuse_mode = 2
-albedo_color = Color(0.007843, 0.517647, 0.780392, 1)
-roughness = 0.15
+albedo_color = Color(0.011765, 0.411765, 0.631373, 1)
+roughness = 0.2
 metallic = 0.1
 
-[sub_resource type="BoxMesh" id="BoxMesh_water"]
-material = SubResource("StandardMaterial3D_water")
-size = Vector3(0.98, 0.2, 0.98)
+[sub_resource type="StandardMaterial3D" id="Mat_WaterSurface"]
+diffuse_mode = 2
+albedo_color = Color(0.007843, 0.517647, 0.780392, 1)
+roughness = 0.12
+metallic = 0.15
+
+[sub_resource type="StandardMaterial3D" id="Mat_WaterRipple"]
+diffuse_mode = 2
+albedo_color = Color(0.22, 0.74, 0.97, 1)
+roughness = 0.1
+metallic = 0.2
+
+[sub_resource type="BoxMesh" id="Mesh_DeepRim"]
+material = SubResource("Mat_WaterDeep")
+size = Vector3(0.98, 0.18, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_WaterSurface"]
+material = SubResource("Mat_WaterSurface")
+size = Vector3(0.94, 0.2, 0.94)
+
+[sub_resource type="BoxMesh" id="Mesh_Ripple"]
+material = SubResource("Mat_WaterRipple")
+size = Vector3(0.42, 0.202, 0.42)
 
 [node name="TileWater" type="Node3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="DeepRim" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_DeepRim")
+
+[node name="WaterSurface" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
-mesh = SubResource("BoxMesh_water")
+mesh = SubResource("Mesh_WaterSurface")
+
+[node name="Ripple" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.089, 0)
+mesh = SubResource("Mesh_Ripple")

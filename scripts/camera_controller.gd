@@ -66,8 +66,13 @@ func _update_camera_transform(force: bool = false) -> void:
 	camera.look_at(target, Vector3.UP)
 	camera.size = _current_size
 
+var is_explore_mode: bool = true
+var _left_mouse_down: bool = false
+var _left_mouse_origin: Vector2 = Vector2.ZERO
+var _left_drag_threshold: float = 6.0
+
 func _unhandled_input(event: InputEvent) -> void:
-	# 1. Mouse Dragging (Right click or Middle click)
+	# 1. Mouse Dragging (Right/Middle click, or Left click in Explore mode)
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_RIGHT or event.button_index == MOUSE_BUTTON_MIDDLE:
 			if event.pressed:
@@ -75,6 +80,15 @@ func _unhandled_input(event: InputEvent) -> void:
 				_last_mouse_pos = event.position
 			else:
 				_is_orbiting = false
+		elif event.button_index == MOUSE_BUTTON_LEFT:
+			if event.pressed:
+				_left_mouse_down = true
+				_left_mouse_origin = event.position
+				_last_mouse_pos = event.position
+			else:
+				_left_mouse_down = false
+				if _is_orbiting:
+					_is_orbiting = false
 		
 		# Mouse Wheel Zoom
 		elif event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
@@ -83,6 +97,11 @@ func _unhandled_input(event: InputEvent) -> void:
 			zoom(zoom_speed)
 	
 	elif event is InputEventMouseMotion:
+		if _left_mouse_down and is_explore_mode and not _is_orbiting:
+			if event.position.distance_to(_left_mouse_origin) > _left_drag_threshold:
+				_is_orbiting = true
+				_last_mouse_pos = event.position
+		
 		if _is_orbiting:
 			var delta_pos = event.position - _last_mouse_pos
 			_last_mouse_pos = event.position

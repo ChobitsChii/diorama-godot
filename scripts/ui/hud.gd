@@ -20,6 +20,7 @@ signal item_chosen(type_id: String)
 @onready var tools_grid: GridContainer = %ToolsGrid
 
 # Tool buttons
+@onready var btn_tool_explore: Button = %BtnToolExplore
 @onready var btn_tool_select: Button = %BtnToolSelect
 @onready var btn_tool_place: Button = %BtnToolPlace
 @onready var btn_tool_rotate: Button = %BtnToolRotate
@@ -101,6 +102,7 @@ func setup_all(
 
 func _connect_signals() -> void:
 	# Tools
+	btn_tool_explore.pressed.connect(func(): _on_tool_btn_pressed(PlacementController.Mode.EXPLORE))
 	btn_tool_select.pressed.connect(func(): _on_tool_btn_pressed(PlacementController.Mode.SELECT))
 	btn_tool_place.pressed.connect(func(): _on_tool_btn_pressed(PlacementController.Mode.PLACE))
 	btn_tool_rotate.pressed.connect(_on_rotate_btn_pressed)
@@ -142,9 +144,12 @@ func _set_category(cat: String) -> void:
 	_update_catalog_items(cat)
 
 func _update_tool_buttons(active_mode: int) -> void:
+	btn_tool_explore.button_pressed = (active_mode == PlacementController.Mode.EXPLORE)
 	btn_tool_select.button_pressed = (active_mode == PlacementController.Mode.SELECT)
 	btn_tool_place.button_pressed = (active_mode == PlacementController.Mode.PLACE)
 	btn_tool_demolish.button_pressed = (active_mode == PlacementController.Mode.DEMOLISH)
+	if camera_ctrl:
+		camera_ctrl.is_explore_mode = (active_mode == PlacementController.Mode.EXPLORE)
 
 func _update_category_buttons() -> void:
 	cat_ground_btn.button_pressed = (current_category == "ground")

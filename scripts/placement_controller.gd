@@ -8,16 +8,17 @@ signal selection_changed(has_selection: bool, entry: Dictionary)
 signal item_placed(entry: Dictionary)
 
 enum Mode {
-	SELECT = 0,
-	PLACE = 1,
-	DEMOLISH = 2,
+	EXPLORE = 0,
+	SELECT = 1,
+	PLACE = 2,
+	DEMOLISH = 3,
 }
 
 @export var grid_manager: GridManager
 @export var camera: Camera3D
 @export var history_manager: HistoryManager
 
-var current_mode: Mode = Mode.SELECT
+var current_mode: Mode = Mode.EXPLORE
 
 # Active placement tool state
 var active_type_id: String = "cottage"
@@ -42,7 +43,7 @@ var _demolish_ghost_mat: StandardMaterial3D
 func _ready() -> void:
 	_init_materials()
 	_create_ghost_root()
-	set_mode(Mode.SELECT)
+	set_mode(Mode.EXPLORE)
 
 func _init_materials() -> void:
 	_valid_ghost_mat = StandardMaterial3D.new()
@@ -207,12 +208,32 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _handle_grid_click(gx: int, gz: int) -> void:
 	match current_mode:
+		Mode.EXPLORE:
+			_handle_explore_click(gx, gz)
 		Mode.SELECT:
 			_handle_select_click(gx, gz)
 		Mode.PLACE:
 			_handle_place_click(gx, gz)
 		Mode.DEMOLISH:
 			_handle_demolish_click(gx, gz)
+
+func _handle_explore_click(gx: int, gz: int) -> void:
+	var top_item = grid_manager.get_top_item_at(gx, gz)
+	if top_item.is_empty():
+		return
+	var node = top_item.get("node")
+	if not node or not is_instance_valid(node):
+		return
+	
+	if node.has_method("interact"):
+		node.interact()
+	elif node.has_method("toggle_light"):
+		node.toggle_light()
+	else:
+		AudioSynthesizer.play("pop")
+		var tween = create_tween()
+		tween.tween_property(node, "scale", Vector3(1.08, 0.94, 1.08), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+		tween.tween_property(node, "scale", Vector3.ONE, 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
 
 func _handle_select_click(gx: int, gz: int) -> void:
 	# 1. If an item is already selected/lifted
@@ -252,12 +273,15 @@ func _handle_place_click(gx: int, gz: int) -> void:
 			history_manager.record_state_before_action()
 		var entry = grid_manager.place(active_type_id, gx, gz, active_rot_step)
 		if not entry.is_empty():
+			AudioSynthesizer.play("pop")
 			item_placed.emit(entry)
 
 func _handle_demolish_click(gx: int, gz: int) -> void:
 	if history_manager:
 		history_manager.record_state_before_action()
-	grid_manager.demolish_at(gx, gz)
+	var ok = grid_manager.demolish_at(gx, gz)
+	if ok:
+		AudioSynthesizer.play("demolish")
 
 func cancel_selection() -> void:
 	if selected_entry.is_empty():

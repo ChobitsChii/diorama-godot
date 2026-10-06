@@ -1,17 +1,44 @@
 [gd_scene format=3]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_wood"]
+[sub_resource type="StandardMaterial3D" id="Mat_WoodGap"]
+diffuse_mode = 2
+albedo_color = Color(0.360784, 0.227451, 0.113725, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_Plank1"]
 diffuse_mode = 2
 albedo_color = Color(0.705882, 0.517647, 0.333333, 1)
 roughness = 0.8
-metallic = 0.05
 
-[sub_resource type="BoxMesh" id="BoxMesh_wood"]
-material = SubResource("StandardMaterial3D_wood")
-size = Vector3(0.98, 0.22, 0.98)
+[sub_resource type="StandardMaterial3D" id="Mat_Plank2"]
+diffuse_mode = 2
+albedo_color = Color(0.78, 0.58, 0.38, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="Mesh_BaseRim"]
+material = SubResource("Mat_WoodGap")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_Plank"]
+size = Vector3(0.28, 0.22, 0.94)
 
 [node name="TileWood" type="Node3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="BaseRim" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_BaseRim")
+
+[node name="Plank1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.31, -0.09, 0)
+material_override = SubResource("Mat_Plank1")
+mesh = SubResource("Mesh_Plank")
+
+[node name="Plank2" type="MeshInstance3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
-mesh = SubResource("BoxMesh_wood")
+material_override = SubResource("Mat_Plank2")
+mesh = SubResource("Mesh_Plank")
+
+[node name="Plank3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.31, -0.09, 0)
+material_override = SubResource("Mat_Plank1")
+mesh = SubResource("Mesh_Plank")

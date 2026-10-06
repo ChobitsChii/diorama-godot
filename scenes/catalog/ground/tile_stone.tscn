@@ -1,17 +1,49 @@
 [gd_scene format=3]
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_stone"]
+[sub_resource type="StandardMaterial3D" id="Mat_StoneJoint"]
+diffuse_mode = 2
+albedo_color = Color(0.294118, 0.333333, 0.388235, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_Stone1"]
 diffuse_mode = 2
 albedo_color = Color(0.611765, 0.639216, 0.686275, 1)
 roughness = 0.85
-metallic = 0.05
 
-[sub_resource type="BoxMesh" id="BoxMesh_stone"]
-material = SubResource("StandardMaterial3D_stone")
-size = Vector3(0.98, 0.22, 0.98)
+[sub_resource type="StandardMaterial3D" id="Mat_Stone2"]
+diffuse_mode = 2
+albedo_color = Color(0.72, 0.74, 0.78, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="Mesh_BaseRim"]
+material = SubResource("Mat_StoneJoint")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_Slab"]
+size = Vector3(0.44, 0.22, 0.44)
 
 [node name="TileStone" type="Node3D"]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
-mesh = SubResource("BoxMesh_stone")
+[node name="BaseRim" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_BaseRim")
+
+[node name="Slab1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23, -0.09, -0.23)
+material_override = SubResource("Mat_Stone1")
+mesh = SubResource("Mesh_Slab")
+
+[node name="Slab2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23, -0.09, -0.23)
+material_override = SubResource("Mat_Stone2")
+mesh = SubResource("Mesh_Slab")
+
+[node name="Slab3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.23, -0.09, 0.23)
+material_override = SubResource("Mat_Stone2")
+mesh = SubResource("Mesh_Slab")
+
+[node name="Slab4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.23, -0.09, 0.23)
+material_override = SubResource("Mat_Stone1")
+mesh = SubResource("Mesh_Slab")
