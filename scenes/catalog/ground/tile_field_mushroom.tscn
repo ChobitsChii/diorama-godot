@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_DarkForestSoil"]
+diffuse_mode = 2
+albedo_color = Color(0.25, 0.18, 0.12, 1)
+roughness = 0.95
+
+[sub_resource type="StandardMaterial3D" id="Mat_MossGreen1"]
+diffuse_mode = 2
+albedo_color = Color(0.3, 0.49, 0.06, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_MossGreen2"]
+diffuse_mode = 2
+albedo_color = Color(0.4, 0.64, 0.05, 1)
+roughness = 0.9
+
+[sub_resource type="BoxMesh" id="Mesh_MushroomSoilBase"]
+material = SubResource("Mat_DarkForestSoil")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_MossPatch1"]
+material = SubResource("Mat_MossGreen1")
+size = Vector3(0.36, 0.03, 0.36)
+
+[sub_resource type="BoxMesh" id="Mesh_MossPatch2"]
+material = SubResource("Mat_MossGreen2")
+size = Vector3(0.34, 0.03, 0.4)
+
+[node name="TileFieldMushroom" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_MushroomSoilBase")
+
+[node name="Moss1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, 0.015, -0.2)
+mesh = SubResource("Mesh_MossPatch1")
+
+[node name="Moss2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24, 0.015, 0.18)
+mesh = SubResource("Mesh_MossPatch2")
+
+[node name="Moss3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16, 0.015, 0.24)
+mesh = SubResource("Mesh_MossPatch1")

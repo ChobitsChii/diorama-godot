@@ -37,7 +37,8 @@ func _ready() -> void:
 		camera_controller,
 		storage_manager,
 		history_manager,
-		sync_manager
+		sync_manager,
+		island_base
 	)
 	hud.grid_size_requested.connect(_on_grid_size_requested)
 	hud.reset_island_requested.connect(_on_reset_island_requested)

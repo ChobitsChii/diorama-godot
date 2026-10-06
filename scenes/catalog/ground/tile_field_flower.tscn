@@ -1,0 +1,45 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_PottingSoil"]
+diffuse_mode = 2
+albedo_color = Color(0.29, 0.21, 0.15, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_RedBrick"]
+diffuse_mode = 2
+albedo_color = Color(0.6, 0.11, 0.11, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="Mesh_FlowerSoilBase"]
+material = SubResource("Mat_PottingSoil")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_BrickX"]
+material = SubResource("Mat_RedBrick")
+size = Vector3(0.05, 0.05, 0.96)
+
+[sub_resource type="BoxMesh" id="Mesh_BrickZ"]
+material = SubResource("Mat_RedBrick")
+size = Vector3(0.86, 0.05, 0.05)
+
+[node name="TileFieldFlower" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_FlowerSoilBase")
+
+[node name="BrickL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.025, 0)
+mesh = SubResource("Mesh_BrickX")
+
+[node name="BrickR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.025, 0)
+mesh = SubResource("Mesh_BrickX")
+
+[node name="BrickT" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, -0.45)
+mesh = SubResource("Mesh_BrickZ")
+
+[node name="BrickB" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0.45)
+mesh = SubResource("Mesh_BrickZ")

@@ -38,7 +38,7 @@ const COLORS = {
 	"catWhite": Color("#ffffff"),
 	"catPink": Color("#f472b6"),
 	"catEyes": Color("#15803d"),
-	"dayBg": Color("#cde7ff"),
+	"dayBg": Color("#cbe5ff"),
 	"nightBg": Color("#0e1628"),
 	"dayAmbient": Color("#dbeafe"),
 	"nightAmbient": Color("#1e293b"),

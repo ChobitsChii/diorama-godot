@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_FruitSoil"]
+diffuse_mode = 2
+albedo_color = Color(0.42, 0.27, 0.14, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_FruitMulch"]
+diffuse_mode = 2
+albedo_color = Color(0.54, 0.36, 0.23, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_WoodBorder"]
+diffuse_mode = 2
+albedo_color = Color(0.36, 0.23, 0.11, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="Mesh_FruitBase"]
+material = SubResource("Mat_FruitSoil")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_Mulch"]
+material = SubResource("Mat_FruitMulch")
+size = Vector3(0.88, 0.03, 0.88)
+
+[sub_resource type="BoxMesh" id="Mesh_PlankX"]
+material = SubResource("Mat_WoodBorder")
+size = Vector3(0.05, 0.06, 0.96)
+
+[sub_resource type="BoxMesh" id="Mesh_PlankZ"]
+material = SubResource("Mat_WoodBorder")
+size = Vector3(0.86, 0.06, 0.05)
+
+[node name="TileFieldFruit" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_FruitBase")
+
+[node name="Mulch" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.02, 0)
+mesh = SubResource("Mesh_Mulch")
+
+[node name="BorderL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0.03, 0)
+mesh = SubResource("Mesh_PlankX")
+
+[node name="BorderR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0.03, 0)
+mesh = SubResource("Mesh_PlankX")
+
+[node name="BorderT" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, -0.45)
+mesh = SubResource("Mesh_PlankZ")
+
+[node name="BorderB" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.03, 0.45)
+mesh = SubResource("Mesh_PlankZ")

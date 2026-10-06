@@ -1,0 +1,58 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_GrassBase"]
+diffuse_mode = 2
+albedo_color = Color(0.282, 0.733, 0.471, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_StepStone1"]
+diffuse_mode = 2
+albedo_color = Color(0.612, 0.639, 0.686, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_StepStone2"]
+diffuse_mode = 2
+albedo_color = Color(0.42, 0.45, 0.5, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="Mesh_GrassBase"]
+material = SubResource("Mat_GrassBase")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="CylinderMesh" id="Mesh_Stone1"]
+material = SubResource("Mat_StepStone1")
+top_radius = 0.16
+bottom_radius = 0.18
+height = 0.055
+
+[sub_resource type="CylinderMesh" id="Mesh_Stone2"]
+material = SubResource("Mat_StepStone2")
+top_radius = 0.14
+bottom_radius = 0.16
+height = 0.055
+
+[node name="TileSteppingStones" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_GrassBase")
+
+[node name="Stone1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0.03, -0.26)
+mesh = SubResource("Mesh_Stone1")
+
+[node name="Stone2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 0.03, -0.22)
+mesh = SubResource("Mesh_Stone2")
+
+[node name="Stone3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.04, 0.03, -0.02)
+mesh = SubResource("Mesh_Stone1")
+
+[node name="Stone4" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.26, 0.03, 0.24)
+mesh = SubResource("Mesh_Stone2")
+
+[node name="Stone5" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.24, 0.03, 0.24)
+mesh = SubResource("Mesh_Stone1")

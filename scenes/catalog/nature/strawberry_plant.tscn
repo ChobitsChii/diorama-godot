@@ -1,0 +1,39 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_StrawLeaves"]
+diffuse_mode = 2
+albedo_color = Color(0.25, 0.65, 0.35, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_StrawBerry"]
+diffuse_mode = 2
+albedo_color = Color(0.94, 0.27, 0.27, 1)
+roughness = 0.4
+
+[sub_resource type="SphereMesh" id="Mesh_BushFoliage"]
+material = SubResource("Mat_StrawLeaves")
+radius = 0.2
+height = 0.28
+
+[sub_resource type="SphereMesh" id="Mesh_Berry"]
+material = SubResource("Mat_StrawBerry")
+radius = 0.04
+height = 0.06
+
+[node name="StrawberryPlant" type="Node3D"]
+
+[node name="Leaves" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.14, 0)
+mesh = SubResource("Mesh_BushFoliage")
+
+[node name="Berry1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.12, 0.1, 0.12)
+mesh = SubResource("Mesh_Berry")
+
+[node name="Berry2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.12, 0.08, 0.1)
+mesh = SubResource("Mesh_Berry")
+
+[node name="Berry3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.02, 0.12, -0.14)
+mesh = SubResource("Mesh_Berry")

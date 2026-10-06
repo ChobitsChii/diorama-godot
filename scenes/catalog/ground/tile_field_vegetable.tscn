@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_FieldEarth"]
+diffuse_mode = 2
+albedo_color = Color(0.36, 0.23, 0.11, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_FieldRidge"]
+diffuse_mode = 2
+albedo_color = Color(0.27, 0.16, 0.09, 1)
+roughness = 0.95
+
+[sub_resource type="BoxMesh" id="Mesh_FieldBase"]
+material = SubResource("Mat_FieldEarth")
+size = Vector3(0.98, 0.2, 0.98)
+
+[sub_resource type="BoxMesh" id="Mesh_Ridge"]
+material = SubResource("Mat_FieldRidge")
+size = Vector3(0.2, 0.05, 0.92)
+
+[node name="TileFieldVegetable" type="Node3D"]
+
+[node name="Base" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+mesh = SubResource("Mesh_FieldBase")
+
+[node name="Ridge1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, 0.025, 0)
+mesh = SubResource("Mesh_Ridge")
+
+[node name="Ridge2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.025, 0)
+mesh = SubResource("Mesh_Ridge")
+
+[node name="Ridge3" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.28, 0.025, 0)
+mesh = SubResource("Mesh_Ridge")
