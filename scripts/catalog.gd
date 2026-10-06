@@ -114,8 +114,23 @@ const ITEMS = {
 	},
 }
 
+const ALIASES = {
+	"tile_grass": "grass",
+	"tile_stone": "stone",
+	"tile_wood": "wood",
+	"tile_water": "water",
+	"pine_tree": "pine",
+	"leafy_tree": "tree",
+	"flower_bed": "flowerbed",
+	"street_lamp": "streetlamp",
+}
+
+static func normalize_type(type_id: String) -> String:
+	return ALIASES.get(type_id, type_id)
+
 static func get_item(type_id: String) -> Dictionary:
-	return ITEMS.get(type_id, {})
+	var norm = normalize_type(type_id)
+	return ITEMS.get(norm, {})
 
 static func get_items_by_category(category: String) -> Array[Dictionary]:
 	var list: Array[Dictionary] = []

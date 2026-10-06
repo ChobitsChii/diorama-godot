@@ -15,6 +15,7 @@ enum Mode {
 
 @export var grid_manager: GridManager
 @export var camera: Camera3D
+@export var history_manager: HistoryManager
 
 var current_mode: Mode = Mode.SELECT
 
@@ -83,6 +84,8 @@ func set_active_place_type(type_id: String) -> void:
 
 func rotate_active() -> void:
 	if current_mode == Mode.SELECT and not selected_entry.is_empty():
+		if history_manager:
+			history_manager.record_state_before_action()
 		grid_manager.rotate_item(selected_entry)
 	elif current_mode == Mode.PLACE:
 		active_rot_step = (active_rot_step + 1) % 4
@@ -215,6 +218,8 @@ func _handle_select_click(gx: int, gz: int) -> void:
 	# 1. If an item is already selected/lifted
 	if not selected_entry.is_empty():
 		# Attempt to move it to the target cell
+		if history_manager:
+			history_manager.record_state_before_action()
 		var success = grid_manager.move_item(selected_entry, gx, gz)
 		if success:
 			grid_manager.drop_item(selected_entry)
@@ -243,11 +248,15 @@ func _handle_place_click(gx: int, gz: int) -> void:
 	var size: int = item_def.get("size", 1)
 	
 	if grid_manager.is_valid_position(gx, gz, size, active_type_id):
+		if history_manager:
+			history_manager.record_state_before_action()
 		var entry = grid_manager.place(active_type_id, gx, gz, active_rot_step)
 		if not entry.is_empty():
 			item_placed.emit(entry)
 
 func _handle_demolish_click(gx: int, gz: int) -> void:
+	if history_manager:
+		history_manager.record_state_before_action()
 	grid_manager.demolish_at(gx, gz)
 
 func cancel_selection() -> void:
@@ -263,6 +272,8 @@ func cancel_selection() -> void:
 func demolish_selected() -> void:
 	if selected_entry.is_empty():
 		return
+	if history_manager:
+		history_manager.record_state_before_action()
 	if selected_entry.get("is_ground", false):
 		grid_manager.remove_ground_at(selected_entry["gx"], selected_entry["gz"])
 	else:

@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3]
+[gd_scene load_steps=12 format=3]
 
 [ext_resource type="Script" path="res://scripts/main.gd" id="1_main_script"]
 [ext_resource type="Script" path="res://scripts/day_night_controller.gd" id="2_day_night"]
@@ -6,7 +6,10 @@
 [ext_resource type="Script" path="res://scripts/island_base.gd" id="4_island_base"]
 [ext_resource type="Script" path="res://scripts/grid_manager.gd" id="5_grid_mgr"]
 [ext_resource type="Script" path="res://scripts/placement_controller.gd" id="6_place_ctrl"]
-[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="7_hud_scene"]
+[ext_resource type="Script" path="res://scripts/storage_manager.gd" id="7_storage_mgr"]
+[ext_resource type="Script" path="res://scripts/history_manager.gd" id="8_history_mgr"]
+[ext_resource type="Script" path="res://scripts/sync_manager.gd" id="9_sync_mgr"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud_scene"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -49,11 +52,23 @@ script = ExtResource("4_island_base")
 [node name="GridManager" type="Node3D" parent="."]
 script = ExtResource("5_grid_mgr")
 
-[node name="PlacementController" type="Node3D" parent="." node_paths=PackedStringArray("grid_manager", "camera")]
+[node name="HistoryManager" type="Node" parent="." node_paths=PackedStringArray("grid_manager")]
+script = ExtResource("8_history_mgr")
+grid_manager = NodePath("../GridManager")
+
+[node name="PlacementController" type="Node3D" parent="." node_paths=PackedStringArray("grid_manager", "camera", "history_manager")]
 script = ExtResource("6_place_ctrl")
 grid_manager = NodePath("../GridManager")
 camera = NodePath("../CameraController/Camera3D")
+history_manager = NodePath("../HistoryManager")
+
+[node name="StorageManager" type="Node" parent="." node_paths=PackedStringArray("grid_manager")]
+script = ExtResource("7_storage_mgr")
+grid_manager = NodePath("../GridManager")
+
+[node name="SyncManager" type="Node" parent="."]
+script = ExtResource("9_sync_mgr")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="."]
 
-[node name="HUD" parent="CanvasLayer" instance=ExtResource("7_hud_scene")]
+[node name="HUD" parent="CanvasLayer" instance=ExtResource("10_hud_scene")]

@@ -1,7 +1,7 @@
 class_name Main
 extends Node3D
 
-## Main orchestrator scene linking Camera, Day/Night, IslandBase, GridManager, PlacementController, and HUD.
+## Main orchestrator scene linking Camera, Day/Night, IslandBase, GridManager, PlacementController, StorageManager, HistoryManager, SyncManager, and HUD.
 
 @export var default_grid_size: int = 12
 
@@ -10,6 +10,9 @@ extends Node3D
 @onready var day_night: DayNightController = $DayNightController
 @onready var grid_manager: GridManager = $GridManager
 @onready var placement_controller: PlacementController = $PlacementController
+@onready var storage_manager: StorageManager = $StorageManager
+@onready var history_manager: HistoryManager = $HistoryManager
+@onready var sync_manager: SyncManager = $SyncManager
 @onready var hud: HUD = $CanvasLayer/HUD
 
 func _ready() -> void:
@@ -17,15 +20,39 @@ func _ready() -> void:
 	grid_manager.grid_size = default_grid_size
 	island_base.setup_grid(default_grid_size)
 	
-	# 2. Wire Placement Controller dependencies
+	# 2. Wire Placement Controller and History dependencies
+	history_manager.grid_manager = grid_manager
 	placement_controller.grid_manager = grid_manager
 	placement_controller.camera = camera_controller.camera
+	placement_controller.history_manager = history_manager
 	
-	# 3. Wire HUD
-	hud.setup_controllers(placement_controller, day_night, camera_controller)
+	# 3. Wire Storage and Sync dependencies
+	storage_manager.grid_manager = grid_manager
+	sync_manager.cloud_data_received.connect(_on_cloud_data_received)
 	
-	# 4. Populate default starter diorama island
-	spawn_starter_island()
+	# 4. Wire HUD with all controllers
+	hud.setup_all(
+		placement_controller,
+		day_night,
+		camera_controller,
+		storage_manager,
+		history_manager,
+		sync_manager
+	)
+	
+	# 5. Populate Island: Load from local save if exists, otherwise generate starter island
+	if storage_manager.has_save_file():
+		var loaded = storage_manager.load_local()
+		if not loaded:
+			spawn_starter_island()
+	else:
+		spawn_starter_island()
+
+func _on_cloud_data_received(data: Dictionary) -> void:
+	history_manager.record_state_before_action()
+	DioramaSerializer.deserialize_from_dict(data, grid_manager)
+	storage_manager.save_local()
+	hud.show_toast("☁️ Cloud-Insel geladen und lokal gesichert ✓")
 
 func spawn_starter_island() -> void:
 	grid_manager.clear()
@@ -48,7 +75,7 @@ func spawn_starter_island() -> void:
 	grid_manager.place("wood", 2, 4)
 	grid_manager.place("wood", 2, 5)
 	
-	# 4. Cozy Water Pond Corner
+	# 4. Cozy Water Pond Corner (Using water ground tiles)
 	var water_coords = [
 		Vector2i(10, 10), Vector2i(10, 11), Vector2i(11, 10), Vector2i(11, 11), Vector2i(9, 11)
 	]

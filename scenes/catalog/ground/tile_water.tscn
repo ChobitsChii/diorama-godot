@@ -3,15 +3,15 @@
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_water"]
 diffuse_mode = 2
 albedo_color = Color(0.007843, 0.517647, 0.780392, 1)
-roughness = 0.2
+roughness = 0.15
 metallic = 0.1
 
 [sub_resource type="BoxMesh" id="BoxMesh_water"]
 material = SubResource("StandardMaterial3D_water")
-size = Vector3(0.98, 0.18, 0.98)
+size = Vector3(0.98, 0.2, 0.98)
 
 [node name="TileWater" type="Node3D"]
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.11, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.09, 0)
 mesh = SubResource("BoxMesh_water")
