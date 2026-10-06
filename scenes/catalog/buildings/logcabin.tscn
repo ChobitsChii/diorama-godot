@@ -1,0 +1,50 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_LogBase"]
+diffuse_mode = 2
+albedo_color = Color(0.55, 0.55, 0.58, 1)
+roughness = 0.9
+
+[sub_resource type="StandardMaterial3D" id="Mat_LogWood"]
+diffuse_mode = 2
+albedo_color = Color(0.55, 0.36, 0.22, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_LogRoof"]
+diffuse_mode = 2
+albedo_color = Color(0.38, 0.24, 0.14, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="Mesh_LogFoundation"]
+material = SubResource("Mat_LogBase")
+size = Vector3(1.85, 0.25, 1.85)
+
+[sub_resource type="BoxMesh" id="Mesh_LogCabinWalls"]
+material = SubResource("Mat_LogWood")
+size = Vector3(1.75, 0.95, 1.75)
+
+[sub_resource type="PrismMesh" id="Mesh_LogRoof"]
+material = SubResource("Mat_LogRoof")
+size = Vector3(1.95, 0.75, 1.95)
+
+[sub_resource type="BoxMesh" id="Mesh_LogDoor"]
+material = SubResource("Mat_LogRoof")
+size = Vector3(0.38, 0.65, 0.06)
+
+[node name="LogCabin" type="Node3D"]
+
+[node name="Foundation" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.125, 0)
+mesh = SubResource("Mesh_LogFoundation")
+
+[node name="Walls" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.725, 0)
+mesh = SubResource("Mesh_LogCabinWalls")
+
+[node name="Roof" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.575, 0)
+mesh = SubResource("Mesh_LogRoof")
+
+[node name="Door" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.55, 0.88)
+mesh = SubResource("Mesh_LogDoor")

@@ -13,9 +13,10 @@ func interact() -> void:
 	if _is_jumping:
 		return
 	_is_jumping = true
-	_base_y = position.y
+	if _base_y == 0.0:
+		_base_y = position.y
 	
-	AudioSynthesizer.play("cat_meow")
+	AudioManager.play("cat_meow")
 	
 	var tween = create_tween()
 	# Upward spring with stretch

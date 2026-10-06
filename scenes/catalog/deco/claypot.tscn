@@ -1,0 +1,32 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_PotClay"]
+diffuse_mode = 2
+albedo_color = Color(0.85, 0.47, 0.02, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_PotPlant"]
+diffuse_mode = 2
+albedo_color = Color(0.28, 0.72, 0.35, 1)
+roughness = 0.75
+
+[sub_resource type="CylinderMesh" id="Mesh_ClayPot"]
+material = SubResource("Mat_PotClay")
+top_radius = 0.18
+bottom_radius = 0.13
+height = 0.34
+
+[sub_resource type="SphereMesh" id="Mesh_PlantFoliage"]
+material = SubResource("Mat_PotPlant")
+radius = 0.2
+height = 0.32
+
+[node name="Claypot" type="Node3D"]
+
+[node name="Pot" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
+mesh = SubResource("Mesh_ClayPot")
+
+[node name="Plant" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("Mesh_PlantFoliage")

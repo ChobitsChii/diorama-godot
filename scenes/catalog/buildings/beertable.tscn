@@ -1,0 +1,46 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_BeerWood"]
+diffuse_mode = 2
+albedo_color = Color(0.82, 0.64, 0.42, 1)
+roughness = 0.75
+
+[sub_resource type="StandardMaterial3D" id="Mat_BeerMetal"]
+diffuse_mode = 2
+albedo_color = Color(0.18, 0.38, 0.24, 1)
+roughness = 0.5
+metallic = 0.4
+
+[sub_resource type="BoxMesh" id="Mesh_BeerTop"]
+material = SubResource("Mat_BeerWood")
+size = Vector3(0.92, 0.04, 0.34)
+
+[sub_resource type="BoxMesh" id="Mesh_BeerBench"]
+material = SubResource("Mat_BeerWood")
+size = Vector3(0.92, 0.04, 0.16)
+
+[sub_resource type="BoxMesh" id="Mesh_BeerLegs"]
+material = SubResource("Mat_BeerMetal")
+size = Vector3(0.04, 0.44, 0.3)
+
+[node name="BeerTable" type="Node3D"]
+
+[node name="TableTop" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44, 0)
+mesh = SubResource("Mesh_BeerTop")
+
+[node name="Bench1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, -0.26)
+mesh = SubResource("Mesh_BeerBench")
+
+[node name="Bench2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.26)
+mesh = SubResource("Mesh_BeerBench")
+
+[node name="Leg1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.34, 0.22, 0)
+mesh = SubResource("Mesh_BeerLegs")
+
+[node name="Leg2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.34, 0.22, 0)
+mesh = SubResource("Mesh_BeerLegs")

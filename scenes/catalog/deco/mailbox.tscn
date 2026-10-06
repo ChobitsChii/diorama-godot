@@ -1,0 +1,39 @@
+[gd_scene load_steps=6 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_MailPost"]
+diffuse_mode = 2
+albedo_color = Color(0.55, 0.38, 0.22, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_MailBox"]
+diffuse_mode = 2
+albedo_color = Color(0.15, 0.39, 0.92, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_MailFlag"]
+diffuse_mode = 2
+albedo_color = Color(0.86, 0.15, 0.15, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_MailPost"]
+material = SubResource("Mat_MailPost")
+size = Vector3(0.08, 0.65, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_MailBox"]
+material = SubResource("Mat_MailBox")
+size = Vector3(0.2, 0.18, 0.34)
+
+[sub_resource type="BoxMesh" id="Mesh_MailFlag"]
+material = SubResource("Mat_MailFlag")
+size = Vector3(0.02, 0.12, 0.04)
+
+[node name="Mailbox" type="Node3D"]
+
+[node name="Post" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.325, 0)
+mesh = SubResource("Mesh_MailPost")
+
+[node name="Box" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.72, 0.06)
+mesh = SubResource("Mesh_MailBox")
+
+[node name="Flag" type="MeshInstance3D" parent="Box"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.11, 0.05, -0.05)
+mesh = SubResource("Mesh_MailFlag")

@@ -230,7 +230,7 @@ func _handle_explore_click(gx: int, gz: int) -> void:
 	elif node.has_method("toggle_light"):
 		node.toggle_light()
 	else:
-		AudioSynthesizer.play("pop")
+		AudioManager.play("pop")
 		var tween = create_tween()
 		tween.tween_property(node, "scale", Vector3(1.08, 0.94, 1.08), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 		tween.tween_property(node, "scale", Vector3.ONE, 0.12).set_trans(Tween.TRANS_BOUNCE).set_ease(Tween.EASE_OUT)
@@ -273,7 +273,7 @@ func _handle_place_click(gx: int, gz: int) -> void:
 			history_manager.record_state_before_action()
 		var entry = grid_manager.place(active_type_id, gx, gz, active_rot_step)
 		if not entry.is_empty():
-			AudioSynthesizer.play("pop")
+			AudioManager.play("pop")
 			item_placed.emit(entry)
 
 func _handle_demolish_click(gx: int, gz: int) -> void:
@@ -281,7 +281,7 @@ func _handle_demolish_click(gx: int, gz: int) -> void:
 		history_manager.record_state_before_action()
 	var ok = grid_manager.demolish_at(gx, gz)
 	if ok:
-		AudioSynthesizer.play("demolish")
+		AudioManager.play("demolish")
 
 func cancel_selection() -> void:
 	if selected_entry.is_empty():

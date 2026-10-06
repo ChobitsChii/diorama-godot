@@ -1,0 +1,54 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/human_prop.gd" id="1_human_script"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_GirlSkirt"]
+diffuse_mode = 2
+albedo_color = Color(0.6, 0.11, 0.11, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_GirlSweater"]
+diffuse_mode = 2
+albedo_color = Color(0.96, 0.62, 0.04, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_GirlSkin"]
+diffuse_mode = 2
+albedo_color = Color(0.99, 0.83, 0.62, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_GirlHair"]
+diffuse_mode = 2
+albedo_color = Color(0.47, 0.21, 0.06, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_Skirt"]
+material = SubResource("Mat_GirlSkirt")
+size = Vector3(0.28, 0.22, 0.22)
+
+[sub_resource type="BoxMesh" id="Mesh_Sweater"]
+material = SubResource("Mat_GirlSweater")
+size = Vector3(0.26, 0.26, 0.18)
+
+[sub_resource type="BoxMesh" id="Mesh_GirlHead"]
+material = SubResource("Mat_GirlSkin")
+size = Vector3(0.2, 0.2, 0.2)
+
+[sub_resource type="BoxMesh" id="Mesh_Hair"]
+material = SubResource("Mat_GirlHair")
+size = Vector3(0.24, 0.22, 0.24)
+
+[node name="Girl" type="Node3D"]
+script = ExtResource("1_human_script")
+
+[node name="Skirt" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.18, 0)
+mesh = SubResource("Mesh_Skirt")
+
+[node name="Sweater" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("Mesh_Sweater")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.65, 0)
+mesh = SubResource("Mesh_GirlHead")
+
+[node name="Hair" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.05, -0.02)
+mesh = SubResource("Mesh_Hair")

@@ -1,0 +1,31 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_SignPost"]
+diffuse_mode = 2
+albedo_color = Color(0.58, 0.4, 0.24, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_SignBoard"]
+diffuse_mode = 2
+albedo_color = Color(0.82, 0.68, 0.48, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_SignPost"]
+material = SubResource("Mat_SignPost")
+size = Vector3(0.08, 0.88, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_SignBoard"]
+material = SubResource("Mat_SignBoard")
+size = Vector3(0.38, 0.1, 0.03)
+
+[node name="Signpost" type="Node3D"]
+
+[node name="Post" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44, 0)
+mesh = SubResource("Mesh_SignPost")
+
+[node name="Board1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.14, 0.72, 0)
+mesh = SubResource("Mesh_SignBoard")
+
+[node name="Board2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, 0.56, 0)
+mesh = SubResource("Mesh_SignBoard")

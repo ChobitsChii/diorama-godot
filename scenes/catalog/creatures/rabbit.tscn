@@ -1,0 +1,53 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_BunnyWhite"]
+diffuse_mode = 2
+albedo_color = Color(0.97, 0.98, 0.99, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_BunnyPink"]
+diffuse_mode = 2
+albedo_color = Color(0.96, 0.45, 0.71, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_BunnyEye"]
+diffuse_mode = 2
+albedo_color = Color(0.12, 0.12, 0.12, 1)
+
+[sub_resource type="BoxMesh" id="Mesh_BunnyBody"]
+material = SubResource("Mat_BunnyWhite")
+size = Vector3(0.24, 0.22, 0.3)
+
+[sub_resource type="BoxMesh" id="Mesh_BunnyHead"]
+material = SubResource("Mat_BunnyWhite")
+size = Vector3(0.18, 0.18, 0.18)
+
+[sub_resource type="BoxMesh" id="Mesh_BunnyEar"]
+material = SubResource("Mat_BunnyPink")
+size = Vector3(0.05, 0.22, 0.05)
+
+[sub_resource type="BoxMesh" id="Mesh_BunnyNose"]
+material = SubResource("Mat_BunnyPink")
+size = Vector3(0.04, 0.03, 0.03)
+
+[node name="Rabbit" type="Node3D"]
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.17, 0)
+mesh = SubResource("Mesh_BunnyBody")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.32, 0.12)
+mesh = SubResource("Mesh_BunnyHead")
+
+[node name="EarL" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05, 0.18, -0.02)
+mesh = SubResource("Mesh_BunnyEar")
+
+[node name="EarR" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.05, 0.18, -0.02)
+mesh = SubResource("Mesh_BunnyEar")
+
+[node name="Nose" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0.1)
+mesh = SubResource("Mesh_BunnyNose")

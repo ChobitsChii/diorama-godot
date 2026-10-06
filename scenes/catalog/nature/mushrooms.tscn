@@ -1,0 +1,53 @@
+[gd_scene load_steps=7 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_ShroomStem"]
+diffuse_mode = 2
+albedo_color = Color(0.95, 0.95, 0.92, 1)
+roughness = 0.8
+
+[sub_resource type="StandardMaterial3D" id="Mat_ShroomCap"]
+diffuse_mode = 2
+albedo_color = Color(0.88, 0.15, 0.15, 1)
+roughness = 0.65
+
+[sub_resource type="CylinderMesh" id="Mesh_ShroomStem1"]
+material = SubResource("Mat_ShroomStem")
+top_radius = 0.06
+bottom_radius = 0.08
+height = 0.26
+
+[sub_resource type="CylinderMesh" id="Mesh_ShroomCap1"]
+material = SubResource("Mat_ShroomCap")
+top_radius = 0.12
+bottom_radius = 0.24
+height = 0.14
+
+[sub_resource type="CylinderMesh" id="Mesh_ShroomStem2"]
+material = SubResource("Mat_ShroomStem")
+top_radius = 0.04
+bottom_radius = 0.05
+height = 0.18
+
+[sub_resource type="CylinderMesh" id="Mesh_ShroomCap2"]
+material = SubResource("Mat_ShroomCap")
+top_radius = 0.08
+bottom_radius = 0.16
+height = 0.1
+
+[node name="Mushrooms" type="Node3D"]
+
+[node name="Stem1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.13, 0)
+mesh = SubResource("Mesh_ShroomStem1")
+
+[node name="Cap1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.08, 0.3, 0)
+mesh = SubResource("Mesh_ShroomCap1")
+
+[node name="Stem2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, 0.09, 0.05)
+mesh = SubResource("Mesh_ShroomStem2")
+
+[node name="Cap2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.14, 0.21, 0.05)
+mesh = SubResource("Mesh_ShroomCap2")

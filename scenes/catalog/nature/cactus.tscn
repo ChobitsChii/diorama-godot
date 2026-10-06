@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_CactusGreen"]
+diffuse_mode = 2
+albedo_color = Color(0.17, 0.58, 0.28, 1)
+roughness = 0.8
+
+[sub_resource type="CylinderMesh" id="Mesh_CactusStem"]
+material = SubResource("Mat_CactusGreen")
+top_radius = 0.12
+bottom_radius = 0.12
+height = 0.85
+
+[sub_resource type="CylinderMesh" id="Mesh_CactusArm"]
+material = SubResource("Mat_CactusGreen")
+top_radius = 0.08
+bottom_radius = 0.08
+height = 0.35
+
+[node name="Cactus" type="Node3D"]
+
+[node name="Stem" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.425, 0)
+mesh = SubResource("Mesh_CactusStem")
+
+[node name="ArmL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.16, 0.52, 0)
+mesh = SubResource("Mesh_CactusArm")
+
+[node name="ArmR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.16, 0.38, 0)
+mesh = SubResource("Mesh_CactusArm")

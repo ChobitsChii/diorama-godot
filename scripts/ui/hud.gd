@@ -6,6 +6,8 @@ extends Control
 signal tool_selected(mode: int)
 signal category_selected(cat: String)
 signal item_chosen(type_id: String)
+signal grid_size_requested(new_size: int)
+signal reset_island_requested()
 
 @onready var top_bar: PanelContainer = %TopBar
 @onready var selection_hint: PanelContainer = %SelectionHint
@@ -32,6 +34,7 @@ signal item_chosen(type_id: String)
 @onready var cat_nature_btn: Button = %CatNatureBtn
 @onready var cat_creatures_btn: Button = %CatCreaturesBtn
 @onready var cat_deco_btn: Button = %CatDecoBtn
+@onready var category_title_label: Label = %CategoryTitleLabel
 
 # Catalog item grid
 @onready var catalog_grid: GridContainer = %CatalogGrid
@@ -39,16 +42,24 @@ signal item_chosen(type_id: String)
 # Top bar buttons
 @onready var btn_undo: Button = %BtnUndo
 @onready var btn_redo: Button = %BtnRedo
+@onready var btn_grid_size: Button = %BtnGridSize
+@onready var btn_reset: Button = %BtnReset
 @onready var btn_save: Button = %BtnSave
 @onready var btn_load: Button = %BtnLoad
 @onready var btn_day_night: Button = %BtnDayNight
 @onready var btn_reset_camera: Button = %BtnResetCamera
+@onready var btn_mute: Button = %BtnMute
 @onready var status_label: Label = %StatusLabel
+
+@onready var reset_confirm_dialog: ConfirmationDialog = %ResetConfirmDialog
 
 var current_category: String = "ground"
 var is_sidebar_open: bool = true
 var is_portrait_mode: bool = false
 const SIDEBAR_WIDTH: float = 280.0
+
+var grid_sizes: Array[int] = [8, 12, 16]
+var current_grid_size_idx: int = 1
 
 var placement_ctrl: PlacementController
 var day_night_ctrl: DayNightController
@@ -121,10 +132,14 @@ func _connect_signals() -> void:
 	# Top bar
 	btn_undo.pressed.connect(_on_undo_pressed)
 	btn_redo.pressed.connect(_on_redo_pressed)
+	btn_grid_size.pressed.connect(_on_grid_size_pressed)
+	btn_reset.pressed.connect(_on_reset_pressed)
+	reset_confirm_dialog.confirmed.connect(_on_reset_confirmed)
 	btn_save.pressed.connect(_on_save_pressed)
 	btn_load.pressed.connect(_on_load_pressed)
 	btn_day_night.pressed.connect(_on_day_night_pressed)
 	btn_reset_camera.pressed.connect(_on_reset_camera_pressed)
+	btn_mute.pressed.connect(_on_mute_pressed)
 
 # -----------------------------------------------------------------------------
 # Tool and Category Handlers
@@ -163,10 +178,20 @@ func _update_catalog_items(category: String) -> void:
 		child.queue_free()
 	
 	var items = Catalog.get_items_by_category(category)
+	var cat_labels = {
+		"ground": "🌱 Böden",
+		"buildings": "🏡 Gebäude",
+		"nature": "🌳 Natur",
+		"creatures": "🐱 Lebewesen & Tiere",
+		"deco": "💡 Dekoration & Lampen",
+	}
+	if category_title_label:
+		category_title_label.text = "%s (%d Items)" % [cat_labels.get(category, category.capitalize()), items.size()]
+	
 	for item in items:
 		var btn = Button.new()
 		btn.text = "%s %s" % [item.get("icon", "📦"), item.get("name", "Item")]
-		btn.custom_minimum_size = Vector2(110, 40)
+		btn.custom_minimum_size = Vector2(110, 48 if is_portrait_mode else 38)
 		btn.alignment = HORIZONTAL_ALIGNMENT_LEFT
 		btn.add_theme_font_size_override("font_size", 12)
 		btn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
@@ -181,8 +206,26 @@ func _on_catalog_item_selected(type_id: String) -> void:
 	_update_tool_buttons(PlacementController.Mode.PLACE)
 
 # -----------------------------------------------------------------------------
-# Top Bar Actions (Save, Load, Undo, Redo, Night)
+# Top Bar Actions (Save, Load, Undo, Redo, Night, GridSize, Reset, Mute)
 # -----------------------------------------------------------------------------
+func _on_grid_size_pressed() -> void:
+	current_grid_size_idx = (current_grid_size_idx + 1) % grid_sizes.size()
+	var new_size = grid_sizes[current_grid_size_idx]
+	btn_grid_size.text = "📐 %dx%d" % [new_size, new_size]
+	grid_size_requested.emit(new_size)
+	show_toast("📐 Rastergröße: %dx%d" % [new_size, new_size])
+
+func _on_reset_pressed() -> void:
+	reset_confirm_dialog.popup_centered()
+
+func _on_reset_confirmed() -> void:
+	reset_island_requested.emit()
+	show_toast("🔄 Diorama auf Starter-Insel zurückgesetzt ✓")
+
+func _on_mute_pressed() -> void:
+	var muted = AudioManager.toggle_mute()
+	btn_mute.text = "🔇" if muted else "🔊"
+	show_toast("🔇 Ton aus" if muted else "🔊 Ton an")
 func _on_undo_pressed() -> void:
 	if history_mgr and history_mgr.undo():
 		show_toast("↩️ Aktion rückgängig gemacht")

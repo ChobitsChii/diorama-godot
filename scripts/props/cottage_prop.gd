@@ -10,7 +10,7 @@ func interact() -> void:
 		return
 	_is_animating = true
 	
-	AudioSynthesizer.play("knock")
+	AudioManager.play("knock")
 	
 	var tween = create_tween()
 	tween.tween_property(self, "scale", Vector3(1.05, 0.95, 1.05), 0.08).set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)

@@ -28,7 +28,7 @@ func set_night(value: bool) -> void:
 func apply_state(night: bool, immediate: bool = false) -> void:
 	var target_bg: Color = Palette.get_color("nightBg") if night else Palette.get_color("dayBg")
 	var target_sun_color: Color = Palette.get_color("nightSun") if night else Palette.get_color("daySun")
-	var target_sun_energy: float = 0.45 if night else 1.35
+	var target_sun_energy: float = 0.35 if night else 1.05
 	var target_amb_color: Color = Palette.get_color("nightAmbient") if night else Palette.get_color("dayAmbient")
 	var target_amb_energy: float = 0.35 if night else 0.75
 	

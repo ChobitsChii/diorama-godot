@@ -25,6 +25,23 @@ var _next_id: int = 1
 func _ready() -> void:
 	pass
 
+func set_grid_size(new_size: int) -> void:
+	grid_size = new_size
+	update_all_item_positions()
+	grid_changed.emit()
+
+func update_all_item_positions() -> void:
+	for entry in ground_tiles.values():
+		if entry.get("node") and is_instance_valid(entry["node"]):
+			var pos = grid_to_world(entry["gx"], entry["gz"], 1)
+			pos.y = entry.get("base_y", 0.0)
+			entry["node"].position = pos
+	for entry in objects.values():
+		if entry.get("node") and is_instance_valid(entry["node"]):
+			var pos = grid_to_world(entry["gx"], entry["gz"], entry.get("size", 1))
+			pos.y = entry.get("base_y", 0.0)
+			entry["node"].position = pos
+
 # -----------------------------------------------------------------------------
 # Coordinate Conversions
 # -----------------------------------------------------------------------------

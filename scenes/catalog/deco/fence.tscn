@@ -1,0 +1,32 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_FenceWood"]
+diffuse_mode = 2
+albedo_color = Color(0.706, 0.518, 0.333, 1)
+roughness = 0.85
+
+[sub_resource type="BoxMesh" id="Mesh_FencePost"]
+material = SubResource("Mat_FenceWood")
+size = Vector3(0.08, 0.55, 0.08)
+
+[sub_resource type="BoxMesh" id="Mesh_FenceRail"]
+material = SubResource("Mat_FenceWood")
+size = Vector3(0.92, 0.06, 0.04)
+
+[node name="Fence" type="Node3D"]
+
+[node name="PostL" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.42, 0.275, 0)
+mesh = SubResource("Mesh_FencePost")
+
+[node name="PostR" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.42, 0.275, 0)
+mesh = SubResource("Mesh_FencePost")
+
+[node name="RailBottom" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 0)
+mesh = SubResource("Mesh_FenceRail")
+
+[node name="RailTop" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("Mesh_FenceRail")

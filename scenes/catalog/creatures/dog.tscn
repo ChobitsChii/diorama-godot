@@ -1,0 +1,61 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/dog_prop.gd" id="1_dog_script"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_DogFur"]
+diffuse_mode = 2
+albedo_color = Color(0.706, 0.325, 0.035, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_DogLight"]
+diffuse_mode = 2
+albedo_color = Color(0.99, 0.95, 0.78, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_DogDark"]
+diffuse_mode = 2
+albedo_color = Color(0.12, 0.12, 0.12, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="Mesh_DogBody"]
+material = SubResource("Mat_DogFur")
+size = Vector3(0.32, 0.28, 0.44)
+
+[sub_resource type="BoxMesh" id="Mesh_DogHead"]
+material = SubResource("Mat_DogFur")
+size = Vector3(0.24, 0.24, 0.24)
+
+[sub_resource type="BoxMesh" id="Mesh_DogSnout"]
+material = SubResource("Mat_DogLight")
+size = Vector3(0.14, 0.11, 0.12)
+
+[sub_resource type="BoxMesh" id="Mesh_DogNose"]
+material = SubResource("Mat_DogDark")
+size = Vector3(0.05, 0.04, 0.03)
+
+[node name="Dog" type="Node3D"]
+script = ExtResource("1_dog_script")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.26, 0)
+mesh = SubResource("Mesh_DogBody")
+
+[node name="Head" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.46, 0.22)
+mesh = SubResource("Mesh_DogHead")
+
+[node name="Snout" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 0.15)
+mesh = SubResource("Mesh_DogSnout")
+
+[node name="Nose" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.02, 0.22)
+mesh = SubResource("Mesh_DogNose")
+
+[node name="EyeL" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.07, 0.04, 0.12)
+mesh = SubResource("Mesh_DogNose")
+
+[node name="EyeR" type="MeshInstance3D" parent="Head"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.07, 0.04, 0.12)
+mesh = SubResource("Mesh_DogNose")

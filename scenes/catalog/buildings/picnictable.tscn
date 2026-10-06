@@ -1,0 +1,40 @@
+[gd_scene load_steps=5 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_PicnicWood"]
+diffuse_mode = 2
+albedo_color = Color(0.706, 0.518, 0.333, 1)
+roughness = 0.8
+
+[sub_resource type="BoxMesh" id="Mesh_PicnicTop"]
+material = SubResource("Mat_PicnicWood")
+size = Vector3(0.85, 0.05, 0.44)
+
+[sub_resource type="BoxMesh" id="Mesh_PicnicBench"]
+material = SubResource("Mat_PicnicWood")
+size = Vector3(0.85, 0.04, 0.18)
+
+[sub_resource type="BoxMesh" id="Mesh_PicnicLeg"]
+material = SubResource("Mat_PicnicWood")
+size = Vector3(0.06, 0.42, 0.65)
+
+[node name="PicnicTable" type="Node3D"]
+
+[node name="TableTop" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.42, 0)
+mesh = SubResource("Mesh_PicnicTop")
+
+[node name="BenchLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.24, -0.32)
+mesh = SubResource("Mesh_PicnicBench")
+
+[node name="BenchRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.24, 0.32)
+mesh = SubResource("Mesh_PicnicBench")
+
+[node name="LegLeft" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 0.21, 0)
+mesh = SubResource("Mesh_PicnicLeg")
+
+[node name="LegRight" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.21, 0)
+mesh = SubResource("Mesh_PicnicLeg")

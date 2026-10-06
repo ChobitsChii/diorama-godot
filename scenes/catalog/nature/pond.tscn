@@ -1,0 +1,57 @@
+[gd_scene load_steps=8 format=3]
+
+[sub_resource type="StandardMaterial3D" id="Mat_PondGrassRim"]
+diffuse_mode = 2
+albedo_color = Color(0.282, 0.733, 0.471, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_PondWater"]
+transparency = 1
+diffuse_mode = 2
+albedo_color = Color(0.192, 0.51, 0.808, 0.88)
+roughness = 0.1
+metallic = 0.2
+
+[sub_resource type="StandardMaterial3D" id="Mat_PondLily"]
+diffuse_mode = 2
+albedo_color = Color(0.13, 0.77, 0.37, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_PondFlower"]
+diffuse_mode = 2
+albedo_color = Color(0.96, 0.45, 0.71, 1)
+
+[sub_resource type="CylinderMesh" id="Mesh_PondBasin"]
+material = SubResource("Mat_PondGrassRim")
+top_radius = 0.88
+bottom_radius = 0.92
+height = 0.16
+
+[sub_resource type="CylinderMesh" id="Mesh_PondWater"]
+material = SubResource("Mat_PondWater")
+top_radius = 0.78
+bottom_radius = 0.78
+height = 0.15
+
+[sub_resource type="CylinderMesh" id="Mesh_LilyPad"]
+material = SubResource("Mat_PondLily")
+top_radius = 0.18
+bottom_radius = 0.18
+height = 0.02
+
+[node name="Pond" type="Node3D"]
+
+[node name="Basin" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.08, 0)
+mesh = SubResource("Mesh_PondBasin")
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.09, 0)
+mesh = SubResource("Mesh_PondWater")
+
+[node name="Lily1" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.28, 0.17, 0.18)
+mesh = SubResource("Mesh_LilyPad")
+
+[node name="Lily2" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.3, 0.17, -0.2)
+mesh = SubResource("Mesh_LilyPad")

@@ -42,12 +42,15 @@ script = ExtResource("1_hud_script")
 
 [node name="TopBar" type="PanelContainer" parent="."]
 unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 46)
 layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.02
-anchor_top = 0.02
-anchor_right = 0.98
-anchor_bottom = 0.09
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 12.0
+offset_top = 10.0
+offset_right = -12.0
+offset_bottom = 56.0
+grow_horizontal = 2
 theme_override_styles/panel = SubResource("StyleBox_TopBar")
 
 [node name="Margin" type="MarginContainer" parent="TopBar"]
@@ -91,6 +94,18 @@ text = "↪️"
 [node name="VSeparator1" type="VSeparator" parent="TopBar/Margin/HBox"]
 layout_mode = 2
 
+[node name="BtnGridSize" type="Button" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Rastergröße wechseln (8x8 / 12x12 / 16x16)"
+text = "📐 12x12"
+
+[node name="BtnReset" type="Button" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Diorama auf Starter-Insel zurücksetzen"
+text = "🔄 Neu"
+
 [node name="BtnSave" type="Button" parent="TopBar/Margin/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
@@ -107,12 +122,18 @@ layout_mode = 2
 [node name="BtnResetCamera" type="Button" parent="TopBar/Margin/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
-text = "🔄 Kamera"
+text = "🎥 Kamera"
 
 [node name="BtnDayNight" type="Button" parent="TopBar/Margin/HBox"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "🌙 Nacht"
+
+[node name="BtnMute" type="Button" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Ton stummschalten / aktivieren"
+text = "🔊"
 
 [node name="SelectionHint" type="PanelContainer" parent="."]
 unique_name_in_owner = true
@@ -311,6 +332,13 @@ text = "💡 Deko"
 [node name="HSeparator2" type="HSeparator" parent="SidebarWrapper/SidebarPanel/Margin/VBox"]
 layout_mode = 2
 
+[node name="CategoryTitleLabel" type="Label" parent="SidebarWrapper/SidebarPanel/Margin/VBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.75, 0.85, 0.98, 1)
+theme_override_font_sizes/font_size = 12
+text = "🌱 Böden"
+
 [node name="ScrollContainer" type="ScrollContainer" parent="SidebarWrapper/SidebarPanel/Margin/VBox"]
 custom_minimum_size = Vector2(0, 260)
 layout_mode = 2
@@ -324,3 +352,11 @@ size_flags_horizontal = 3
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 2
+
+[node name="ResetConfirmDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Insel zurücksetzen?"
+dialog_text = "Möchtest du das Diorama wirklich auf die Starter-Insel zurücksetzen? Nicht gespeicherte Änderungen gehen verloren."
+ok_button_text = "Zurücksetzen"
+cancel_button_text = "Abbrechen"
+

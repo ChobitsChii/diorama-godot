@@ -1,0 +1,67 @@
+[gd_scene load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/props/fountain_prop.gd" id="1_fountain_script"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_FountainStone"]
+diffuse_mode = 2
+albedo_color = Color(0.65, 0.67, 0.71, 1)
+roughness = 0.85
+
+[sub_resource type="StandardMaterial3D" id="Mat_FountainWater"]
+transparency = 1
+diffuse_mode = 2
+albedo_color = Color(0.12, 0.55, 0.85, 0.88)
+roughness = 0.1
+metallic = 0.2
+
+[sub_resource type="CylinderMesh" id="Mesh_Basin"]
+material = SubResource("Mat_FountainStone")
+top_radius = 0.85
+bottom_radius = 0.88
+height = 0.35
+
+[sub_resource type="CylinderMesh" id="Mesh_FountainWater"]
+material = SubResource("Mat_FountainWater")
+top_radius = 0.76
+bottom_radius = 0.76
+height = 0.26
+
+[sub_resource type="CylinderMesh" id="Mesh_Pillar"]
+material = SubResource("Mat_FountainStone")
+top_radius = 0.2
+bottom_radius = 0.24
+height = 0.6
+
+[sub_resource type="CylinderMesh" id="Mesh_UpperBowl"]
+material = SubResource("Mat_FountainStone")
+top_radius = 0.45
+bottom_radius = 0.38
+height = 0.14
+
+[sub_resource type="SphereMesh" id="Mesh_Spout"]
+material = SubResource("Mat_FountainWater")
+radius = 0.09
+height = 0.18
+
+[node name="Fountain" type="Node3D"]
+script = ExtResource("1_fountain_script")
+
+[node name="Basin" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.175, 0)
+mesh = SubResource("Mesh_Basin")
+
+[node name="Water" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.22, 0)
+mesh = SubResource("Mesh_FountainWater")
+
+[node name="Pillar" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.45, 0)
+mesh = SubResource("Mesh_Pillar")
+
+[node name="UpperBowl" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.75, 0)
+mesh = SubResource("Mesh_UpperBowl")
+
+[node name="Spout" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.88, 0)
+mesh = SubResource("Mesh_Spout")
