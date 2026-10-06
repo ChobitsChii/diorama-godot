@@ -59,7 +59,8 @@ signal reset_island_requested()
 @onready var cat_deco_btn: Button = %CatDecoBtn
 @onready var category_title_label: Label = %CategoryTitleLabel
 
-# Catalog Grid
+# Catalog Grid & Scroll
+@onready var scroll_container: ScrollContainer = $SidebarWrapper/SidebarPanel/Margin/VBox/ScrollContainer
 @onready var catalog_grid: GridContainer = %CatalogGrid
 
 # Dialogs
@@ -99,6 +100,9 @@ var _style_pill_normal: StyleBoxFlat
 var _style_pill_hover: StyleBoxFlat
 var _style_pill_active: StyleBoxFlat
 
+var _style_action_pill: StyleBoxFlat
+var _style_action_pill_hover: StyleBoxFlat
+
 var _style_tool_normal: StyleBoxFlat
 var _style_tool_hover: StyleBoxFlat
 var _style_tool_active: StyleBoxFlat
@@ -112,10 +116,14 @@ var _style_card_normal: StyleBoxFlat
 var _style_card_hover: StyleBoxFlat
 var _style_card_selected: StyleBoxFlat
 
+var _style_sidebar_landscape: StyleBoxFlat
+var _style_sidebar_portrait: StyleBoxFlat
+
 func _ready() -> void:
 	_init_styles()
 	_connect_signals()
 	_setup_grid_size_buttons()
+	_setup_top_action_buttons()
 	_update_category_buttons()
 	_update_catalog_items("ground")
 	
@@ -164,9 +172,9 @@ func setup_all(
 		sync_mgr.sync_finished.connect(_on_sync_finished)
 
 func _init_styles() -> void:
-	# 1. Pill Buttons (TopBar Grid Switcher & Actions)
+	# 1. Pill Buttons (TopBar Grid Switcher)
 	_style_pill_normal = StyleBoxFlat.new()
-	_style_pill_normal.bg_color = Color(0.95, 0.965, 0.98, 0.85)
+	_style_pill_normal.bg_color = Color(0.94, 0.955, 0.975, 0.9)
 	_style_pill_normal.set_corner_radius_all(9999)
 	
 	_style_pill_hover = StyleBoxFlat.new()
@@ -183,6 +191,29 @@ func _init_styles() -> void:
 	_style_pill_active.set_corner_radius_all(9999)
 	_style_pill_active.shadow_size = 4
 	_style_pill_active.shadow_color = Color(0.145, 0.388, 0.922, 0.35)
+	
+	# Action buttons (Foto, Info, Optionen)
+	_style_action_pill = StyleBoxFlat.new()
+	_style_action_pill.bg_color = Color(1.0, 1.0, 1.0, 0.92)
+	_style_action_pill.border_width_left = 1
+	_style_action_pill.border_width_top = 1
+	_style_action_pill.border_width_right = 1
+	_style_action_pill.border_width_bottom = 1
+	_style_action_pill.border_color = Color(0.85, 0.88, 0.92, 1.0)
+	_style_action_pill.set_corner_radius_all(9999)
+	_style_action_pill.shadow_size = 2
+	_style_action_pill.shadow_color = Color(0, 0, 0, 0.04)
+	
+	_style_action_pill_hover = StyleBoxFlat.new()
+	_style_action_pill_hover.bg_color = Color(0.93, 0.96, 1.0, 1.0)
+	_style_action_pill_hover.border_width_left = 1
+	_style_action_pill_hover.border_width_top = 1
+	_style_action_pill_hover.border_width_right = 1
+	_style_action_pill_hover.border_width_bottom = 1
+	_style_action_pill_hover.border_color = Color(0.576, 0.773, 0.992, 1.0)
+	_style_action_pill_hover.set_corner_radius_all(9999)
+	_style_action_pill_hover.shadow_size = 4
+	_style_action_pill_hover.shadow_color = Color(0.145, 0.388, 0.922, 0.15)
 	
 	# 2. Tool Buttons
 	_style_tool_normal = StyleBoxFlat.new()
@@ -276,6 +307,29 @@ func _init_styles() -> void:
 	_style_card_selected.set_corner_radius_all(12)
 	_style_card_selected.shadow_size = 6
 	_style_card_selected.shadow_color = Color(0.145, 0.388, 0.922, 0.2)
+	
+	# 5. Sidebar Panel Styles
+	_style_sidebar_landscape = StyleBoxFlat.new()
+	_style_sidebar_landscape.bg_color = Color(0.98, 0.985, 0.995, 0.95)
+	_style_sidebar_landscape.border_width_left = 1
+	_style_sidebar_landscape.border_width_top = 1
+	_style_sidebar_landscape.border_width_bottom = 1
+	_style_sidebar_landscape.border_color = Color(1, 1, 1, 0.85)
+	_style_sidebar_landscape.corner_radius_top_left = 18
+	_style_sidebar_landscape.corner_radius_bottom_left = 18
+	_style_sidebar_landscape.shadow_color = Color(0, 0, 0, 0.1)
+	_style_sidebar_landscape.shadow_size = 12
+	
+	_style_sidebar_portrait = StyleBoxFlat.new()
+	_style_sidebar_portrait.bg_color = Color(0.98, 0.985, 0.995, 0.95)
+	_style_sidebar_portrait.border_width_left = 1
+	_style_sidebar_portrait.border_width_top = 1
+	_style_sidebar_portrait.border_width_right = 1
+	_style_sidebar_portrait.border_color = Color(1, 1, 1, 0.85)
+	_style_sidebar_portrait.corner_radius_top_left = 18
+	_style_sidebar_portrait.corner_radius_top_right = 18
+	_style_sidebar_portrait.shadow_color = Color(0, 0, 0, 0.1)
+	_style_sidebar_portrait.shadow_size = 12
 
 func _connect_signals() -> void:
 	# Tools
@@ -313,6 +367,23 @@ func _connect_signals() -> void:
 	btn_load_settings.pressed.connect(_on_load_pressed)
 	btn_reset_island_settings.pressed.connect(_on_reset_pressed)
 	reset_confirm_dialog.confirmed.connect(_on_reset_confirmed)
+
+func _setup_top_action_buttons() -> void:
+	_apply_action_button_theme(btn_snapshot)
+	_apply_action_button_theme(btn_info)
+	_apply_action_button_theme(btn_settings)
+
+func _apply_action_button_theme(btn: Button) -> void:
+	if not btn:
+		return
+	btn.add_theme_stylebox_override("normal", _style_action_pill)
+	btn.add_theme_stylebox_override("hover", _style_action_pill_hover)
+	btn.add_theme_stylebox_override("pressed", _style_pill_active)
+	btn.add_theme_stylebox_override("focus", _style_action_pill)
+	btn.add_theme_color_override("font_color", Color(0.2, 0.25, 0.35, 1.0))
+	btn.add_theme_color_override("font_hover_color", Color(0.08, 0.12, 0.2, 1.0))
+	btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+	btn.add_theme_color_override("font_focus_color", Color(0.2, 0.25, 0.35, 1.0))
 
 # -----------------------------------------------------------------------------
 # Tool and Category Handlers
@@ -363,10 +434,10 @@ func _apply_tool_style(btn: Button, is_active: bool, is_danger: bool = false) ->
 		btn.add_theme_stylebox_override("hover", _style_tool_hover)
 		btn.add_theme_stylebox_override("pressed", _style_tool_normal)
 		btn.add_theme_stylebox_override("focus", _style_tool_normal)
-		btn.add_theme_color_override("font_color", Color(0.2, 0.25, 0.33, 1.0))
+		btn.add_theme_color_override("font_color", Color(0.2, 0.25, 0.35, 1.0))
 		btn.add_theme_color_override("font_hover_color", Color(0.06, 0.09, 0.16, 1.0))
-		btn.add_theme_color_override("font_pressed_color", Color(0.06, 0.09, 0.16, 1.0))
-		btn.add_theme_color_override("font_focus_color", Color(0.2, 0.25, 0.33, 1.0))
+		btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+		btn.add_theme_color_override("font_focus_color", Color(0.2, 0.25, 0.35, 1.0))
 
 func _update_category_buttons() -> void:
 	var tabs = {
@@ -387,12 +458,18 @@ func _update_category_buttons() -> void:
 				btn.add_theme_stylebox_override("pressed", _style_cat_active)
 				btn.add_theme_stylebox_override("focus", _style_cat_active)
 				btn.add_theme_color_override("font_color", Color(0.22, 0.18, 0.64, 1.0))
+				btn.add_theme_color_override("font_hover_color", Color(0.22, 0.18, 0.64, 1.0))
+				btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+				btn.add_theme_color_override("font_focus_color", Color(0.22, 0.18, 0.64, 1.0))
 			else:
 				btn.add_theme_stylebox_override("normal", _style_cat_normal)
 				btn.add_theme_stylebox_override("hover", _style_cat_hover)
 				btn.add_theme_stylebox_override("pressed", _style_cat_normal)
 				btn.add_theme_stylebox_override("focus", _style_cat_normal)
 				btn.add_theme_color_override("font_color", Color(0.28, 0.33, 0.41, 1.0))
+				btn.add_theme_color_override("font_hover_color", Color(0.08, 0.12, 0.2, 1.0))
+				btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+				btn.add_theme_color_override("font_focus_color", Color(0.28, 0.33, 0.41, 1.0))
 
 func _update_catalog_items(category: String) -> void:
 	if not catalog_grid:
@@ -512,19 +589,19 @@ func _update_grid_size_pills(active_sz: int) -> void:
 				btn.add_theme_stylebox_override("hover", _style_pill_active)
 				btn.add_theme_stylebox_override("pressed", _style_pill_active)
 				btn.add_theme_stylebox_override("focus", _style_pill_active)
-				btn.add_theme_color_override("font_color", Color.WHITE)
-				btn.add_theme_color_override("font_hover_color", Color.WHITE)
-				btn.add_theme_color_override("font_pressed_color", Color.WHITE)
-				btn.add_theme_color_override("font_focus_color", Color.WHITE)
+				btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+				btn.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
+				btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+				btn.add_theme_color_override("font_focus_color", Color(1.0, 1.0, 1.0, 1.0))
 			else:
 				btn.add_theme_stylebox_override("normal", _style_pill_normal)
 				btn.add_theme_stylebox_override("hover", _style_pill_hover)
 				btn.add_theme_stylebox_override("pressed", _style_pill_hover)
 				btn.add_theme_stylebox_override("focus", _style_pill_normal)
-				btn.add_theme_color_override("font_color", Color(0.2, 0.25, 0.33, 1.0))
-				btn.add_theme_color_override("font_hover_color", Color(0.06, 0.09, 0.16, 1.0))
-				btn.add_theme_color_override("font_pressed_color", Color(0.06, 0.09, 0.16, 1.0))
-				btn.add_theme_color_override("font_focus_color", Color(0.2, 0.25, 0.33, 1.0))
+				btn.add_theme_color_override("font_color", Color(0.2, 0.25, 0.35, 1.0))
+				btn.add_theme_color_override("font_hover_color", Color(0.08, 0.12, 0.2, 1.0))
+				btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+				btn.add_theme_color_override("font_focus_color", Color(0.2, 0.25, 0.35, 1.0))
 
 # -----------------------------------------------------------------------------
 # Speech Bubble Effect (Comic Pop-up)
@@ -532,7 +609,28 @@ func _update_grid_size_pills(active_sz: int) -> void:
 func show_speech_bubble(text: String, world_pos: Vector3) -> void:
 	if not speech_bubble_layer:
 		speech_bubble_layer = get_node_or_null("%SpeechBubbleLayer")
-	if not speech_bubble_layer or not camera_ctrl or not camera_ctrl.camera:
+	if not speech_bubble_layer:
+		return
+	if not camera_ctrl or not camera_ctrl.camera:
+		return
+	var cam: Camera3D = camera_ctrl.camera
+	if not is_instance_valid(cam) or not cam.is_inside_tree():
+		return
+	
+	var spawn_pos = world_pos + Vector3(0, 0.85, 0)
+	# Strict check: object must be in front of the camera plane
+	if cam.is_position_behind(spawn_pos):
+		return
+	
+	var vp = cam.get_viewport()
+	if not vp:
+		return
+	var vp_rect = vp.get_visible_rect()
+	if vp_rect.size.x <= 0 or vp_rect.size.y <= 0:
+		return
+	
+	var screen_pos = cam.unproject_position(spawn_pos)
+	if screen_pos == Vector2.ZERO:
 		return
 	
 	var bubble = PanelContainer.new()
@@ -563,8 +661,6 @@ func show_speech_bubble(text: String, world_pos: Vector3) -> void:
 	
 	speech_bubble_layer.add_child(bubble)
 	
-	# Initial position calculation
-	var screen_pos = camera_ctrl.camera.unproject_position(world_pos + Vector3(0, 0.85, 0))
 	bubble.position = screen_pos - Vector2(bubble.size.x * 0.5, bubble.size.y)
 	bubble.pivot_offset = Vector2(bubble.size.x * 0.5, bubble.size.y)
 	bubble.scale = Vector2.ZERO
@@ -777,6 +873,10 @@ func _apply_safe_area_and_layout(vp_size: Vector2, is_portrait: bool) -> void:
 func _apply_landscape_layout(top_inset: float, bottom_inset: float, right_inset: float) -> void:
 	if not sidebar_wrapper or not btn_toggle_sidebar:
 		return
+	
+	if sidebar_panel:
+		sidebar_panel.add_theme_stylebox_override("panel", _style_sidebar_landscape)
+	
 	sidebar_wrapper.anchor_left = 1.0
 	sidebar_wrapper.anchor_top = 0.0
 	sidebar_wrapper.anchor_right = 1.0
@@ -800,12 +900,16 @@ func _apply_landscape_layout(top_inset: float, bottom_inset: float, right_inset:
 func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset: float) -> void:
 	if not sidebar_wrapper or not btn_toggle_sidebar:
 		return
+	
+	if sidebar_panel:
+		sidebar_panel.add_theme_stylebox_override("panel", _style_sidebar_portrait)
+	
 	sidebar_wrapper.anchor_left = 0.0
 	sidebar_wrapper.anchor_top = 1.0
 	sidebar_wrapper.anchor_right = 1.0
 	sidebar_wrapper.anchor_bottom = 1.0
 	
-	var dock_height = 290.0
+	var dock_height = 280.0
 	sidebar_wrapper.offset_left = 8.0 + left_inset
 	sidebar_wrapper.offset_right = -(8.0 + right_inset)
 	sidebar_wrapper.offset_top = -(dock_height + bottom_inset) if is_sidebar_open else 0.0
@@ -826,8 +930,8 @@ func _toggle_sidebar() -> void:
 	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	
 	if is_portrait_mode:
-		var target_top = -290.0 if is_sidebar_open else 0.0
-		var target_bottom = 0.0 if is_sidebar_open else 290.0
+		var target_top = -280.0 if is_sidebar_open else 0.0
+		var target_bottom = 0.0 if is_sidebar_open else 280.0
 		tween.tween_property(sidebar_wrapper, "offset_top", target_top, 0.22)
 		tween.tween_property(sidebar_wrapper, "offset_bottom", target_bottom, 0.22)
 		btn_toggle_sidebar.text = "▼" if is_sidebar_open else "▲"

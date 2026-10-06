@@ -186,7 +186,6 @@ custom_minimum_size = Vector2(46, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "8×8"
-flat = true
 
 [node name="BtnGrid12" type="Button" parent="TopBar/Margin/HBox/GridSizeGroup/GridMargin/GridHBox"]
 unique_name_in_owner = true
@@ -194,7 +193,6 @@ custom_minimum_size = Vector2(50, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "12×12"
-flat = true
 
 [node name="BtnGrid16" type="Button" parent="TopBar/Margin/HBox/GridSizeGroup/GridMargin/GridHBox"]
 unique_name_in_owner = true
@@ -202,7 +200,6 @@ custom_minimum_size = Vector2(50, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "16×16"
-flat = true
 
 [node name="BtnGrid20" type="Button" parent="TopBar/Margin/HBox/GridSizeGroup/GridMargin/GridHBox"]
 unique_name_in_owner = true
@@ -210,7 +207,6 @@ custom_minimum_size = Vector2(50, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "20×20"
-flat = true
 
 [node name="BtnGrid24" type="Button" parent="TopBar/Margin/HBox/GridSizeGroup/GridMargin/GridHBox"]
 unique_name_in_owner = true
@@ -218,7 +214,6 @@ custom_minimum_size = Vector2(50, 28)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "24×24"
-flat = true
 
 [node name="SpacerRight" type="Control" parent="TopBar/Margin/HBox"]
 layout_mode = 2
@@ -505,6 +500,7 @@ theme_override_font_sizes/font_size = 12
 text = "🌱 Böden"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="SidebarWrapper/SidebarPanel/Margin/VBox"]
+custom_minimum_size = Vector2(0, 240)
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
