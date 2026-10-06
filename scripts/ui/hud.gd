@@ -49,9 +49,11 @@ signal reset_island_requested()
 @onready var btn_day_night: Button = %BtnDayNight
 @onready var btn_reset_camera: Button = %BtnResetCamera
 @onready var btn_mute: Button = %BtnMute
+@onready var btn_info: Button = %BtnInfo
 @onready var status_label: Label = %StatusLabel
 
 @onready var reset_confirm_dialog: ConfirmationDialog = %ResetConfirmDialog
+@onready var credits_dialog: AcceptDialog = %CreditsDialog
 
 var current_category: String = "ground"
 var is_sidebar_open: bool = true
@@ -140,6 +142,7 @@ func _connect_signals() -> void:
 	btn_day_night.pressed.connect(_on_day_night_pressed)
 	btn_reset_camera.pressed.connect(_on_reset_camera_pressed)
 	btn_mute.pressed.connect(_on_mute_pressed)
+	btn_info.pressed.connect(_on_info_pressed)
 
 # -----------------------------------------------------------------------------
 # Tool and Category Handlers
@@ -226,6 +229,9 @@ func _on_mute_pressed() -> void:
 	var muted = AudioManager.toggle_mute()
 	btn_mute.text = "🔇" if muted else "🔊"
 	show_toast("🔇 Ton aus" if muted else "🔊 Ton an")
+
+func _on_info_pressed() -> void:
+	credits_dialog.popup_centered(Vector2i(480, 400))
 func _on_undo_pressed() -> void:
 	if history_mgr and history_mgr.undo():
 		show_toast("↩️ Aktion rückgängig gemacht")

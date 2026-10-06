@@ -135,6 +135,12 @@ layout_mode = 2
 tooltip_text = "Ton stummschalten / aktivieren"
 text = "🔊"
 
+[node name="BtnInfo" type="Button" parent="TopBar/Margin/HBox"]
+unique_name_in_owner = true
+layout_mode = 2
+tooltip_text = "Über das Spiel & Credits"
+text = "ℹ️ Info"
+
 [node name="SelectionHint" type="PanelContainer" parent="."]
 unique_name_in_owner = true
 layout_mode = 1
@@ -359,4 +365,53 @@ title = "Insel zurücksetzen?"
 dialog_text = "Möchtest du das Diorama wirklich auf die Starter-Insel zurücksetzen? Nicht gespeicherte Änderungen gehen verloren."
 ok_button_text = "Zurücksetzen"
 cancel_button_text = "Abbrechen"
+
+[node name="CreditsDialog" type="AcceptDialog" parent="."]
+unique_name_in_owner = true
+title = "🏝️ Über Diorama Sandbox"
+initial_position = 2
+size = Vector2i(480, 400)
+ok_button_text = "Schließen"
+
+[node name="CreditsMargin" type="MarginContainer" parent="CreditsDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -49.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 4
+
+[node name="CreditsScroll" type="ScrollContainer" parent="CreditsDialog/CreditsMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="CreditsText" type="RichTextLabel" parent="CreditsDialog/CreditsMargin/CreditsScroll"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+text = "[center][b][font_size=16]🏝️ Diorama Sandbox[/font_size][/b]
+[color=#8ab4f8]Native Edition v1.0 • Cross-Platform (Linux / Windows / Android)[/color][/center]
+
+[b]👥 Team & Entwicklung:[/b]
+• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung
+• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting
+• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner
+
+[b]📜 Third-Party Credits & Lizenzen:[/b]
+• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)
+• [b]SFX & Audio:[/b] Kenney (kenney.nl, CC0) & Wikimedia Commons (CC0 / CC-BY)
+• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem"
+
 
