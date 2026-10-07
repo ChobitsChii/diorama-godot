@@ -520,8 +520,8 @@ func _update_catalog_items(category: String) -> void:
 		card.alignment = HORIZONTAL_ALIGNMENT_CENTER
 		card.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 		if is_portrait_mode:
-			card.custom_minimum_size = Vector2(95, 80)
-			card.add_theme_font_size_override("font_size", 13)
+			card.custom_minimum_size = Vector2(110, 76)
+			card.add_theme_font_size_override("font_size", 15)
 			card.add_theme_constant_override("line_spacing", 4)
 		else:
 			card.custom_minimum_size = Vector2(100, 80)
@@ -884,13 +884,6 @@ func _on_viewport_size_changed() -> void:
 	var prev_portrait: bool = is_portrait_mode
 	is_portrait_mode = is_portrait
 	
-	# Dynamically adapt content_scale_size for crisp readability in portrait (720x1280)
-	# and landscape (1280x720) across desktop and mobile.
-	if win:
-		var target_scale_size = Vector2i(720, 1280) if is_portrait else Vector2i(1280, 720)
-		if win.content_scale_size != target_scale_size:
-			win.content_scale_size = target_scale_size
-	
 	# If orientation changed, recreate catalog cards to adopt correct portrait/landscape dimensions
 	if prev_portrait != is_portrait:
 		_update_catalog_items(current_category)
@@ -923,10 +916,18 @@ func _apply_safe_area_and_layout(win_size: Vector2i, vp_size: Vector2, is_portra
 				bottom_inset = max(0.0, diff_bottom * sy)
 	
 	if top_bar:
-		top_bar.offset_top = 8.0 + top_inset if is_portrait else 10.0 + top_inset
-		top_bar.offset_bottom = (8.0 + 44.0 + top_inset) if is_portrait else (52.0 + top_inset)
-		top_bar.offset_left = 8.0 + left_inset if is_portrait else 12.0 + left_inset
-		top_bar.offset_right = -(8.0 + right_inset) if is_portrait else -(12.0 + right_inset)
+		if is_portrait:
+			top_bar.custom_minimum_size = Vector2(0, 56)
+			top_bar.offset_top = 8.0 + top_inset
+			top_bar.offset_bottom = 64.0 + top_inset
+			top_bar.offset_left = 10.0 + left_inset
+			top_bar.offset_right = -(10.0 + right_inset)
+		else:
+			top_bar.custom_minimum_size = Vector2(0, 42)
+			top_bar.offset_top = 10.0 + top_inset
+			top_bar.offset_bottom = 52.0 + top_inset
+			top_bar.offset_left = 12.0 + left_inset
+			top_bar.offset_right = -(12.0 + right_inset)
 	
 	if is_portrait:
 		_apply_portrait_layout(left_inset, right_inset, bottom_inset)
@@ -1035,29 +1036,29 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	var brand_title = get_node_or_null("%BrandPill/BrandMargin/BrandHBox/BrandTitle") as Label
 	if brand_title:
 		brand_title.text = "🏝️ Diorama"
-		brand_title.add_theme_font_size_override("font_size", 13)
+		brand_title.add_theme_font_size_override("font_size", 17)
 	if status_label:
 		status_label.visible = false
 	
 	# Grid size buttons in portrait
 	for grid_btn in [btn_grid_8, btn_grid_12, btn_grid_16, btn_grid_20, btn_grid_24]:
 		if grid_btn:
-			grid_btn.custom_minimum_size = Vector2(42, 28)
-			grid_btn.add_theme_font_size_override("font_size", 12)
+			grid_btn.custom_minimum_size = Vector2(62, 38)
+			grid_btn.add_theme_font_size_override("font_size", 16)
 	
 	# Compact TopBar action buttons with large clear emoji icons in portrait
 	if btn_snapshot:
 		btn_snapshot.text = "📷"
-		btn_snapshot.custom_minimum_size = Vector2(38, 32)
-		btn_snapshot.add_theme_font_size_override("font_size", 15)
+		btn_snapshot.custom_minimum_size = Vector2(48, 40)
+		btn_snapshot.add_theme_font_size_override("font_size", 20)
 	if btn_info:
 		btn_info.text = "ℹ️"
-		btn_info.custom_minimum_size = Vector2(38, 32)
-		btn_info.add_theme_font_size_override("font_size", 15)
+		btn_info.custom_minimum_size = Vector2(48, 40)
+		btn_info.add_theme_font_size_override("font_size", 20)
 	if btn_settings:
 		btn_settings.text = "⚙️"
-		btn_settings.custom_minimum_size = Vector2(38, 32)
-		btn_settings.add_theme_font_size_override("font_size", 15)
+		btn_settings.custom_minimum_size = Vector2(48, 40)
+		btn_settings.add_theme_font_size_override("font_size", 20)
 	
 	# Hide decorative labels & separators in compact bottom dock
 	if tools_label: tools_label.visible = false
@@ -1068,22 +1069,22 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	
 	# Bottom dock tools and controls styling with readable fonts
 	if btn_tool_explore:
-		btn_tool_explore.custom_minimum_size = Vector2(0, 34)
-		btn_tool_explore.add_theme_font_size_override("font_size", 13)
+		btn_tool_explore.custom_minimum_size = Vector2(0, 48)
+		btn_tool_explore.add_theme_font_size_override("font_size", 17)
 	for t_btn in [btn_tool_select, btn_tool_place, btn_tool_rotate, btn_tool_demolish]:
 		if t_btn:
-			t_btn.custom_minimum_size = Vector2(0, 34)
-			t_btn.add_theme_font_size_override("font_size", 12)
+			t_btn.custom_minimum_size = Vector2(0, 46)
+			t_btn.add_theme_font_size_override("font_size", 16)
 	if btn_undo:
-		btn_undo.custom_minimum_size = Vector2(0, 28)
-		btn_undo.add_theme_font_size_override("font_size", 14)
+		btn_undo.custom_minimum_size = Vector2(0, 38)
+		btn_undo.add_theme_font_size_override("font_size", 18)
 	if btn_redo:
-		btn_redo.custom_minimum_size = Vector2(0, 28)
-		btn_redo.add_theme_font_size_override("font_size", 14)
+		btn_redo.custom_minimum_size = Vector2(0, 38)
+		btn_redo.add_theme_font_size_override("font_size", 18)
 	for c_btn in [cat_ground_btn, cat_buildings_btn, cat_nature_btn, cat_creatures_btn, cat_deco_btn]:
 		if c_btn:
-			c_btn.custom_minimum_size = Vector2(0, 36)
-			c_btn.add_theme_font_size_override("font_size", 16)
+			c_btn.custom_minimum_size = Vector2(0, 48)
+			c_btn.add_theme_font_size_override("font_size", 22)
 	
 	# 4 columns for tools and catalog in bottom dock
 	if tools_grid:
@@ -1091,16 +1092,16 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	if catalog_grid:
 		catalog_grid.columns = 4
 	if scroll_container:
-		scroll_container.custom_minimum_size = Vector2(0, 130)
+		scroll_container.custom_minimum_size = Vector2(0, 170)
 	
 	sidebar_wrapper.anchor_left = 0.0
 	sidebar_wrapper.anchor_top = 1.0
 	sidebar_wrapper.anchor_right = 1.0
 	sidebar_wrapper.anchor_bottom = 1.0
 	
-	var dock_height = 285.0
-	sidebar_wrapper.offset_left = 8.0 + left_inset
-	sidebar_wrapper.offset_right = -(8.0 + right_inset)
+	var dock_height = 410.0
+	sidebar_wrapper.offset_left = 10.0 + left_inset
+	sidebar_wrapper.offset_right = -(10.0 + right_inset)
 	sidebar_wrapper.offset_top = -(dock_height + bottom_inset) if is_sidebar_open else 0.0
 	sidebar_wrapper.offset_bottom = -bottom_inset if is_sidebar_open else (dock_height + bottom_inset)
 	
@@ -1108,19 +1109,19 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	btn_toggle_sidebar.anchor_top = 0.0
 	btn_toggle_sidebar.anchor_right = 0.5
 	btn_toggle_sidebar.anchor_bottom = 0.0
-	btn_toggle_sidebar.offset_left = -70.0
-	btn_toggle_sidebar.offset_right = 70.0
-	btn_toggle_sidebar.offset_top = -34.0
+	btn_toggle_sidebar.offset_left = -90.0
+	btn_toggle_sidebar.offset_right = 90.0
+	btn_toggle_sidebar.offset_top = -40.0
 	btn_toggle_sidebar.offset_bottom = 0.0
 	btn_toggle_sidebar.text = "▼ Schließen" if is_sidebar_open else "▲ Werkzeuge"
-	btn_toggle_sidebar.add_theme_font_size_override("font_size", 13)
+	btn_toggle_sidebar.add_theme_font_size_override("font_size", 16)
 
 func _toggle_sidebar() -> void:
 	is_sidebar_open = not is_sidebar_open
 	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	
 	if is_portrait_mode:
-		var dock_height = 285.0
+		var dock_height = 410.0
 		var target_top = -dock_height if is_sidebar_open else 0.0
 		var target_bottom = 0.0 if is_sidebar_open else dock_height
 		tween.tween_property(sidebar_wrapper, "offset_top", target_top, 0.22)
