@@ -1,6 +1,10 @@
 extends SceneTree
 
 func _init() -> void:
+	create_timer(15.0).timeout.connect(func():
+		printerr("TEST TIMEOUT: test_light_theme_hud exceeded 15 seconds")
+		quit(1)
+	)
 	call_deferred("_run_suite")
 
 func _run_suite() -> void:
@@ -65,8 +69,14 @@ func _run_suite() -> void:
 	hud_node._on_select_grid_size(24)
 	assert(captured["size"] == 24, "Grid size 24 should be emitted")
 	
-	# Test Switching EVERY Category and verifying card creation
-	for cat in ["ground", "buildings", "nature", "creatures", "deco"]:
+	# Wire PlacementController to HUD to test realistic category switching
+	var pc_test = PlacementController.new()
+	root.add_child(pc_test)
+	await process_frame
+	hud_node.placement_ctrl = pc_test
+	
+	# Test Switching EVERY Category and verifying card creation with PlacementController connected
+	for cat in ["ground", "buildings", "nature", "creatures", "deco", "ground"]:
 		hud_node._set_category(cat)
 		assert(hud_node.current_category == cat, "Current category should be %s" % cat)
 		var child_count = hud_node.catalog_grid.get_child_count()
@@ -77,7 +87,15 @@ func _run_suite() -> void:
 		assert(first_card != null, "Card must be a Button")
 		assert(first_card.custom_minimum_size == Vector2(100, 80), "Card minimum size must be 100x80")
 		assert(not first_card.text.is_empty(), "Card text must not be empty")
-	print("  PASS: All 5 categories render cards correctly with 100x80 minimum size")
+		
+		# Click card to verify active item selection
+		var card_id = first_card.get_meta("item_id")
+		first_card.emit_signal("pressed")
+		assert(pc_test.active_place_type == card_id, "PlacementController active_place_type should match selected card %s" % card_id)
+		assert(pc_test.active_type_id == card_id, "PlacementController active_type_id should match selected card %s" % card_id)
+	print("  PASS: All 5 categories render cards correctly and update PlacementController on click")
+	
+	pc_test.queue_free()
 	
 	# Test Settings Dialog
 	hud_node._on_settings_pressed()
@@ -114,6 +132,20 @@ func _run_suite() -> void:
 	
 	# Test that HUD spawned a speech bubble
 	assert(main_node.hud.speech_bubble_layer.get_child_count() > 0, "Speech bubble layer should spawn bubble on creature click")
+	
+	# Test Category Tab buttons directly in full Main scene
+	var cat_buttons = [
+		main_node.hud.cat_buildings_btn,
+		main_node.hud.cat_nature_btn,
+		main_node.hud.cat_creatures_btn,
+		main_node.hud.cat_deco_btn,
+		main_node.hud.cat_ground_btn
+	]
+	for btn in cat_buttons:
+		btn.emit_signal("pressed")
+		var count = main_node.hud.catalog_grid.get_child_count()
+		assert(count > 0, "CatalogGrid must have items after clicking %s (got %d)" % [btn.text, count])
+	print("  PASS: All category tab buttons clicked in Main scene and rendered cards successfully")
 	
 	main_node.queue_free()
 	print("  PASS: Main scene explore mode creature interaction and speech bubble verified OK")

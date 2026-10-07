@@ -478,6 +478,7 @@ func _update_catalog_items(category: String) -> void:
 		return
 	
 	for child in catalog_grid.get_children():
+		catalog_grid.remove_child(child)
 		child.queue_free()
 	
 	var items = Catalog.get_items_by_category(category)
@@ -491,7 +492,12 @@ func _update_catalog_items(category: String) -> void:
 	if category_title_label:
 		category_title_label.text = "%s (%d Items)" % [cat_labels.get(category, category.capitalize()), items.size()]
 	
-	var active_type = placement_ctrl.active_place_type if placement_ctrl else ""
+	var active_type: String = ""
+	if placement_ctrl:
+		if "active_place_type" in placement_ctrl:
+			active_type = str(placement_ctrl.active_place_type)
+		elif "active_type_id" in placement_ctrl:
+			active_type = str(placement_ctrl.active_type_id)
 	
 	for item in items:
 		var card = Button.new()
