@@ -877,8 +877,8 @@ func _on_viewport_size_changed() -> void:
 	var is_portrait: bool = (win_size.y > win_size.x)
 	is_portrait_mode = is_portrait
 	
-	# Dynamically adapt content_scale_size for mobile readability
-	if win:
+	# Dynamically adapt content_scale_size for mobile readability only on mobile devices
+	if win and OS.has_feature("mobile"):
 		var target_scale_size = Vector2i(720, 1280) if is_portrait else Vector2i(1280, 720)
 		if win.content_scale_size != target_scale_size:
 			win.content_scale_size = target_scale_size
@@ -887,19 +887,28 @@ func _on_viewport_size_changed() -> void:
 	_apply_safe_area_and_layout(win_size, vp_size, is_portrait)
 
 func _apply_safe_area_and_layout(win_size: Vector2i, vp_size: Vector2, is_portrait: bool) -> void:
-	var safe_area: Rect2i = DisplayServer.get_display_safe_area()
 	var top_inset: float = 0.0
 	var bottom_inset: float = 0.0
 	var left_inset: float = 0.0
 	var right_inset: float = 0.0
 	
-	if safe_area.size.x > 0 and safe_area.size.y > 0 and win_size.x > 0 and win_size.y > 0:
-		var sx = vp_size.x / float(win_size.x)
-		var sy = vp_size.y / float(win_size.y)
-		top_inset = max(0.0, float(safe_area.position.y) * sy)
-		left_inset = max(0.0, float(safe_area.position.x) * sx)
-		right_inset = max(0.0, float(win_size.x - (safe_area.position.x + safe_area.size.x)) * sx)
-		bottom_inset = max(0.0, float(win_size.y - (safe_area.position.y + safe_area.size.y)) * sy)
+	# Safe area insets (notches, punch-holes, gesture bars) ONLY apply on mobile platforms.
+	# On desktop (Linux/X11/Wayland/Windows), get_display_safe_area() returns multi-monitor coordinates which must NOT be used as insets.
+	if OS.has_feature("mobile"):
+		var safe_area: Rect2i = DisplayServer.get_display_safe_area()
+		if safe_area.size.x > 0 and safe_area.size.y > 0 and win_size.x > 0 and win_size.y > 0:
+			var sx = vp_size.x / float(win_size.x)
+			var sy = vp_size.y / float(win_size.y)
+			if safe_area.position.y > 0:
+				top_inset = max(0.0, float(safe_area.position.y) * sy)
+			if safe_area.position.x > 0:
+				left_inset = max(0.0, float(safe_area.position.x) * sx)
+			var diff_right = float(win_size.x - (safe_area.position.x + safe_area.size.x))
+			if diff_right > 0:
+				right_inset = max(0.0, diff_right * sx)
+			var diff_bottom = float(win_size.y - (safe_area.position.y + safe_area.size.y))
+			if diff_bottom > 0:
+				bottom_inset = max(0.0, diff_bottom * sy)
 	
 	if top_bar:
 		top_bar.offset_top = 10.0 + top_inset
