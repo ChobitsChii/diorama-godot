@@ -67,9 +67,9 @@ func play_sound(sound_name: String, extra_db: float = 0.0) -> void:
 
 static func toggle_mute() -> bool:
 	var bus_idx = AudioServer.get_bus_index("Master")
-	var is_muted = AudioServer.is_bus_mute(bus_idx)
-	AudioServer.set_bus_mute(bus_idx, not is_muted)
-	return not is_muted
+	var currently_muted = AudioServer.is_bus_mute(bus_idx)
+	AudioServer.set_bus_mute(bus_idx, not currently_muted)
+	return not currently_muted
 
 static func is_muted() -> bool:
 	var bus_idx = AudioServer.get_bus_index("Master")

@@ -59,7 +59,7 @@ func fetch_from_cloud(scene_name: String = "default") -> void:
 	if err != OK:
 		sync_finished.emit("load", false, "Konnte Cloud-Szene nicht laden (Code %d)" % err)
 
-func _on_save_request_completed(result: int, response_code: int, _headers: PackedStringArray, body: PackedByteArray) -> void:
+func _on_save_request_completed(result: int, response_code: int, _headers: PackedStringArray, _body: PackedByteArray) -> void:
 	if result != HTTPRequest.RESULT_SUCCESS:
 		sync_finished.emit("save", false, "Server nicht erreichbar (Offline-Modus)")
 		return

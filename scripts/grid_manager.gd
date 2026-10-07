@@ -128,7 +128,7 @@ func place(type_id: String, gx: int, gz: int, rot_step: int = 0, custom_id: Stri
 		node.position = world_pos
 		add_child(node)
 		
-		var entry = {
+		var ground_entry = {
 			"id": id,
 			"type": type_id,
 			"gx": gx,
@@ -140,11 +140,11 @@ func place(type_id: String, gx: int, gz: int, rot_step: int = 0, custom_id: Stri
 			"is_ground": true,
 			"base_y": 0.0,
 		}
-		ground_tiles[cell_key] = entry
+		ground_tiles[cell_key] = ground_entry
 		animate_spawn(node)
 		grid_changed.emit()
-		item_placed.emit(entry)
-		return entry
+		item_placed.emit(ground_entry)
+		return ground_entry
 	
 	# Layer 1: Object / Building / Creature / Deco
 	var base_y: float = 0.0
@@ -274,10 +274,10 @@ func move_item(entry: Dictionary, new_gx: int, new_gz: int) -> bool:
 		entry["gz"] = new_gz
 		ground_tiles[new_key] = entry
 		
-		var world_pos = grid_to_world(new_gx, new_gz, 1)
+		var ground_target_pos = grid_to_world(new_gx, new_gz, 1)
 		if entry.get("node") and is_instance_valid(entry["node"]):
 			var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-			tween.tween_property(entry["node"], "position", world_pos, 0.15)
+			tween.tween_property(entry["node"], "position", ground_target_pos, 0.15)
 		
 		grid_changed.emit()
 		return true

@@ -30,7 +30,6 @@ var active_place_type: String:
 		set_active_place_type(value)
 var active_rot_step: int = 0
 var _ghost_root: Node3D
-var _ghost_materials: Array[StandardMaterial3D] = []
 
 # Active selection tool state
 var selected_entry: Dictionary = {}

@@ -141,8 +141,6 @@ func _ready() -> void:
 	
 	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
 		get_viewport().size_changed.connect(_on_viewport_size_changed)
-	if not resized.is_connected(_on_viewport_size_changed):
-		resized.connect(_on_viewport_size_changed)
 	_on_viewport_size_changed()
 
 func setup_all(
@@ -401,6 +399,7 @@ func _on_tool_btn_pressed(mode: int) -> void:
 	if placement_ctrl:
 		placement_ctrl.set_mode(mode)
 	_update_tool_buttons(mode)
+	tool_selected.emit(mode)
 
 func _on_rotate_btn_pressed() -> void:
 	if placement_ctrl:
@@ -410,6 +409,7 @@ func _set_category(cat: String) -> void:
 	current_category = cat
 	_update_category_buttons()
 	_update_catalog_items(cat)
+	category_selected.emit(cat)
 
 func _update_tool_buttons(active_mode: int) -> void:
 	btn_tool_explore.button_pressed = (active_mode == PlacementController.Mode.EXPLORE)
@@ -561,6 +561,7 @@ func _on_catalog_item_selected(type_id: String) -> void:
 		placement_ctrl.set_active_place_type(type_id)
 	_update_tool_buttons(PlacementController.Mode.PLACE)
 	_refresh_catalog_cards_selection(type_id)
+	item_chosen.emit(type_id)
 
 func _refresh_catalog_cards_selection(active_type: String) -> void:
 	if not catalog_grid:
@@ -868,17 +869,25 @@ func show_toast(msg: String, duration: float = 2.0) -> void:
 # -----------------------------------------------------------------------------
 # Responsive Layout & Safe Area
 # -----------------------------------------------------------------------------
+var _is_updating_layout: bool = false
+var _last_layout_size: Vector2i = Vector2i.ZERO
+
 func _notification(what: int) -> void:
-	if what == NOTIFICATION_WM_SIZE_CHANGED or what == NOTIFICATION_RESIZED:
+	if what == NOTIFICATION_WM_SIZE_CHANGED:
 		_on_viewport_size_changed()
 
 func _on_viewport_size_changed() -> void:
-	if not is_inside_tree():
+	if not is_inside_tree() or _is_updating_layout:
 		return
 	var win = get_window()
 	var win_size: Vector2i = win.size if win else Vector2i(DisplayServer.window_get_size())
 	if win_size.x <= 0 or win_size.y <= 0:
 		return
+	if win_size == _last_layout_size:
+		return
+	
+	_is_updating_layout = true
+	_last_layout_size = win_size
 	
 	var is_portrait: bool = (win_size.y > win_size.x)
 	var prev_portrait: bool = is_portrait_mode
@@ -890,6 +899,7 @@ func _on_viewport_size_changed() -> void:
 	
 	var vp_size = get_viewport().get_visible_rect().size
 	_apply_safe_area_and_layout(win_size, vp_size, is_portrait)
+	_is_updating_layout = false
 
 func _apply_safe_area_and_layout(win_size: Vector2i, vp_size: Vector2, is_portrait: bool) -> void:
 	var top_inset: float = 0.0

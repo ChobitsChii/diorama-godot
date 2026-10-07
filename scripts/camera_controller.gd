@@ -21,7 +21,6 @@ var _target_size: float = 13.0
 var _current_size: float = 13.0
 
 var _is_orbiting: bool = false
-var _is_panning: bool = false
 var _last_mouse_pos: Vector2 = Vector2.ZERO
 
 # Touch tracking for mobile
@@ -51,6 +50,11 @@ func _process(delta: float) -> void:
 func _update_camera_transform(force: bool = false) -> void:
 	if not camera:
 		return
+	
+	if force:
+		_yaw = _target_yaw
+		_pitch = _target_pitch
+		_current_size = _target_size
 	
 	# Clamp pitch so camera never goes below the island or directly top-down flip
 	_target_pitch = clamp(_target_pitch, deg_to_rad(10.0), deg_to_rad(80.0))
@@ -152,9 +156,8 @@ func _update_aspect_compensation() -> void:
 	if vp_size.y <= 0.0:
 		return
 	var current_aspect = vp_size.x / vp_size.y
-	var design_aspect = 16.0 / 9.0 # 1.777
 	
-	# If viewport is narrower than design aspect (especially in Portrait 9:16),
+	# If viewport is narrower than landscape (especially in Portrait 9:16),
 	# scale the orthographic size up proportionally so the diorama island stays fully in view.
 	if current_aspect < 1.0:
 		# Portrait mode (Smartphone upright)
