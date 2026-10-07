@@ -62,6 +62,11 @@ signal reset_island_requested()
 # Catalog Grid & Scroll
 @onready var scroll_container: ScrollContainer = $SidebarWrapper/SidebarPanel/Margin/VBox/ScrollContainer
 @onready var catalog_grid: GridContainer = %CatalogGrid
+@onready var tools_label: Label = get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/ToolsLabel")
+@onready var h_separator_1: HSeparator = get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/HSeparator1")
+@onready var cat_section_label: Label = get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/CatSectionLabel")
+@onready var category_tabs: HBoxContainer = get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/CategoryTabs")
+@onready var h_separator_2: HSeparator = get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/HSeparator2")
 
 # Dialogs
 @onready var reset_confirm_dialog: ConfirmationDialog = %ResetConfirmDialog
@@ -134,7 +139,10 @@ func _ready() -> void:
 	if flash_rect:
 		flash_rect.color.a = 0.0
 	
-	get_viewport().size_changed.connect(_on_viewport_size_changed)
+	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
+		get_viewport().size_changed.connect(_on_viewport_size_changed)
+	if not resized.is_connected(_on_viewport_size_changed):
+		resized.connect(_on_viewport_size_changed)
 	_on_viewport_size_changed()
 
 func setup_all(
@@ -367,6 +375,7 @@ func _connect_signals() -> void:
 	btn_load_settings.pressed.connect(_on_load_pressed)
 	btn_reset_island_settings.pressed.connect(_on_reset_pressed)
 	reset_confirm_dialog.confirmed.connect(_on_reset_confirmed)
+	reset_confirm_dialog.canceled.connect(_on_reset_canceled)
 
 func _setup_top_action_buttons() -> void:
 	_apply_action_button_theme(btn_snapshot)
@@ -733,11 +742,21 @@ func _on_snapshot_pressed() -> void:
 			show_toast("⚠️ Fehler beim Speichern des Fotos")
 
 func _on_reset_pressed() -> void:
+	if settings_dialog:
+		settings_dialog.hide()
 	reset_confirm_dialog.popup_centered()
 
 func _on_reset_confirmed() -> void:
+	if reset_confirm_dialog:
+		reset_confirm_dialog.hide()
 	reset_island_requested.emit()
 	show_toast("🔄 Diorama auf Starter-Insel zurückgesetzt ✓")
+
+func _on_reset_canceled() -> void:
+	if reset_confirm_dialog:
+		reset_confirm_dialog.hide()
+	if settings_dialog:
+		settings_dialog.popup_centered()
 
 func _on_info_pressed() -> void:
 	credits_dialog.popup_centered(Vector2i(500, 420))
@@ -843,27 +862,44 @@ func show_toast(msg: String, duration: float = 2.0) -> void:
 # -----------------------------------------------------------------------------
 # Responsive Layout & Safe Area
 # -----------------------------------------------------------------------------
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_SIZE_CHANGED or what == NOTIFICATION_RESIZED:
+		_on_viewport_size_changed()
+
 func _on_viewport_size_changed() -> void:
-	var vp_size = get_viewport().get_visible_rect().size
-	if vp_size.y <= 0 or vp_size.x <= 0:
+	if not is_inside_tree():
 		return
-	var is_portrait = (vp_size.y > vp_size.x)
+	var win = get_window()
+	var win_size: Vector2i = win.size if win else Vector2i(DisplayServer.window_get_size())
+	if win_size.x <= 0 or win_size.y <= 0:
+		return
+	
+	var is_portrait: bool = (win_size.y > win_size.x)
 	is_portrait_mode = is_portrait
 	
-	_apply_safe_area_and_layout(vp_size, is_portrait)
+	# Dynamically adapt content_scale_size for mobile readability
+	if win:
+		var target_scale_size = Vector2i(720, 1280) if is_portrait else Vector2i(1280, 720)
+		if win.content_scale_size != target_scale_size:
+			win.content_scale_size = target_scale_size
+	
+	var vp_size = get_viewport().get_visible_rect().size
+	_apply_safe_area_and_layout(win_size, vp_size, is_portrait)
 
-func _apply_safe_area_and_layout(vp_size: Vector2, is_portrait: bool) -> void:
+func _apply_safe_area_and_layout(win_size: Vector2i, vp_size: Vector2, is_portrait: bool) -> void:
 	var safe_area: Rect2i = DisplayServer.get_display_safe_area()
 	var top_inset: float = 0.0
 	var bottom_inset: float = 0.0
 	var left_inset: float = 0.0
 	var right_inset: float = 0.0
 	
-	if safe_area.size.x > 0 and safe_area.size.y > 0 and (safe_area.size.x < vp_size.x or safe_area.size.y < vp_size.y):
-		top_inset = max(0.0, float(safe_area.position.y))
-		left_inset = max(0.0, float(safe_area.position.x))
-		right_inset = max(0.0, vp_size.x - float(safe_area.position.x + safe_area.size.x))
-		bottom_inset = max(0.0, vp_size.y - float(safe_area.position.y + safe_area.size.y))
+	if safe_area.size.x > 0 and safe_area.size.y > 0 and win_size.x > 0 and win_size.y > 0:
+		var sx = vp_size.x / float(win_size.x)
+		var sy = vp_size.y / float(win_size.y)
+		top_inset = max(0.0, float(safe_area.position.y) * sy)
+		left_inset = max(0.0, float(safe_area.position.x) * sx)
+		right_inset = max(0.0, float(win_size.x - (safe_area.position.x + safe_area.size.x)) * sx)
+		bottom_inset = max(0.0, float(win_size.y - (safe_area.position.y + safe_area.size.y)) * sy)
 	
 	if top_bar:
 		top_bar.offset_top = 10.0 + top_inset
@@ -882,6 +918,32 @@ func _apply_landscape_layout(top_inset: float, bottom_inset: float, right_inset:
 	
 	if sidebar_panel:
 		sidebar_panel.add_theme_stylebox_override("panel", _style_sidebar_landscape)
+	
+	# Full button text in landscape
+	if btn_snapshot:
+		btn_snapshot.text = "📷 Foto"
+		btn_snapshot.custom_minimum_size = Vector2(80, 30)
+	if btn_info:
+		btn_info.text = "ℹ️ Info"
+		btn_info.custom_minimum_size = Vector2(80, 30)
+	if btn_settings:
+		btn_settings.text = "⚙️ Optionen"
+		btn_settings.custom_minimum_size = Vector2(100, 30)
+	
+	# Show sidebar labels & separators
+	if tools_label: tools_label.visible = true
+	if cat_section_label: cat_section_label.visible = true
+	if h_separator_1: h_separator_1.visible = true
+	if h_separator_2: h_separator_2.visible = true
+	if category_title_label: category_title_label.visible = true
+	
+	# 2 columns in landscape sidebar
+	if tools_grid:
+		tools_grid.columns = 2
+	if catalog_grid:
+		catalog_grid.columns = 2
+	if scroll_container:
+		scroll_container.custom_minimum_size = Vector2(0, 240)
 	
 	sidebar_wrapper.anchor_left = 1.0
 	sidebar_wrapper.anchor_top = 0.0
@@ -910,37 +972,64 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	if sidebar_panel:
 		sidebar_panel.add_theme_stylebox_override("panel", _style_sidebar_portrait)
 	
+	# Compact TopBar action buttons in portrait so they never overflow
+	if btn_snapshot:
+		btn_snapshot.text = "📷"
+		btn_snapshot.custom_minimum_size = Vector2(36, 30)
+	if btn_info:
+		btn_info.text = "ℹ️"
+		btn_info.custom_minimum_size = Vector2(36, 30)
+	if btn_settings:
+		btn_settings.text = "⚙️"
+		btn_settings.custom_minimum_size = Vector2(36, 30)
+	
+	# Hide decorative labels & separators in compact bottom dock
+	if tools_label: tools_label.visible = false
+	if cat_section_label: cat_section_label.visible = false
+	if h_separator_1: h_separator_1.visible = false
+	if h_separator_2: h_separator_2.visible = false
+	if category_title_label: category_title_label.visible = false
+	
+	# 4 columns for tools and catalog in bottom dock
+	if tools_grid:
+		tools_grid.columns = 4
+	if catalog_grid:
+		catalog_grid.columns = 4
+	if scroll_container:
+		scroll_container.custom_minimum_size = Vector2(0, 110)
+	
 	sidebar_wrapper.anchor_left = 0.0
 	sidebar_wrapper.anchor_top = 1.0
 	sidebar_wrapper.anchor_right = 1.0
 	sidebar_wrapper.anchor_bottom = 1.0
 	
-	var dock_height = 280.0
+	var dock_height = 230.0
 	sidebar_wrapper.offset_left = 8.0 + left_inset
 	sidebar_wrapper.offset_right = -(8.0 + right_inset)
 	sidebar_wrapper.offset_top = -(dock_height + bottom_inset) if is_sidebar_open else 0.0
-	sidebar_wrapper.offset_bottom = -bottom_inset if is_sidebar_open else dock_height
+	sidebar_wrapper.offset_bottom = -bottom_inset if is_sidebar_open else (dock_height + bottom_inset)
 	
-	btn_toggle_sidebar.anchor_left = 0.9
+	btn_toggle_sidebar.anchor_left = 0.5
 	btn_toggle_sidebar.anchor_top = 0.0
-	btn_toggle_sidebar.anchor_right = 0.9
+	btn_toggle_sidebar.anchor_right = 0.5
 	btn_toggle_sidebar.anchor_bottom = 0.0
-	btn_toggle_sidebar.offset_left = -34.0
-	btn_toggle_sidebar.offset_right = 4.0
-	btn_toggle_sidebar.offset_top = -36.0
-	btn_toggle_sidebar.offset_bottom = -2.0
-	btn_toggle_sidebar.text = "▼" if is_sidebar_open else "▲"
+	btn_toggle_sidebar.offset_left = -70.0
+	btn_toggle_sidebar.offset_right = 70.0
+	btn_toggle_sidebar.offset_top = -34.0
+	btn_toggle_sidebar.offset_bottom = 0.0
+	btn_toggle_sidebar.text = "▼ Schließen" if is_sidebar_open else "▲ Werkzeuge"
 
 func _toggle_sidebar() -> void:
 	is_sidebar_open = not is_sidebar_open
 	var tween = create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	
 	if is_portrait_mode:
-		var target_top = -280.0 if is_sidebar_open else 0.0
-		var target_bottom = 0.0 if is_sidebar_open else 280.0
+		var dock_height = 230.0
+		var target_top = -dock_height if is_sidebar_open else 0.0
+		var target_bottom = 0.0 if is_sidebar_open else dock_height
 		tween.tween_property(sidebar_wrapper, "offset_top", target_top, 0.22)
 		tween.tween_property(sidebar_wrapper, "offset_bottom", target_bottom, 0.22)
-		btn_toggle_sidebar.text = "▼" if is_sidebar_open else "▲"
+		btn_toggle_sidebar.text = "▼ Schließen" if is_sidebar_open else "▲ Werkzeuge"
 	else:
 		var target_left = -SIDEBAR_WIDTH if is_sidebar_open else 0.0
 		var target_right = 0.0 if is_sidebar_open else SIDEBAR_WIDTH

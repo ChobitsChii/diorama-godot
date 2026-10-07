@@ -147,8 +147,75 @@ func _run_suite() -> void:
 		assert(count > 0, "CatalogGrid must have items after clicking %s (got %d)" % [btn.text, count])
 	print("  PASS: All category tab buttons clicked in Main scene and rendered cards successfully")
 	
+	# Test 6: Reset Island Confirmation Dialog flow, HistoryManager clear, and Responsive Portrait/Landscape Dock
+	print("Test 6: Reset Island & Responsive Portrait/Landscape Dock...")
+	
+	# Verify HistoryManager clear()
+	main_node.history_manager.record_state_before_action()
+	assert(main_node.history_manager.can_undo() == true, "HistoryManager has undo state")
+	main_node.history_manager.clear()
+	assert(main_node.history_manager.can_undo() == false, "HistoryManager clear() resets stack")
+	assert(main_node.history_manager.can_redo() == false, "HistoryManager clear() resets redo")
+	print("  PASS: HistoryManager clear() and stack reset verified OK")
+	
+	# Test Reset Island Flow: Open settings, click reset -> settings hides, confirm opens cleanly
+	main_node.hud._on_settings_pressed()
+	assert(main_node.hud.settings_dialog.visible == true, "SettingsDialog is open")
+	main_node.hud._on_reset_pressed()
+	assert(main_node.hud.settings_dialog.visible == false, "SettingsDialog should hide to prevent exclusive window conflicts")
+	assert(main_node.hud.reset_confirm_dialog.visible == true, "ResetConfirmDialog should be open")
+	
+	# Cancel test: SettingsDialog should reopen
+	main_node.hud._on_reset_canceled()
+	assert(main_node.hud.settings_dialog.visible == true, "SettingsDialog should reopen on cancel")
+	
+	# Confirm test: Island reset requested and executed cleanly without exceptions
+	main_node.hud._on_reset_pressed()
+	main_node.hud._on_reset_confirmed()
+	main_node.hud.settings_dialog.hide()
+	main_node.hud.reset_confirm_dialog.hide()
+	print("  PASS: ResetConfirmDialog and non-conflicting exclusive window flow verified OK")
+	
+	# Test Responsive Layout: Switch to Portrait
+	print("  Testing Responsive Portrait Window Mode (e.g. 483x974)...")
+	root.size = Vector2i(483, 974)
+	main_node.hud._on_viewport_size_changed()
+	await process_frame
+	await process_frame
+	
+	assert(main_node.hud.is_portrait_mode == true, "HUD should switch to portrait mode")
+	assert(main_node.hud.sidebar_wrapper.anchor_top == 1.0, "SidebarWrapper should be anchored at bottom in portrait")
+	assert(main_node.hud.tools_grid.columns == 4, "ToolsGrid should have 4 columns in bottom dock")
+	assert(main_node.hud.catalog_grid.columns == 4, "CatalogGrid should have 4 columns in bottom dock")
+	assert(main_node.hud.btn_snapshot.text == "📷", "BtnSnapshot should be compact icon in portrait")
+	assert(main_node.hud.btn_settings.text == "⚙️", "BtnSettings should be compact icon in portrait")
+	assert(main_node.hud.btn_toggle_sidebar.text == "▼ Schließen", "Toggle button should display ▼ Schließen when open in portrait")
+	
+	# Test sliding dock closed and open in portrait
+	main_node.hud._toggle_sidebar()
+	assert(main_node.hud.is_sidebar_open == false, "Sidebar should close")
+	assert(main_node.hud.btn_toggle_sidebar.text == "▲ Werkzeuge", "Toggle button should display ▲ Werkzeuge when closed in portrait")
+	main_node.hud._toggle_sidebar()
+	assert(main_node.hud.is_sidebar_open == true, "Sidebar should reopen")
+	print("  PASS: Bottom dock layout, compact icons, and 4-column grid verified in portrait")
+	
+	# Test Responsive Layout: Switch back to Landscape
+	print("  Testing Responsive Landscape Window Mode (1280x720)...")
+	root.size = Vector2i(1280, 720)
+	main_node.hud._on_viewport_size_changed()
+	await process_frame
+	await process_frame
+	
+	assert(main_node.hud.is_portrait_mode == false, "HUD should switch back to landscape mode")
+	assert(main_node.hud.sidebar_wrapper.anchor_left == 1.0, "SidebarWrapper should be anchored at right in landscape")
+	assert(main_node.hud.tools_grid.columns == 2, "ToolsGrid should have 2 columns in right sidebar")
+	assert(main_node.hud.catalog_grid.columns == 2, "CatalogGrid should have 2 columns in right sidebar")
+	assert(main_node.hud.btn_snapshot.text == "📷 Foto", "BtnSnapshot should have full text in landscape")
+	assert(main_node.hud.btn_settings.text == "⚙️ Optionen", "BtnSettings should have full text in landscape")
+	print("  PASS: Landscape right sidebar layout and full button texts restored verified OK")
+	
 	main_node.queue_free()
-	print("  PASS: Main scene explore mode creature interaction and speech bubble verified OK")
+	print("  PASS: Main scene integration verified OK")
 	
 	print("--- All Light Theme HUD, Polish & System Tests Passed Successfully! ---\n")
 	quit(0)

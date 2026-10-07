@@ -63,6 +63,14 @@ func can_undo() -> bool:
 func can_redo() -> bool:
 	return _redo_stack.size() > 0
 
+func clear() -> void:
+	_undo_stack.clear()
+	_redo_stack.clear()
+	history_changed.emit(false, false)
+
+func reset() -> void:
+	clear()
+
 func _on_grid_changed() -> void:
 	pass
 
