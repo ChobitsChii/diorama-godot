@@ -103,6 +103,19 @@ signal reset_island_requested()
 @onready var btn_quit_game: Button = get_node_or_null("%BtnQuitGame")
 @onready var quit_confirm_dialog: ConfirmationDialog = get_node_or_null("%QuitConfirmDialog")
 
+# Settings Tabs
+@onready var tab_audio_btn: Button = get_node_or_null("%TabAudioBtn")
+@onready var tab_view_btn: Button = get_node_or_null("%TabViewBtn")
+@onready var tab_system_btn: Button = get_node_or_null("%TabSystemBtn")
+@onready var tab_audio_content: VBoxContainer = get_node_or_null("%TabAudioContent")
+@onready var tab_view_content: VBoxContainer = get_node_or_null("%TabViewContent")
+@onready var tab_system_content: VBoxContainer = get_node_or_null("%TabSystemContent")
+@onready var settings_scroll: ScrollContainer = get_node_or_null("%SettingsScroll")
+
+var current_settings_tab: String = "audio"
+var _style_settings_tab_active: StyleBoxFlat
+var _style_settings_tab_inactive: StyleBoxFlat
+
 var _pending_snapshot_image: Image = null
 var _save_file_dialog: FileDialog = null
 
@@ -438,6 +451,21 @@ func _init_styles() -> void:
 	_style_dialog_ok_btn.set_corner_radius_all(12)
 	_style_dialog_ok_btn.shadow_size = 6
 	_style_dialog_ok_btn.shadow_color = Color(0.145, 0.388, 0.922, 0.35)
+	
+	_style_settings_tab_active = StyleBoxFlat.new()
+	_style_settings_tab_active.bg_color = Color(0.145, 0.388, 0.922, 1.0)
+	_style_settings_tab_active.set_corner_radius_all(10)
+	_style_settings_tab_active.shadow_size = 4
+	_style_settings_tab_active.shadow_color = Color(0.145, 0.388, 0.922, 0.3)
+	
+	_style_settings_tab_inactive = StyleBoxFlat.new()
+	_style_settings_tab_inactive.bg_color = Color(0.95, 0.965, 0.985, 1.0)
+	_style_settings_tab_inactive.border_width_left = 1
+	_style_settings_tab_inactive.border_width_top = 1
+	_style_settings_tab_inactive.border_width_right = 1
+	_style_settings_tab_inactive.border_width_bottom = 1
+	_style_settings_tab_inactive.border_color = Color(0.82, 0.86, 0.91, 1.0)
+	_style_settings_tab_inactive.set_corner_radius_all(10)
 
 func _connect_signals() -> void:
 	# Tools
@@ -465,7 +493,14 @@ func _connect_signals() -> void:
 	btn_info.pressed.connect(_on_info_pressed)
 	btn_settings.pressed.connect(_on_settings_pressed)
 	
-	# Settings Dialog controls
+	# Settings Dialog tabs & controls
+	if tab_audio_btn:
+		tab_audio_btn.pressed.connect(func(): _set_settings_tab("audio"))
+	if tab_view_btn:
+		tab_view_btn.pressed.connect(func(): _set_settings_tab("view"))
+	if tab_system_btn:
+		tab_system_btn.pressed.connect(func(): _set_settings_tab("system"))
+	
 	slider_master.value_changed.connect(_on_master_slider_changed)
 	check_mute.toggled.connect(_on_check_mute_toggled)
 	if option_display_mode:
@@ -939,7 +974,57 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 			lbl.add_theme_font_size_override("font_size", 21 if is_portrait_mode else 13)
 			lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
+func _set_settings_tab(tab_name: String) -> void:
+	current_settings_tab = tab_name
+	if tab_audio_content:
+		tab_audio_content.visible = (tab_name == "audio")
+	if tab_view_content:
+		tab_view_content.visible = (tab_name == "view")
+	if tab_system_content:
+		tab_system_content.visible = (tab_name == "system")
+	_update_settings_tab_buttons()
+
+func _update_settings_tab_buttons() -> void:
+	var tabs = [
+		{"btn": tab_audio_btn, "active": current_settings_tab == "audio"},
+		{"btn": tab_view_btn, "active": current_settings_tab == "view"},
+		{"btn": tab_system_btn, "active": current_settings_tab == "system"}
+	]
+	var font_sz = 22 if is_portrait_mode else 12
+	var btn_h = 52 if is_portrait_mode else 34
+	for t in tabs:
+		var btn = t["btn"] as Button
+		if not btn:
+			continue
+		btn.custom_minimum_size = Vector2(0, btn_h)
+		btn.add_theme_font_size_override("font_size", font_sz)
+		if t["active"]:
+			btn.add_theme_stylebox_override("normal", _style_settings_tab_active)
+			btn.add_theme_stylebox_override("hover", _style_settings_tab_active)
+			btn.add_theme_stylebox_override("pressed", _style_settings_tab_active)
+			btn.add_theme_stylebox_override("focus", _style_settings_tab_active)
+			btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+			btn.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
+			btn.add_theme_color_override("font_pressed_color", Color(1.0, 1.0, 1.0, 1.0))
+			btn.add_theme_color_override("font_focus_color", Color(1.0, 1.0, 1.0, 1.0))
+		else:
+			btn.add_theme_stylebox_override("normal", _style_settings_tab_inactive)
+			btn.add_theme_stylebox_override("hover", _style_dialog_btn_hover)
+			btn.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
+			btn.add_theme_stylebox_override("focus", _style_settings_tab_inactive)
+			btn.add_theme_color_override("font_color", Color(0.25, 0.32, 0.44, 1.0))
+			btn.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+			btn.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+			btn.add_theme_color_override("font_focus_color", Color(0.25, 0.32, 0.44, 1.0))
+
 func _update_settings_dialog_controls() -> void:
+	_update_settings_tab_buttons()
+	if tab_audio_content:
+		tab_audio_content.visible = (current_settings_tab == "audio")
+	if tab_view_content:
+		tab_view_content.visible = (current_settings_tab == "view")
+	if tab_system_content:
+		tab_system_content.visible = (current_settings_tab == "system")
 	var font_sz = 26 if is_portrait_mode else 12
 	var header_sz = 28 if is_portrait_mode else 13
 	var btn_h = 66 if is_portrait_mode else 34
@@ -1206,10 +1291,10 @@ func _on_settings_pressed() -> void:
 	
 	_apply_dialog_responsive_styling(settings_dialog)
 	_update_settings_dialog_controls()
-	var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
+	var dsize = _get_responsive_dialog_size(Vector2i(500, 420), Vector2i(780, 580))
 	var margin = settings_dialog.find_child("SettingsMargin") as Control
 	if margin:
-		margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+		margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
 	settings_dialog.reset_size()
 	settings_dialog.popup_centered(dsize)
 
@@ -1332,10 +1417,10 @@ func _on_reset_canceled() -> void:
 	if settings_dialog:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
+		var dsize = _get_responsive_dialog_size(Vector2i(500, 420), Vector2i(780, 580))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
-			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
 		settings_dialog.reset_size()
 		settings_dialog.popup_centered(dsize)
 
@@ -1364,10 +1449,10 @@ func _on_quit_canceled() -> void:
 	if settings_dialog:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
+		var dsize = _get_responsive_dialog_size(Vector2i(500, 420), Vector2i(780, 580))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
-			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
 		settings_dialog.reset_size()
 		settings_dialog.popup_centered(dsize)
 
@@ -1800,10 +1885,10 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	if settings_dialog and settings_dialog.visible:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
+		var dsize = _get_responsive_dialog_size(Vector2i(500, 420), Vector2i(780, 580))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
-			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
 		settings_dialog.reset_size()
 		settings_dialog.popup_centered(dsize)
 	if credits_dialog and credits_dialog.visible:

@@ -548,97 +548,146 @@ theme_override_constants/margin_bottom = 12
 
 [node name="SettingsVBox" type="VBoxContainer" parent="SettingsDialog/SettingsMargin"]
 layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="SettingsTabHBox" type="HBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="TabAudioBtn" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsTabHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🔊 Audio"
+
+[node name="TabViewBtn" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsTabHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "🖥️ Ansicht"
+
+[node name="TabSystemBtn" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsTabHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "💾 System"
+
+[node name="SettingsScroll" type="ScrollContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="SettingsContent" type="VBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_override_constants/separation = 10
+
+[node name="TabAudioContent" type="VBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent"]
+unique_name_in_owner = true
+layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="AudioHeader" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="AudioHeader" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabAudioContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.33, 1)
 theme_override_font_sizes/font_size = 13
 text = "🔊 AUDIO & LAUTSTÄRKE"
 
-[node name="MasterVolBox" type="VBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="MasterVolBox" type="VBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabAudioContent"]
 layout_mode = 2
-theme_override_constants/separation = 4
+theme_override_constants/separation = 6
 
-[node name="MasterVolLabel" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/MasterVolBox"]
+[node name="MasterVolLabel" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabAudioContent/MasterVolBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "Gesamtlautstärke (Master)"
 
-[node name="SliderMaster" type="HSlider" parent="SettingsDialog/SettingsMargin/SettingsVBox/MasterVolBox"]
+[node name="SliderMaster" type="HSlider" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabAudioContent/MasterVolBox"]
 unique_name_in_owner = true
 layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
 
-[node name="CheckMute" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="CheckMute" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabAudioContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "Ton stummschalten (Mute)"
 
-[node name="HSep1" type="HSeparator" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="TabViewContent" type="VBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent"]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="ViewHeader" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="ViewHeader" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.33, 1)
 theme_override_font_sizes/font_size = 13
-text = "🏝️ ANSICHT & GRAPHIK"
+text = "🏝️ ANSICHT & GRAFIK"
 
-[node name="DisplayModeBox" type="HBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="DisplayModeBox" type="HBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="DisplayModeLabel" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/DisplayModeBox"]
+[node name="DisplayModeLabel" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent/DisplayModeBox"]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "Bildschirmmodus"
 
-[node name="OptionDisplayMode" type="OptionButton" parent="SettingsDialog/SettingsMargin/SettingsVBox/DisplayModeBox"]
+[node name="OptionDisplayMode" type="OptionButton" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent/DisplayModeBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(210, 32)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 
-[node name="CheckGridLines" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="CheckGridLines" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 button_pressed = true
 text = "3D-Gitterlinien anzeigen"
 
-[node name="CheckNightMode" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="CheckNightMode" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent"]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "Nachtmodus (Tag/Nacht)"
 
-[node name="BtnResetCamSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="BtnResetCamSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabViewContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "🎥 Kamera-Ansicht zentrieren"
 
-[node name="HSep2" type="HSeparator" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="TabSystemContent" type="VBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent"]
+unique_name_in_owner = true
+visible = false
 layout_mode = 2
+theme_override_constants/separation = 12
 
-[node name="DataHeader" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="DataHeader" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent"]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.2, 0.25, 0.33, 1)
 theme_override_font_sizes/font_size = 13
-text = "💾 SPEICHERSTAND"
+text = "💾 SPEICHERSTAND & SYSTEM"
 
-[node name="SaveLoadHBox" type="HBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="SaveLoadHBox" type="HBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent"]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="BtnSaveSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SaveLoadHBox"]
+[node name="BtnSaveSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent/SaveLoadHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
@@ -646,7 +695,7 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "💾 Speichern"
 
-[node name="BtnLoadSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SaveLoadHBox"]
+[node name="BtnLoadSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent/SaveLoadHBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
@@ -654,14 +703,14 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "📂 Laden"
 
-[node name="BtnOpenScreenshots" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="BtnOpenScreenshots" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "📁 Screenshots-Ordner öffnen"
 
-[node name="BtnResetIslandSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="BtnResetIslandSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
@@ -669,7 +718,7 @@ theme_override_colors/font_color = Color(0.85, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 12
 text = "🔄 Insel auf Starter-Stand zurücksetzen"
 
-[node name="BtnQuitGame" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+[node name="BtnQuitGame" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox/SettingsScroll/SettingsContent/TabSystemContent"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 2
