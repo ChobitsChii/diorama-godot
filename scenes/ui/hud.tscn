@@ -636,6 +636,13 @@ size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
 text = "📂 Laden"
 
+[node name="BtnOpenScreenshots" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "📁 Screenshots-Ordner öffnen"
+
 [node name="BtnResetIslandSettings" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 32)

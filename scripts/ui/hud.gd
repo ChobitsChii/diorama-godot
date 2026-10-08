@@ -93,7 +93,11 @@ signal reset_island_requested()
 @onready var btn_reset_cam_settings: Button = %BtnResetCamSettings
 @onready var btn_save_settings: Button = %BtnSaveSettings
 @onready var btn_load_settings: Button = %BtnLoadSettings
+@onready var btn_open_screenshots: Button = %BtnOpenScreenshots
 @onready var btn_reset_island_settings: Button = %BtnResetIslandSettings
+
+var _pending_snapshot_image: Image = null
+var _save_file_dialog: FileDialog = null
 
 # Controllers
 var placement_ctrl: PlacementController
@@ -449,6 +453,8 @@ func _connect_signals() -> void:
 	btn_save_settings.pressed.connect(_on_save_pressed)
 	btn_load_settings.pressed.connect(_on_load_pressed)
 	btn_reset_island_settings.pressed.connect(_on_reset_pressed)
+	if btn_open_screenshots:
+		btn_open_screenshots.pressed.connect(_on_open_screenshots_pressed)
 	reset_confirm_dialog.confirmed.connect(_on_reset_confirmed)
 	reset_confirm_dialog.canceled.connect(_on_reset_canceled)
 
@@ -980,6 +986,17 @@ func _update_settings_dialog_controls() -> void:
 		btn_load_settings.add_theme_font_size_override("font_size", font_sz)
 		btn_load_settings.custom_minimum_size = Vector2(0, btn_h)
 	
+	if btn_open_screenshots:
+		btn_open_screenshots.text = "📁   Screenshots-Ordner öffnen"
+		btn_open_screenshots.add_theme_stylebox_override("normal", _style_dialog_btn)
+		btn_open_screenshots.add_theme_stylebox_override("hover", _style_dialog_btn_hover)
+		btn_open_screenshots.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
+		btn_open_screenshots.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+		btn_open_screenshots.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_open_screenshots.add_theme_font_size_override("font_size", font_sz)
+		btn_open_screenshots.custom_minimum_size = Vector2(0, btn_h)
+		btn_open_screenshots.visible = not OS.has_feature("mobile")
+	
 	if btn_reset_island_settings:
 		btn_reset_island_settings.text = "🔄   Insel auf Starter-Stand zurücksetzen"
 		btn_reset_island_settings.add_theme_stylebox_override("normal", _style_dialog_btn_danger)
@@ -1042,26 +1059,80 @@ func _on_check_night_mode_toggled(pressed: bool) -> void:
 	if day_night_ctrl and day_night_ctrl.is_night != pressed:
 		day_night_ctrl.toggle()
 
+func _get_save_file_dialog() -> FileDialog:
+	if not _save_file_dialog:
+		_save_file_dialog = FileDialog.new()
+		_save_file_dialog.title = "Diorama-Foto speichern"
+		_save_file_dialog.file_mode = FileDialog.FILE_MODE_SAVE_FILE
+		_save_file_dialog.access = FileDialog.ACCESS_FILESYSTEM
+		_save_file_dialog.use_native_dialog = true
+		_save_file_dialog.filters = PackedStringArray(["*.png ; PNG-Bilder (*.png)"])
+		_save_file_dialog.file_selected.connect(_on_snapshot_file_selected)
+		_save_file_dialog.canceled.connect(_on_snapshot_canceled)
+		add_child(_save_file_dialog)
+	return _save_file_dialog
+
+func _on_snapshot_file_selected(path: String) -> void:
+	if not _pending_snapshot_image:
+		return
+	var err = _pending_snapshot_image.save_png(path)
+	if err == OK:
+		show_toast("📸 Foto gespeichert: %s ✓" % path.get_file())
+	else:
+		show_toast("⚠️ Fehler beim Speichern des Fotos")
+	_pending_snapshot_image = null
+
+func _on_snapshot_canceled() -> void:
+	_pending_snapshot_image = null
+
+func _on_open_screenshots_pressed() -> void:
+	var sc_dir = ProjectSettings.globalize_path("user://screenshots")
+	if not DirAccess.dir_exists_absolute(sc_dir):
+		DirAccess.make_dir_absolute(sc_dir)
+	OS.shell_open(sc_dir)
+	show_toast("📁 Screenshot-Ordner geöffnet")
+
 func _on_snapshot_pressed() -> void:
+	# 1. Capture pristine viewport image first
+	var img = get_viewport().get_texture().get_image()
+	if not img:
+		show_toast("⚠️ Konnte Bild nicht aufnehmen")
+		return
+	
+	_pending_snapshot_image = img
+	
+	# 2. Camera click sound & visual flash effect
+	AudioManager.play("click")
 	if flash_rect:
 		flash_rect.color.a = 0.85
 		var tween = create_tween()
 		tween.tween_property(flash_rect, "color:a", 0.0, 0.35)
 	
-	AudioManager.play("click")
+	var ts = Time.get_datetime_string_from_system().replace(":", "-")
+	var default_filename = "diorama_%s.png" % ts
 	
-	await get_tree().process_frame
-	var img = get_viewport().get_texture().get_image()
-	if img:
-		var dir_path = "user://screenshots"
-		DirAccess.make_dir_absolute(dir_path)
-		var ts = Time.get_datetime_string_from_system().replace(":", "-")
-		var file_path = "%s/diorama_%s.png" % [dir_path, ts]
-		var err = img.save_png(file_path)
-		if err == OK:
-			show_toast("📸 Foto aufgenommen & gespeichert! ✓")
-		else:
-			show_toast("⚠️ Fehler beim Speichern des Fotos")
+	# 3. Always keep a safety copy in user://screenshots
+	var dir_path = "user://screenshots"
+	DirAccess.make_dir_absolute(dir_path)
+	var backup_path = "%s/%s" % [dir_path, default_filename]
+	img.save_png(backup_path)
+	
+	# 4. On Desktop: open Save File Dialog so user can pick folder & name
+	if not OS.has_feature("mobile"):
+		var fd = _get_save_file_dialog()
+		var pic_dir = OS.get_system_dir(OS.SYSTEM_DIR_PICTURES)
+		if pic_dir.is_empty() or not DirAccess.dir_exists_absolute(pic_dir):
+			pic_dir = OS.get_system_dir(OS.SYSTEM_DIR_DESKTOP)
+		if pic_dir.is_empty() or not DirAccess.dir_exists_absolute(pic_dir):
+			pic_dir = ProjectSettings.globalize_path("user://screenshots")
+		
+		fd.current_dir = pic_dir
+		fd.current_file = default_filename
+		fd.popup_centered(Vector2i(800, 520))
+		show_toast("📸 Foto aufgenommen! Speicherort wählen...")
+	else:
+		show_toast("📸 Foto in Screenshots gespeichert! ✓")
+		_pending_snapshot_image = null
 
 func _on_reset_pressed() -> void:
 	if settings_dialog:
