@@ -220,6 +220,10 @@ func _init_styles() -> void:
 	_style_action_pill.set_corner_radius_all(9999)
 	_style_action_pill.shadow_size = 2
 	_style_action_pill.shadow_color = Color(0, 0, 0, 0.04)
+	_style_action_pill.content_margin_left = 10
+	_style_action_pill.content_margin_right = 10
+	_style_action_pill.content_margin_top = 4
+	_style_action_pill.content_margin_bottom = 4
 	
 	_style_action_pill_hover = StyleBoxFlat.new()
 	_style_action_pill_hover.bg_color = Color(0.93, 0.96, 1.0, 1.0)
@@ -231,6 +235,10 @@ func _init_styles() -> void:
 	_style_action_pill_hover.set_corner_radius_all(9999)
 	_style_action_pill_hover.shadow_size = 4
 	_style_action_pill_hover.shadow_color = Color(0.145, 0.388, 0.922, 0.15)
+	_style_action_pill_hover.content_margin_left = 10
+	_style_action_pill_hover.content_margin_right = 10
+	_style_action_pill_hover.content_margin_top = 4
+	_style_action_pill_hover.content_margin_bottom = 4
 	
 	# 2. Tool Buttons
 	_style_tool_normal = StyleBoxFlat.new()
@@ -1267,26 +1275,32 @@ func _apply_landscape_layout(top_inset: float, bottom_inset: float, right_inset:
 		btn_snapshot.icon = ICON_CAMERA
 		btn_snapshot.expand_icon = true
 		btn_snapshot.text = "Foto"
+		btn_snapshot.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn_snapshot.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn_snapshot.custom_minimum_size = Vector2(86, 32)
 		btn_snapshot.add_theme_font_size_override("font_size", 13)
 		btn_snapshot.add_theme_constant_override("icon_max_width", 18)
-		btn_snapshot.add_theme_constant_override("h_separation", 6)
+		btn_snapshot.add_theme_constant_override("h_separation", 8)
 	if btn_info:
 		btn_info.icon = ICON_INFO
 		btn_info.expand_icon = true
 		btn_info.text = "Info"
+		btn_info.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn_info.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn_info.custom_minimum_size = Vector2(82, 32)
 		btn_info.add_theme_font_size_override("font_size", 13)
 		btn_info.add_theme_constant_override("icon_max_width", 18)
-		btn_info.add_theme_constant_override("h_separation", 6)
+		btn_info.add_theme_constant_override("h_separation", 8)
 	if btn_settings:
 		btn_settings.icon = ICON_SETTINGS
 		btn_settings.expand_icon = true
 		btn_settings.text = "Optionen"
+		btn_settings.icon_alignment = HORIZONTAL_ALIGNMENT_LEFT
+		btn_settings.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn_settings.custom_minimum_size = Vector2(108, 32)
 		btn_settings.add_theme_font_size_override("font_size", 13)
 		btn_settings.add_theme_constant_override("icon_max_width", 18)
-		btn_settings.add_theme_constant_override("h_separation", 6)
+		btn_settings.add_theme_constant_override("h_separation", 8)
 	
 	# Show sidebar labels & separators
 	if tools_label: tools_label.visible = true
@@ -1369,18 +1383,24 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 		btn_snapshot.icon = ICON_CAMERA
 		btn_snapshot.expand_icon = true
 		btn_snapshot.text = ""
+		btn_snapshot.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_snapshot.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn_snapshot.custom_minimum_size = Vector2(92, 76)
 		btn_snapshot.add_theme_constant_override("icon_max_width", 44)
 	if btn_info:
 		btn_info.icon = ICON_INFO
 		btn_info.expand_icon = true
 		btn_info.text = ""
+		btn_info.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_info.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn_info.custom_minimum_size = Vector2(92, 76)
 		btn_info.add_theme_constant_override("icon_max_width", 44)
 	if btn_settings:
 		btn_settings.icon = ICON_SETTINGS
 		btn_settings.expand_icon = true
 		btn_settings.text = ""
+		btn_settings.icon_alignment = HORIZONTAL_ALIGNMENT_CENTER
+		btn_settings.vertical_icon_alignment = VERTICAL_ALIGNMENT_CENTER
 		btn_settings.custom_minimum_size = Vector2(92, 76)
 		btn_settings.add_theme_constant_override("icon_max_width", 44)
 	
