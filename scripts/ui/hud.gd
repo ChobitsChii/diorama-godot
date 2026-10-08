@@ -762,12 +762,16 @@ func show_speech_bubble(text: String, world_pos: Vector3) -> void:
 func _get_responsive_dialog_size(landscape_size: Vector2i, portrait_size: Vector2i) -> Vector2i:
 	var vp_size = get_viewport().get_visible_rect().size
 	if is_portrait_mode:
-		var target_w = clampi(portrait_size.x, 480, int(vp_size.x * 0.90))
-		var target_h = clampi(portrait_size.y, 320, int(vp_size.y * 0.72))
+		var max_w = int(vp_size.x * 0.92)
+		var max_h = int(vp_size.y * 0.85)
+		var target_w = clampi(portrait_size.x, mini(320, max_w), max_w)
+		var target_h = clampi(portrait_size.y, mini(320, max_h), max_h)
 		return Vector2i(target_w, target_h)
 	else:
-		var target_w = clampi(landscape_size.x, 400, int(vp_size.x * 0.85))
-		var target_h = clampi(landscape_size.y, 240, int(vp_size.y * 0.85))
+		var max_w = int(vp_size.x * 0.85)
+		var max_h = int(vp_size.y * 0.85)
+		var target_w = clampi(landscape_size.x, mini(320, max_w), max_w)
+		var target_h = clampi(landscape_size.y, mini(240, max_h), max_h)
 		return Vector2i(target_w, target_h)
 
 func _apply_dialog_responsive_styling(dlg: Window) -> void:
@@ -780,30 +784,60 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 	if dlg is AcceptDialog:
 		var ok_btn = (dlg as AcceptDialog).get_ok_button()
 		if ok_btn:
-			ok_btn.add_theme_stylebox_override("normal", _style_dialog_ok_btn)
-			ok_btn.add_theme_stylebox_override("hover", _style_dialog_ok_btn)
-			ok_btn.add_theme_stylebox_override("pressed", _style_dialog_ok_btn)
-			ok_btn.add_theme_stylebox_override("focus", _style_dialog_ok_btn)
+			var ok_sb = StyleBoxFlat.new()
+			ok_sb.bg_color = Color(0.145, 0.388, 0.922, 1.0)
+			ok_sb.set_corner_radius_all(12)
+			ok_sb.shadow_size = 6
+			ok_sb.shadow_color = Color(0.145, 0.388, 0.922, 0.35)
+			ok_sb.content_margin_left = 36 if is_portrait_mode else 22
+			ok_sb.content_margin_right = 36 if is_portrait_mode else 22
+			ok_sb.content_margin_top = 10 if is_portrait_mode else 6
+			ok_sb.content_margin_bottom = 10 if is_portrait_mode else 6
+			ok_btn.add_theme_stylebox_override("normal", ok_sb)
+			ok_btn.add_theme_stylebox_override("hover", ok_sb)
+			ok_btn.add_theme_stylebox_override("pressed", ok_sb)
+			ok_btn.add_theme_stylebox_override("focus", ok_sb)
 			ok_btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 			ok_btn.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
-			ok_btn.custom_minimum_size = Vector2(180, 44 if is_portrait_mode else 34)
-			ok_btn.add_theme_font_size_override("font_size", 16 if is_portrait_mode else 13)
+			ok_btn.add_theme_font_size_override("font_size", 18 if is_portrait_mode else 13)
 			ok_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	
 	if dlg is ConfirmationDialog:
 		var cancel_btn = (dlg as ConfirmationDialog).get_cancel_button()
 		if cancel_btn:
-			cancel_btn.add_theme_stylebox_override("normal", _style_dialog_btn)
-			cancel_btn.add_theme_stylebox_override("hover", _style_dialog_btn_hover)
+			var c_sb = StyleBoxFlat.new()
+			c_sb.bg_color = Color(0.94, 0.955, 0.975, 1.0)
+			c_sb.border_width_left = 1
+			c_sb.border_width_top = 1
+			c_sb.border_width_right = 1
+			c_sb.border_width_bottom = 1
+			c_sb.border_color = Color(0.82, 0.85, 0.9, 1.0)
+			c_sb.set_corner_radius_all(10)
+			c_sb.content_margin_left = 24 if is_portrait_mode else 16
+			c_sb.content_margin_right = 24 if is_portrait_mode else 16
+			c_sb.content_margin_top = 10 if is_portrait_mode else 6
+			c_sb.content_margin_bottom = 10 if is_portrait_mode else 6
+			cancel_btn.add_theme_stylebox_override("normal", c_sb)
+			cancel_btn.add_theme_stylebox_override("hover", c_sb)
 			cancel_btn.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
-			cancel_btn.custom_minimum_size = Vector2(160, 50 if is_portrait_mode else 36)
 			cancel_btn.add_theme_font_size_override("font_size", 18 if is_portrait_mode else 13)
 		var ok_btn = (dlg as ConfirmationDialog).get_ok_button()
 		if ok_btn:
-			ok_btn.add_theme_stylebox_override("normal", _style_dialog_btn_danger)
-			ok_btn.add_theme_stylebox_override("hover", _style_dialog_btn_danger)
+			var d_sb = StyleBoxFlat.new()
+			d_sb.bg_color = Color(0.99, 0.95, 0.95, 1.0)
+			d_sb.border_width_left = 1
+			d_sb.border_width_top = 1
+			d_sb.border_width_right = 1
+			d_sb.border_width_bottom = 1
+			d_sb.border_color = Color(0.95, 0.65, 0.65, 0.9)
+			d_sb.set_corner_radius_all(10)
+			d_sb.content_margin_left = 24 if is_portrait_mode else 16
+			d_sb.content_margin_right = 24 if is_portrait_mode else 16
+			d_sb.content_margin_top = 10 if is_portrait_mode else 6
+			d_sb.content_margin_bottom = 10 if is_portrait_mode else 6
+			ok_btn.add_theme_stylebox_override("normal", d_sb)
+			ok_btn.add_theme_stylebox_override("hover", d_sb)
 			ok_btn.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15, 1.0))
-			ok_btn.custom_minimum_size = Vector2(160, 50 if is_portrait_mode else 36)
 			ok_btn.add_theme_font_size_override("font_size", 18 if is_portrait_mode else 13)
 		var lbl = (dlg as ConfirmationDialog).get_label()
 		if lbl:
@@ -850,6 +884,7 @@ func _update_settings_dialog_controls() -> void:
 		check_mute.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
 		check_mute.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_mute.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_mute.add_theme_constant_override("h_separation", 10 if is_portrait_mode else 6)
 		check_mute.custom_minimum_size = Vector2(0, chk_h)
 	
 	if check_grid_lines:
@@ -859,6 +894,7 @@ func _update_settings_dialog_controls() -> void:
 		check_grid_lines.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
 		check_grid_lines.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_grid_lines.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_grid_lines.add_theme_constant_override("h_separation", 10 if is_portrait_mode else 6)
 		check_grid_lines.custom_minimum_size = Vector2(0, chk_h)
 	
 	if check_night_mode:
@@ -868,6 +904,7 @@ func _update_settings_dialog_controls() -> void:
 		check_night_mode.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
 		check_night_mode.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_night_mode.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_night_mode.add_theme_constant_override("h_separation", 10 if is_portrait_mode else 6)
 		check_night_mode.custom_minimum_size = Vector2(0, chk_h)
 	
 	for btn in [btn_reset_cam_settings, btn_save_settings, btn_load_settings]:
