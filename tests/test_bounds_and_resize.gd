@@ -51,7 +51,10 @@ func _init():
 	# Shrink to 6x6 (delta = (6-8)/2 = -1) -> pine at 7,7 shifted to 6,6, which is >= 6 -> culled!
 	gm.set_grid_size(6)
 	assert(not gm.objects.has(pine_id), "Out-of-bounds pine after shrink must be culled")
-	gm.clear_all()
+	for id in gm.objects.keys().duplicate():
+		gm.remove_object(id)
+	for key in gm.ground_tiles.keys().duplicate():
+		gm.remove_ground_at(key.x, key.y)
 	gm.queue_free()
 	print("  PASS: Boundary verification and resizing shifts/culling OK")
 	quit(0)
