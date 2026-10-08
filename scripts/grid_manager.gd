@@ -26,7 +26,46 @@ func _ready() -> void:
 	pass
 
 func set_grid_size(new_size: int) -> void:
+	if new_size == grid_size:
+		return
+	
+	var old_size = grid_size
 	grid_size = new_size
+	var delta: int = (new_size - old_size) / 2
+	
+	# Shift existing ground tiles so island content stays centered; cull items out of bounds
+	var new_ground: Dictionary = {}
+	for tile in ground_tiles.values():
+		var new_gx = tile["gx"] + delta
+		var new_gz = tile["gz"] + delta
+		if is_in_bounds(new_gx, new_gz, 1):
+			tile["gx"] = new_gx
+			tile["gz"] = new_gz
+			new_ground[Vector2i(new_gx, new_gz)] = tile
+		else:
+			if tile.get("node") and is_instance_valid(tile["node"]):
+				tile["node"].queue_free()
+	ground_tiles = new_ground
+	
+	# Shift existing objects so content stays centered; cull items out of bounds
+	cells.clear()
+	var new_objects: Dictionary = {}
+	for obj in objects.values():
+		var size = obj.get("size", 1)
+		var new_gx = obj["gx"] + delta
+		var new_gz = obj["gz"] + delta
+		if is_in_bounds(new_gx, new_gz, size):
+			obj["gx"] = new_gx
+			obj["gz"] = new_gz
+			new_objects[obj["id"]] = obj
+			for x in range(size):
+				for z in range(size):
+					cells[Vector2i(new_gx + x, new_gz + z)] = obj["id"]
+		else:
+			if obj.get("node") and is_instance_valid(obj["node"]):
+				obj["node"].queue_free()
+	objects = new_objects
+	
 	update_all_item_positions()
 	grid_changed.emit()
 
@@ -100,6 +139,10 @@ func place(type_id: String, gx: int, gz: int, rot_step: int = 0, custom_id: Stri
 		return {}
 	
 	var item_size: int = item_def.get("size", 1)
+	if not is_in_bounds(gx, gz, item_size):
+		push_warning("Attempted to place %s out of bounds at (%d, %d)" % [type_id, gx, gz])
+		return {}
+	
 	var is_ground: bool = item_def.get("is_ground", false)
 	
 	var id: String = custom_id

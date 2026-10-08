@@ -208,8 +208,30 @@ func _unhandled_input(event: InputEvent) -> void:
 	
 	# Left Mouse Button / Tap interaction
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		if is_pointer_on_grid:
-			_handle_grid_click(hovered_cell.x, hovered_cell.y)
+		_process_click_or_tap(event.position)
+	elif event is InputEventScreenTouch and event.pressed:
+		_process_click_or_tap(event.position)
+
+func _process_click_or_tap(screen_pos: Vector2) -> void:
+	if not camera or not grid_manager:
+		return
+	var ray_origin = camera.project_ray_origin(screen_pos)
+	var ray_dir = camera.project_ray_normal(screen_pos)
+	var ground_plane = Plane(Vector3.UP, 0.0)
+	var hit_pos = ground_plane.intersects_ray(ray_origin, ray_dir)
+	if not hit_pos:
+		return
+	
+	var item_size: int = 1
+	if current_mode == Mode.PLACE:
+		var item_def = Catalog.get_item(active_type_id)
+		item_size = item_def.get("size", 1)
+	elif current_mode == Mode.SELECT and not selected_entry.is_empty():
+		item_size = selected_entry.get("size", 1)
+	
+	var grid_pos = grid_manager.world_to_grid(hit_pos, item_size)
+	if grid_manager.is_in_bounds(grid_pos.x, grid_pos.y, item_size):
+		_handle_grid_click(grid_pos.x, grid_pos.y)
 
 func _handle_grid_click(gx: int, gz: int) -> void:
 	match current_mode:

@@ -49,7 +49,11 @@ func _ready() -> void:
 	# 5. Populate Island: Load from local save if exists, otherwise generate starter island
 	if storage_manager.has_save_file():
 		var loaded = storage_manager.load_local()
-		if not loaded:
+		if loaded:
+			island_base.setup_grid(grid_manager.grid_size)
+			hud._update_grid_size_pills(grid_manager.grid_size)
+			camera_controller.base_size = float(grid_manager.grid_size) + 1.0
+		else:
 			spawn_starter_island()
 	else:
 		spawn_starter_island()
@@ -57,6 +61,9 @@ func _ready() -> void:
 func _on_cloud_data_received(data: Dictionary) -> void:
 	history_manager.record_state_before_action()
 	DioramaSerializer.deserialize_from_dict(data, grid_manager)
+	island_base.setup_grid(grid_manager.grid_size)
+	hud._update_grid_size_pills(grid_manager.grid_size)
+	camera_controller.base_size = float(grid_manager.grid_size) + 1.0
 	storage_manager.save_local()
 	hud.show_toast("☁️ Cloud-Insel geladen und lokal gesichert ✓")
 
