@@ -53,5 +53,23 @@ func _init():
 	img.save_png("%s/screenshot_landscape_hud.png" % out_dir)
 	print("Captured screenshot_landscape_hud.png")
 	
+	# 5. Landscape Credits Dialog Screenshot
+	main.hud._on_info_pressed()
+	for i in range(6):
+		await process_frame
+	img = root.get_texture().get_image()
+	img.save_png("%s/screenshot_landscape_credits.png" % out_dir)
+	print("Captured screenshot_landscape_credits.png")
+	main.hud.credits_dialog.hide()
+	
+	# 6. Landscape Settings Dialog Screenshot
+	main.hud._on_settings_pressed()
+	for i in range(6):
+		await process_frame
+	img = root.get_texture().get_image()
+	img.save_png("%s/screenshot_landscape_settings.png" % out_dir)
+	print("Captured screenshot_landscape_settings.png")
+	main.hud.settings_dialog.hide()
+	
 	print("--- Screenshot Capture Complete ---")
 	quit(0)

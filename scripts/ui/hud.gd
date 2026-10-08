@@ -4,9 +4,16 @@ extends Control
 ## Light Theme Bau-HUD matching Web Diorama (42px slim TopBar, Brand Pill,
 ## 5-Pill Grid Switcher, Settings Dialog, Comic Speech Bubbles, and High-Contrast Catalog Cards).
 
-const ICON_INFO = preload("res://assets/icons/info.svg")
-const ICON_SETTINGS = preload("res://assets/icons/settings.svg")
-const ICON_CAMERA = preload("res://assets/icons/camera.svg")
+var ICON_INFO = load("res://assets/icons/info.svg")
+var ICON_SETTINGS = load("res://assets/icons/settings.svg")
+var ICON_CAMERA = load("res://assets/icons/camera.svg")
+var ICON_TEAM = load("res://assets/icons/team.svg")
+var ICON_LICENSE = load("res://assets/icons/license.svg")
+var ICON_CHECK_UNCHECKED = load("res://assets/icons/checkbox_unchecked.svg")
+var ICON_CHECK_CHECKED = load("res://assets/icons/checkbox_checked.svg")
+var ICON_SLIDER_GRABBER = load("res://assets/icons/slider_grabber.svg")
+var ICON_SLIDER_GRABBER_HL = load("res://assets/icons/slider_grabber_hl.svg")
+
 
 signal tool_selected(mode: int)
 signal category_selected(cat: String)
@@ -887,7 +894,37 @@ func _update_settings_dialog_controls() -> void:
 		master_lbl.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 	
 	if slider_master:
-		slider_master.custom_minimum_size = Vector2(0, 52 if is_portrait_mode else 24)
+		var track_h = 18 if is_portrait_mode else 10
+		var track_margin = 8 if is_portrait_mode else 5
+		var slider_track_sb = StyleBoxFlat.new()
+		slider_track_sb.bg_color = Color(0.88, 0.91, 0.94, 1.0)
+		slider_track_sb.set_corner_radius_all(track_h / 2)
+		slider_track_sb.content_margin_top = track_margin
+		slider_track_sb.content_margin_bottom = track_margin
+		
+		var slider_fill_sb = StyleBoxFlat.new()
+		slider_fill_sb.bg_color = Color(0.145, 0.388, 0.922, 1.0)
+		slider_fill_sb.set_corner_radius_all(track_h / 2)
+		slider_fill_sb.content_margin_top = track_margin
+		slider_fill_sb.content_margin_bottom = track_margin
+		
+		slider_master.add_theme_stylebox_override("slider", slider_track_sb)
+		slider_master.add_theme_stylebox_override("grabber_area", slider_fill_sb)
+		slider_master.add_theme_stylebox_override("grabber_area_highlight", slider_fill_sb)
+		slider_master.add_theme_icon_override("grabber", ICON_SLIDER_GRABBER)
+		slider_master.add_theme_icon_override("grabber_highlight", ICON_SLIDER_GRABBER_HL)
+		slider_master.custom_minimum_size = Vector2(0, 56 if is_portrait_mode else 36)
+	
+	var chk_sep = 16 if is_portrait_mode else 10
+	for chk in [check_mute, check_grid_lines, check_night_mode]:
+		if chk:
+			chk.add_theme_icon_override("checked", ICON_CHECK_CHECKED)
+			chk.add_theme_icon_override("unchecked", ICON_CHECK_UNCHECKED)
+			chk.add_theme_icon_override("checked_disabled", ICON_CHECK_CHECKED)
+			chk.add_theme_icon_override("unchecked_disabled", ICON_CHECK_UNCHECKED)
+			chk.add_theme_constant_override("h_separation", chk_sep)
+			chk.add_theme_constant_override("check_v_offset", 0)
+			chk.custom_minimum_size = Vector2(0, chk_h)
 	
 	if check_mute:
 		check_mute.text = "🔇  Ton stummschalten (Mute)"
@@ -896,8 +933,6 @@ func _update_settings_dialog_controls() -> void:
 		check_mute.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
 		check_mute.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_mute.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
-		check_mute.add_theme_constant_override("h_separation", 16 if is_portrait_mode else 6)
-		check_mute.custom_minimum_size = Vector2(0, chk_h)
 	
 	if check_grid_lines:
 		check_grid_lines.text = "📐  3D-Gitterlinien anzeigen"
@@ -906,8 +941,6 @@ func _update_settings_dialog_controls() -> void:
 		check_grid_lines.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
 		check_grid_lines.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_grid_lines.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
-		check_grid_lines.add_theme_constant_override("h_separation", 16 if is_portrait_mode else 6)
-		check_grid_lines.custom_minimum_size = Vector2(0, chk_h)
 	
 	if check_night_mode:
 		check_night_mode.text = "🌙  Nachtmodus (Tag/Nacht)"
@@ -916,8 +949,6 @@ func _update_settings_dialog_controls() -> void:
 		check_night_mode.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
 		check_night_mode.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_night_mode.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
-		check_night_mode.add_theme_constant_override("h_separation", 16 if is_portrait_mode else 6)
-		check_night_mode.custom_minimum_size = Vector2(0, chk_h)
 	
 	if btn_reset_cam_settings:
 		btn_reset_cam_settings.text = "🎥   Kamera-Ansicht zentrieren"
@@ -972,7 +1003,8 @@ func _update_credits_dialog_content() -> void:
 	var ver = AppVersion.VERSION if ClassDB.class_exists(&"AppVersion") or "AppVersion" in get_tree().root else "0.1.0-beta.1"
 	if not ver.begins_with("v"):
 		ver = "v" + ver
-	credits_text.text = "[center][b][font_size=%d]🏝️   Diorama Sandbox[/font_size][/b]\n[font_size=%d][color=#2563eb]Native Edition %s • Cross-Platform (Linux / Windows / Android)[/color][/font_size][/center]\n\n[font_size=%d][b]👥   Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[b]📜   Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem[/font_size]" % [title_sz, sub_sz, ver, font_sz]
+	var icon_sz = 26 if is_portrait_mode else 16
+	credits_text.text = "[center][b][font_size=%d]🏝️   Diorama Sandbox[/font_size][/b]\n[font_size=%d][color=#2563eb]Native Edition %s • Cross-Platform (Linux / Windows / Android)[/color][/font_size][/center]\n\n[font_size=%d][img=%d]res://assets/icons/team.svg[/img]  [b]Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[img=%d]res://assets/icons/license.svg[/img]  [b]Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem[/font_size]" % [title_sz, sub_sz, ver, font_sz, icon_sz, icon_sz]
 
 # -----------------------------------------------------------------------------
 # Top Controls & Settings Handlers
@@ -1169,17 +1201,38 @@ func show_toast(msg: String, duration: float = 2.0) -> void:
 				toast_panel.visible = false
 		)
 
+func _refresh_catalog_cards_layout() -> void:
+	if not catalog_grid:
+		return
+	var card_sz = Vector2(160, 130) if is_portrait_mode else Vector2(100, 80)
+	var font_sz = 26 if is_portrait_mode else 12
+	var line_spacing = 8 if is_portrait_mode else 4
+	for child in catalog_grid.get_children():
+		if child is Button:
+			child.custom_minimum_size = card_sz
+			child.add_theme_font_size_override("font_size", font_sz)
+			child.add_theme_constant_override("line_spacing", line_spacing)
+
 # -----------------------------------------------------------------------------
 # Responsive Layout & Safe Area
 # -----------------------------------------------------------------------------
 var _is_updating_layout: bool = false
 var _last_layout_size: Vector2i = Vector2i.ZERO
+var _is_layout_deferred_pending: bool = false
 
 func _notification(what: int) -> void:
 	if what == NOTIFICATION_WM_SIZE_CHANGED:
 		_on_viewport_size_changed()
 
 func _on_viewport_size_changed() -> void:
+	if not is_inside_tree():
+		return
+	if not _is_layout_deferred_pending:
+		_is_layout_deferred_pending = true
+		_apply_layout_deferred.call_deferred()
+
+func _apply_layout_deferred() -> void:
+	_is_layout_deferred_pending = false
 	if not is_inside_tree() or _is_updating_layout:
 		return
 	var vp = get_viewport()
@@ -1200,9 +1253,9 @@ func _on_viewport_size_changed() -> void:
 	var prev_portrait: bool = is_portrait_mode
 	is_portrait_mode = is_portrait
 	
-	# If orientation changed, recreate catalog cards to adopt correct portrait/landscape dimensions
+	# If orientation changed, swiftly update card dimensions without recreating nodes
 	if prev_portrait != is_portrait:
-		_update_catalog_items(current_category)
+		_refresh_catalog_cards_layout()
 	
 	_apply_safe_area_and_layout(vp_size, Vector2(vp_size), is_portrait)
 	_is_updating_layout = false

@@ -150,6 +150,8 @@ func reset_view() -> void:
 
 func _on_viewport_size_changed() -> void:
 	_update_aspect_compensation()
+	_current_size = _target_size
+	_update_camera_transform(true)
 
 func _update_aspect_compensation() -> void:
 	var vp_size = get_viewport().get_visible_rect().size

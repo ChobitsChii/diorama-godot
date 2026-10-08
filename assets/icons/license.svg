@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- License / Certificate Scroll Icon -->
+  <path d="M7 6 C7 4.5, 8.5 4, 10 4 L22 4 C24 4, 25 5, 25 7 L25 24 C25 26, 23.5 27.5, 21 27.5 L9 27.5 C7 27.5, 6 26.5, 6 25 L6 7 C6 6.5, 6.5 6, 7 6 Z" fill="#e2e8f0" stroke="#2563eb" stroke-width="2"/>
+  <!-- Horizontal document text lines -->
+  <line x1="10" y1="9" x2="20" y2="9" stroke="#2563eb" stroke-width="2" stroke-linecap="round"/>
+  <line x1="10" y1="14" x2="21" y2="14" stroke="#64748b" stroke-width="1.8" stroke-linecap="round"/>
+  <line x1="10" y1="18" x2="18" y2="18" stroke="#64748b" stroke-width="1.8" stroke-linecap="round"/>
+  <!-- Badge/seal at bottom right -->
+  <circle cx="21" cy="22" r="3.5" fill="#f59e0b"/>
+  <path d="M20 25 L19 28 L21 27 L23 28 L22 25 Z" fill="#d97706"/>
+</svg>

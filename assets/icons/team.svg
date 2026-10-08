@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Team icon: two stylized people silhouettes -->
+  <!-- Left person (behind) -->
+  <circle cx="12" cy="11" r="4.5" fill="#3b82f6"/>
+  <path d="M5 25 C5 20, 8 18, 12 18 C16 18, 19 20, 19 25 Z" fill="#3b82f6"/>
+  <!-- Right person (front) -->
+  <circle cx="21" cy="13" r="4" fill="#1d4ed8"/>
+  <path d="M15 26 C15 21.5, 17.5 19.5, 21 19.5 C24.5 19.5, 27 21.5, 27 26 Z" fill="#1d4ed8"/>
+</svg>
