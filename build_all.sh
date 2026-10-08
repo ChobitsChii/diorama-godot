@@ -160,13 +160,20 @@ echo ""
 echo "▶ Packaging Release Assets into builds/dist/..."
 rm -f builds/dist/*
 
-# Linux Archive
-tar -czf "builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64.tar.gz" -C builds/linux DioramaSandbox.x86_64 DioramaSandbox.pck
-echo "  ✓ builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64.tar.gz"
+# Linux (Single-File Executable + Archive)
+if [ -f "builds/linux/DioramaSandbox.x86_64" ]; then
+    cp builds/linux/DioramaSandbox.x86_64 "builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64"
+    chmod +x "builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64"
+    tar -czf "builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64.tar.gz" -C builds/linux DioramaSandbox.x86_64
+    echo "  ✓ builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64 (Single-File Binary)"
+    echo "  ✓ builds/dist/DioramaSandbox-v${VERSION}-linux-x86_64.tar.gz"
+fi
 
-# Windows Archive
+# Windows (Single-File Executable + Archive)
 if [ -f "builds/windows/DioramaSandbox.exe" ]; then
-    (cd builds/windows && zip -9 -q "../../builds/dist/DioramaSandbox-v${VERSION}-windows-x86_64.zip" DioramaSandbox.exe DioramaSandbox.pck)
+    cp builds/windows/DioramaSandbox.exe "builds/dist/DioramaSandbox-v${VERSION}-windows-x86_64.exe"
+    (cd builds/windows && zip -9 -q "../../builds/dist/DioramaSandbox-v${VERSION}-windows-x86_64.zip" DioramaSandbox.exe)
+    echo "  ✓ builds/dist/DioramaSandbox-v${VERSION}-windows-x86_64.exe (Single-File Executable)"
     echo "  ✓ builds/dist/DioramaSandbox-v${VERSION}-windows-x86_64.zip"
 fi
 
@@ -214,9 +221,17 @@ if [ "$DO_UPLOAD" = true ]; then
     gh release create "v${VERSION}" builds/dist/* \
         --title "Diorama Sandbox v${VERSION}" \
         --notes "### Diorama Sandbox v${VERSION}
-- 🐧 **Linux (x86_64)**: \`DioramaSandbox-v${VERSION}-linux-x86_64.tar.gz\`
-- 🪟 **Windows (x86_64)**: \`DioramaSandbox-v${VERSION}-windows-x86_64.zip\`
-- 🤖 **Android (ARM64)**: \`DioramaSandbox-v${VERSION}-android.apk\`
+- 🐧 **Linux (x86_64)**:
+  - Single-File Executable: \`DioramaSandbox-v${VERSION}-linux-x86_64\`
+  - Archiv: \`DioramaSandbox-v${VERSION}-linux-x86_64.tar.gz\`
+- 🪟 **Windows (x86_64)**:
+  - Single-File Executable: \`DioramaSandbox-v${VERSION}-windows-x86_64.exe\`
+  - Archiv: \`DioramaSandbox-v${VERSION}-windows-x86_64.zip\`
+- 🤖 **Android (ARM64)**:
+  - APK: \`DioramaSandbox-v${VERSION}-android.apk\`
+
+✨ **Besonderheiten:**
+- Linux und Windows sind jetzt echte, eigenständige Einzeldateien (Single-File Executables)! Alle Spiel-Ressourcen (PCK) sind direkt in die Binärdatei eingebettet, sodass keine separate \`.pck\`-Datei mehr benötigt wird.
 
 *Automatisch erstellt über build_all.sh pipeline.*"
 
