@@ -597,7 +597,7 @@ unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_font_sizes/font_size = 12
-text = "🖥️ Bildschirmmodus"
+text = "Bildschirmmodus"
 
 [node name="OptionDisplayMode" type="OptionButton" parent="SettingsDialog/SettingsMargin/SettingsVBox/DisplayModeBox"]
 unique_name_in_owner = true
@@ -669,11 +669,26 @@ theme_override_colors/font_color = Color(0.85, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 12
 text = "🔄 Insel auf Starter-Stand zurücksetzen"
 
+[node name="BtnQuitGame" type="Button" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.2, 0.2, 1)
+theme_override_font_sizes/font_size = 12
+text = "🚪 Spiel beenden"
+
 [node name="ResetConfirmDialog" type="ConfirmationDialog" parent="."]
 unique_name_in_owner = true
 title = "Insel zurücksetzen?"
 dialog_text = "Möchtest du das Diorama wirklich auf die Starter-Insel zurücksetzen? Nicht gespeicherte Änderungen gehen verloren."
 ok_button_text = "Zurücksetzen"
+cancel_button_text = "Abbrechen"
+
+[node name="QuitConfirmDialog" type="ConfirmationDialog" parent="."]
+unique_name_in_owner = true
+title = "Spiel beenden?"
+dialog_text = "Möchtest du Diorama Sandbox wirklich beenden?\nNicht gespeicherte Änderungen gehen verloren."
+ok_button_text = "Beenden"
 cancel_button_text = "Abbrechen"
 
 [node name="CreditsDialog" type="AcceptDialog" parent="."]

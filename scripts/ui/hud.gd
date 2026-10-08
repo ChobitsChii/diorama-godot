@@ -100,6 +100,8 @@ signal reset_island_requested()
 @onready var btn_load_settings: Button = %BtnLoadSettings
 @onready var btn_open_screenshots: Button = %BtnOpenScreenshots
 @onready var btn_reset_island_settings: Button = %BtnResetIslandSettings
+@onready var btn_quit_game: Button = get_node_or_null("%BtnQuitGame")
+@onready var quit_confirm_dialog: ConfirmationDialog = get_node_or_null("%QuitConfirmDialog")
 
 var _pending_snapshot_image: Image = null
 var _save_file_dialog: FileDialog = null
@@ -468,10 +470,10 @@ func _connect_signals() -> void:
 	check_mute.toggled.connect(_on_check_mute_toggled)
 	if option_display_mode:
 		option_display_mode.clear()
-		option_display_mode.add_item("🪟   Fenstermodus", SettingsManager.DisplayMode.WINDOWED)
-		option_display_mode.add_item("🖥️   Randloses Vollbild", SettingsManager.DisplayMode.FULLSCREEN_BORDERLESS)
-		option_display_mode.add_item("⚡   Exklusives Vollbild", SettingsManager.DisplayMode.FULLSCREEN_EXCLUSIVE)
-		option_display_mode.add_item("🔲   Randloses Fenster", SettingsManager.DisplayMode.BORDERLESS_WINDOW)
+		option_display_mode.add_item("Fenstermodus", SettingsManager.DisplayMode.WINDOWED)
+		option_display_mode.add_item("Randloses Vollbild", SettingsManager.DisplayMode.FULLSCREEN_BORDERLESS)
+		option_display_mode.add_item("Exklusives Vollbild", SettingsManager.DisplayMode.FULLSCREEN_EXCLUSIVE)
+		option_display_mode.add_item("Randloses Fenster", SettingsManager.DisplayMode.BORDERLESS_WINDOW)
 		option_display_mode.item_selected.connect(_on_display_mode_selected)
 		option_display_mode.selected = SettingsManager.get_display_mode()
 	if display_mode_box and OS.has_feature("mobile"):
@@ -482,6 +484,11 @@ func _connect_signals() -> void:
 	btn_save_settings.pressed.connect(_on_save_pressed)
 	btn_load_settings.pressed.connect(_on_load_pressed)
 	btn_reset_island_settings.pressed.connect(_on_reset_pressed)
+	if btn_quit_game:
+		btn_quit_game.pressed.connect(_on_quit_game_pressed)
+	if quit_confirm_dialog:
+		quit_confirm_dialog.confirmed.connect(_on_quit_confirmed)
+		quit_confirm_dialog.canceled.connect(_on_quit_canceled)
 	if btn_open_screenshots:
 		btn_open_screenshots.pressed.connect(_on_open_screenshots_pressed)
 	reset_confirm_dialog.confirmed.connect(_on_reset_confirmed)
@@ -1015,7 +1022,7 @@ func _update_settings_dialog_controls() -> void:
 		display_mode_box.add_theme_constant_override("separation", 12 if is_portrait_mode else 8)
 	
 	if display_mode_label:
-		display_mode_label.text = "🖥️  Bildschirmmodus"
+		display_mode_label.text = "Bildschirmmodus"
 		display_mode_label.add_theme_font_size_override("font_size", font_sz)
 		display_mode_label.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 	
@@ -1027,6 +1034,8 @@ func _update_settings_dialog_controls() -> void:
 		option_display_mode.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 		option_display_mode.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		option_display_mode.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		option_display_mode.add_theme_color_override("font_focus_color", Color(0.12, 0.16, 0.24, 1.0))
+		option_display_mode.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
 		option_display_mode.add_theme_font_size_override("font_size", font_sz)
 		option_display_mode.custom_minimum_size = Vector2(220 if not is_portrait_mode else 280, btn_h)
 		option_display_mode.selected = SettingsManager.get_display_mode()
@@ -1043,18 +1052,25 @@ func _update_settings_dialog_controls() -> void:
 			popup_sb.set_corner_radius_all(10)
 			popup_sb.shadow_size = 10
 			popup_sb.shadow_color = Color(0, 0, 0, 0.15)
-			popup_sb.content_margin_left = 10
-			popup_sb.content_margin_right = 10
+			popup_sb.content_margin_left = 14
+			popup_sb.content_margin_right = 14
 			popup_sb.content_margin_top = 8
 			popup_sb.content_margin_bottom = 8
 			popup.add_theme_stylebox_override("panel", popup_sb)
 			popup.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
-			popup.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+			popup.add_theme_color_override("font_hover_color", Color(0.10, 0.32, 0.85, 1.0))
+			popup.add_theme_color_override("font_accelerator_color", Color(0.4, 0.45, 0.55, 1.0))
 			popup.add_theme_font_size_override("font_size", font_sz)
 			
 			var popup_hover_sb = StyleBoxFlat.new()
-			popup_hover_sb.bg_color = Color(0.91, 0.95, 1.0, 1.0)
+			popup_hover_sb.bg_color = Color(0.90, 0.94, 0.99, 1.0)
+			popup_hover_sb.border_width_left = 3
+			popup_hover_sb.border_color = Color(0.20, 0.48, 0.92, 1.0)
 			popup_hover_sb.set_corner_radius_all(6)
+			popup_hover_sb.content_margin_left = 10
+			popup_hover_sb.content_margin_right = 10
+			popup_hover_sb.content_margin_top = 6
+			popup_hover_sb.content_margin_bottom = 6
 			popup.add_theme_stylebox_override("hover", popup_hover_sb)
 	
 	if check_grid_lines:
@@ -1080,6 +1096,9 @@ func _update_settings_dialog_controls() -> void:
 		btn_reset_cam_settings.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
 		btn_reset_cam_settings.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 		btn_reset_cam_settings.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_reset_cam_settings.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_reset_cam_settings.add_theme_color_override("font_focus_color", Color(0.12, 0.16, 0.24, 1.0))
+		btn_reset_cam_settings.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
 		btn_reset_cam_settings.add_theme_font_size_override("font_size", font_sz)
 		btn_reset_cam_settings.custom_minimum_size = Vector2(0, btn_h)
 	
@@ -1094,6 +1113,9 @@ func _update_settings_dialog_controls() -> void:
 		btn_save_settings.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
 		btn_save_settings.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 		btn_save_settings.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_save_settings.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_save_settings.add_theme_color_override("font_focus_color", Color(0.12, 0.16, 0.24, 1.0))
+		btn_save_settings.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
 		btn_save_settings.add_theme_font_size_override("font_size", font_sz)
 		btn_save_settings.custom_minimum_size = Vector2(0, btn_h)
 	
@@ -1104,6 +1126,9 @@ func _update_settings_dialog_controls() -> void:
 		btn_load_settings.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
 		btn_load_settings.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 		btn_load_settings.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_load_settings.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_load_settings.add_theme_color_override("font_focus_color", Color(0.12, 0.16, 0.24, 1.0))
+		btn_load_settings.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
 		btn_load_settings.add_theme_font_size_override("font_size", font_sz)
 		btn_load_settings.custom_minimum_size = Vector2(0, btn_h)
 	
@@ -1114,6 +1139,9 @@ func _update_settings_dialog_controls() -> void:
 		btn_open_screenshots.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
 		btn_open_screenshots.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 		btn_open_screenshots.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_open_screenshots.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		btn_open_screenshots.add_theme_color_override("font_focus_color", Color(0.12, 0.16, 0.24, 1.0))
+		btn_open_screenshots.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
 		btn_open_screenshots.add_theme_font_size_override("font_size", font_sz)
 		btn_open_screenshots.custom_minimum_size = Vector2(0, btn_h)
 		btn_open_screenshots.visible = not OS.has_feature("mobile")
@@ -1125,8 +1153,25 @@ func _update_settings_dialog_controls() -> void:
 		btn_reset_island_settings.add_theme_stylebox_override("pressed", _style_dialog_btn_danger)
 		btn_reset_island_settings.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15, 1.0))
 		btn_reset_island_settings.add_theme_color_override("font_hover_color", Color(0.7, 0.1, 0.1, 1.0))
+		btn_reset_island_settings.add_theme_color_override("font_pressed_color", Color(0.7, 0.1, 0.1, 1.0))
+		btn_reset_island_settings.add_theme_color_override("font_focus_color", Color(0.85, 0.15, 0.15, 1.0))
+		btn_reset_island_settings.add_theme_color_override("font_hover_pressed_color", Color(0.7, 0.1, 0.1, 1.0))
 		btn_reset_island_settings.add_theme_font_size_override("font_size", font_sz)
 		btn_reset_island_settings.custom_minimum_size = Vector2(0, btn_h)
+	
+	if btn_quit_game:
+		btn_quit_game.text = "🚪   Spiel beenden"
+		btn_quit_game.add_theme_stylebox_override("normal", _style_dialog_btn_danger)
+		btn_quit_game.add_theme_stylebox_override("hover", _style_dialog_btn_danger)
+		btn_quit_game.add_theme_stylebox_override("pressed", _style_dialog_btn_danger)
+		btn_quit_game.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15, 1.0))
+		btn_quit_game.add_theme_color_override("font_hover_color", Color(0.7, 0.1, 0.1, 1.0))
+		btn_quit_game.add_theme_color_override("font_pressed_color", Color(0.7, 0.1, 0.1, 1.0))
+		btn_quit_game.add_theme_color_override("font_focus_color", Color(0.85, 0.15, 0.15, 1.0))
+		btn_quit_game.add_theme_color_override("font_hover_pressed_color", Color(0.7, 0.1, 0.1, 1.0))
+		btn_quit_game.add_theme_font_size_override("font_size", font_sz)
+		btn_quit_game.custom_minimum_size = Vector2(0, btn_h)
+		btn_quit_game.visible = not OS.has_feature("mobile")
 
 func _update_credits_dialog_content() -> void:
 	if not credits_text:
@@ -1161,7 +1206,7 @@ func _on_settings_pressed() -> void:
 	
 	_apply_dialog_responsive_styling(settings_dialog)
 	_update_settings_dialog_controls()
-	var dsize = _get_responsive_dialog_size(Vector2i(540, 540), Vector2i(900, 840))
+	var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
 	var margin = settings_dialog.find_child("SettingsMargin") as Control
 	if margin:
 		margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
@@ -1287,7 +1332,39 @@ func _on_reset_canceled() -> void:
 	if settings_dialog:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 540), Vector2i(900, 840))
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
+		var margin = settings_dialog.find_child("SettingsMargin") as Control
+		if margin:
+			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+		settings_dialog.reset_size()
+		settings_dialog.popup_centered(dsize)
+
+func _on_quit_game_pressed() -> void:
+	AudioManager.play("click")
+	if settings_dialog:
+		settings_dialog.hide()
+	if quit_confirm_dialog:
+		_apply_dialog_responsive_styling(quit_confirm_dialog)
+		var dsize = _get_responsive_dialog_size(Vector2i(480, 240), Vector2i(850, 320))
+		var qlabel = quit_confirm_dialog.get_label()
+		if qlabel:
+			qlabel.custom_minimum_size = Vector2(dsize.x - 48, 0)
+		quit_confirm_dialog.reset_size()
+		quit_confirm_dialog.popup_centered(dsize)
+	else:
+		get_tree().quit()
+
+func _on_quit_confirmed() -> void:
+	AudioManager.play("click")
+	get_tree().quit()
+
+func _on_quit_canceled() -> void:
+	if quit_confirm_dialog:
+		quit_confirm_dialog.hide()
+	if settings_dialog:
+		_apply_dialog_responsive_styling(settings_dialog)
+		_update_settings_dialog_controls()
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
 			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
@@ -1723,7 +1800,7 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	if settings_dialog and settings_dialog.visible:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 540), Vector2i(900, 840))
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 580), Vector2i(900, 890))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
 			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
