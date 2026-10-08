@@ -66,12 +66,16 @@ elif [ "$DO_BUMP" = true ]; then
     if [[ "$CURRENT_VERSION" =~ ^(.*-beta\.)([0-9]+)$ ]]; then
         PREFIX="${BASH_REMATCH[1]}"
         BUILD_NUM="${BASH_REMATCH[2]}"
-        NEXT_BUILD_NUM=$((BUILD_NUM + 1))
-        VERSION="${PREFIX}${NEXT_BUILD_NUM}"
+        NEXT_BUILD_NUM=$((10#$BUILD_NUM + 1))
+        if [ "$NEXT_BUILD_NUM" -lt 10 ]; then
+            VERSION="${PREFIX}$(printf "%02d" "$NEXT_BUILD_NUM")"
+        else
+            VERSION="${PREFIX}${NEXT_BUILD_NUM}"
+        fi
     elif [[ "$CURRENT_VERSION" =~ ^([0-9]+\.[0-9]+\.[0-9]+)$ ]]; then
-        VERSION="${BASH_REMATCH[1]}-beta.1"
+        VERSION="${BASH_REMATCH[1]}-beta.01"
     else
-        VERSION="${CURRENT_VERSION}-beta.1"
+        VERSION="${CURRENT_VERSION}-beta.01"
     fi
 else
     VERSION="$CURRENT_VERSION"
@@ -219,7 +223,7 @@ if [ "$DO_UPLOAD" = true ]; then
     # Create GitHub Release
     echo "▶ Creating GitHub Release v${VERSION}..."
     gh release create "v${VERSION}" builds/dist/* \
-        --title "Diorama Sandbox v${VERSION}" \
+        --title "v${VERSION}" \
         --notes "### Diorama Sandbox v${VERSION}
 - 🐧 **Linux (x86_64)**:
   - Single-File Executable: \`DioramaSandbox-v${VERSION}-linux-x86_64\`
