@@ -1061,7 +1061,7 @@ func _update_credits_dialog_content() -> void:
 	credits_text.add_theme_font_size_override("bold_font_size", font_sz + 2)
 	credits_text.add_theme_font_size_override("italics_font_size", font_sz)
 	credits_text.add_theme_constant_override("line_separation", 8 if is_portrait_mode else 2)
-	var ver = AppVersion.VERSION if ClassDB.class_exists(&"AppVersion") or "AppVersion" in get_tree().root else "0.1.0-beta.1"
+	var ver = AppVersion.VERSION
 	if not ver.begins_with("v"):
 		ver = "v" + ver
 	credits_text.text = "[center][b][font_size=%d]🏝️   Diorama Sandbox[/font_size][/b]\n[font_size=%d][color=#2563eb]Native Edition %s • Cross-Platform (Linux / Windows / Android)[/color][/font_size][/center]\n\n[font_size=%d][img=%d]res://assets/icons/team.svg[/img]  [b]Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[img=%d]res://assets/icons/license.svg[/img]  [b]Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem[/font_size]" % [title_sz, sub_sz, ver, font_sz, icon_sz, icon_sz]
