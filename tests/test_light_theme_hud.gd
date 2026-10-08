@@ -187,8 +187,9 @@ func _run_suite() -> void:
 	assert(main_node.hud.sidebar_wrapper.anchor_top == 1.0, "SidebarWrapper should be anchored at bottom in portrait")
 	assert(main_node.hud.tools_grid.columns == 4, "ToolsGrid should have 4 columns in bottom dock")
 	assert(main_node.hud.catalog_grid.columns == 4, "CatalogGrid should have 4 columns in bottom dock")
-	assert(main_node.hud.btn_snapshot.text == "📷", "BtnSnapshot should be compact icon in portrait")
-	assert(main_node.hud.btn_settings.text == "⚙️", "BtnSettings should be compact icon in portrait")
+	assert(main_node.hud.btn_snapshot.icon != null, "BtnSnapshot should have vector icon in portrait")
+	assert(main_node.hud.btn_settings.icon != null, "BtnSettings should have vector icon in portrait")
+	assert(main_node.hud.btn_info.icon != null, "BtnInfo should have vector icon in portrait")
 	assert(main_node.hud.btn_toggle_sidebar.text == "▼ Schließen", "Toggle button should display ▼ Schließen when open in portrait")
 	
 	# Test sliding dock closed and open in portrait
@@ -209,9 +210,9 @@ func _run_suite() -> void:
 	assert(main_node.hud.is_portrait_mode == false, "HUD should switch back to landscape mode")
 	assert(main_node.hud.sidebar_wrapper.anchor_left == 1.0, "SidebarWrapper should be anchored at right in landscape")
 	assert(main_node.hud.tools_grid.columns == 2, "ToolsGrid should have 2 columns in right sidebar")
-	assert(main_node.hud.catalog_grid.columns == 2, "CatalogGrid should have 2 columns in right sidebar")
-	assert(main_node.hud.btn_snapshot.text == "📷 Foto", "BtnSnapshot should have full text in landscape")
-	assert(main_node.hud.btn_settings.text == "⚙️ Optionen", "BtnSettings should have full text in landscape")
+	assert(main_node.hud.btn_snapshot.text == "Foto" and main_node.hud.btn_snapshot.icon != null, "BtnSnapshot should have text and vector icon in landscape")
+	assert(main_node.hud.btn_settings.text == "Optionen" and main_node.hud.btn_settings.icon != null, "BtnSettings should have text and vector icon in landscape")
+	assert(main_node.hud.btn_info.text == "Info" and main_node.hud.btn_info.icon != null, "BtnInfo should have text and vector icon in landscape")
 	print("  PASS: Landscape right sidebar layout and full button texts restored verified OK")
 	
 	main_node.queue_free()

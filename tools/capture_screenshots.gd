@@ -43,5 +43,15 @@ func _init():
 	print("Captured screenshot_portrait_credits.png")
 	main.hud.credits_dialog.hide()
 	
+	# 4. Landscape HUD Screenshot
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	root.size = Vector2i(1280, 720)
+	main.hud._on_viewport_size_changed()
+	for i in range(6):
+		await process_frame
+	img = root.get_texture().get_image()
+	img.save_png("%s/screenshot_landscape_hud.png" % out_dir)
+	print("Captured screenshot_landscape_hud.png")
+	
 	print("--- Screenshot Capture Complete ---")
 	quit(0)
