@@ -13,6 +13,8 @@ var ICON_CHECK_UNCHECKED = load("res://assets/icons/checkbox_unchecked.svg")
 var ICON_CHECK_CHECKED = load("res://assets/icons/checkbox_checked.svg")
 var ICON_SLIDER_GRABBER = load("res://assets/icons/slider_grabber.svg")
 var ICON_SLIDER_GRABBER_HL = load("res://assets/icons/slider_grabber_hl.svg")
+var ICON_WIN_CLOSE = load("res://assets/icons/window_close.svg")
+var ICON_WIN_CLOSE_HL = load("res://assets/icons/window_close_pressed.svg")
 
 
 signal tool_selected(mode: int)
@@ -803,8 +805,36 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 	if not dlg:
 		return
 	dlg.add_theme_stylebox_override("panel", _style_dialog_panel)
-	dlg.add_theme_color_override("title_color", Color(0.95, 0.97, 1.0, 1.0))
-	dlg.add_theme_font_size_override("title_size", 24 if is_portrait_mode else 14)
+	dlg.add_theme_color_override("title_color", Color(0.96, 0.98, 1.0, 1.0))
+	var t_size = 30 if is_portrait_mode else 15
+	var t_height = 56 if is_portrait_mode else 34
+	var close_v = 38 if is_portrait_mode else 22
+	var close_h = 28 if is_portrait_mode else 16
+	dlg.add_theme_font_size_override("title_font_size", t_size)
+	dlg.add_theme_font_size_override("title_size", t_size)
+	dlg.add_theme_constant_override("title_height", t_height)
+	dlg.add_theme_constant_override("close_v_offset", close_v)
+	dlg.add_theme_constant_override("close_h_offset", close_h)
+	if ICON_WIN_CLOSE:
+		dlg.add_theme_icon_override("close", ICON_WIN_CLOSE)
+	if ICON_WIN_CLOSE_HL:
+		dlg.add_theme_icon_override("close_pressed", ICON_WIN_CLOSE_HL)
+	
+	var eb = StyleBoxFlat.new()
+	eb.bg_color = Color(0.18, 0.22, 0.30, 1.0)
+	eb.set_corner_radius_all(14)
+	eb.expand_margin_top = t_height
+	eb.expand_margin_bottom = 6
+	eb.expand_margin_left = 6
+	eb.expand_margin_right = 6
+	eb.content_margin_top = t_height - 4
+	eb.content_margin_bottom = 8
+	eb.content_margin_left = 10
+	eb.content_margin_right = 10
+	eb.shadow_color = Color(0, 0, 0, 0.22)
+	eb.shadow_size = 14
+	dlg.add_theme_stylebox_override("embedded_border", eb)
+	dlg.add_theme_stylebox_override("embedded_unfocused_border", eb)
 	
 	if dlg is AcceptDialog:
 		var ok_btn = (dlg as AcceptDialog).get_ok_button()
@@ -814,17 +844,17 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 			ok_sb.set_corner_radius_all(14)
 			ok_sb.shadow_size = 6
 			ok_sb.shadow_color = Color(0.145, 0.388, 0.922, 0.35)
-			ok_sb.content_margin_left = 48 if is_portrait_mode else 22
-			ok_sb.content_margin_right = 48 if is_portrait_mode else 22
-			ok_sb.content_margin_top = 14 if is_portrait_mode else 6
-			ok_sb.content_margin_bottom = 14 if is_portrait_mode else 6
+			ok_sb.content_margin_left = 52 if is_portrait_mode else 22
+			ok_sb.content_margin_right = 52 if is_portrait_mode else 22
+			ok_sb.content_margin_top = 16 if is_portrait_mode else 6
+			ok_sb.content_margin_bottom = 16 if is_portrait_mode else 6
 			ok_btn.add_theme_stylebox_override("normal", ok_sb)
 			ok_btn.add_theme_stylebox_override("hover", ok_sb)
 			ok_btn.add_theme_stylebox_override("pressed", ok_sb)
 			ok_btn.add_theme_stylebox_override("focus", ok_sb)
 			ok_btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
 			ok_btn.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
-			ok_btn.add_theme_font_size_override("font_size", 22 if is_portrait_mode else 13)
+			ok_btn.add_theme_font_size_override("font_size", 24 if is_portrait_mode else 13)
 			ok_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
 	
 	if dlg is ConfirmationDialog:
@@ -871,10 +901,14 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 			lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func _update_settings_dialog_controls() -> void:
-	var font_sz = 24 if is_portrait_mode else 12
-	var header_sz = 26 if is_portrait_mode else 13
-	var btn_h = 60 if is_portrait_mode else 34
-	var chk_h = 56 if is_portrait_mode else 28
+	var font_sz = 26 if is_portrait_mode else 12
+	var header_sz = 28 if is_portrait_mode else 13
+	var btn_h = 66 if is_portrait_mode else 34
+	var chk_h = 60 if is_portrait_mode else 28
+	
+	var settings_vbox = settings_dialog.find_child("SettingsVBox", true, false) as BoxContainer
+	if settings_vbox:
+		settings_vbox.add_theme_constant_override("separation", 16 if is_portrait_mode else 12)
 	
 	var audio_hdr = settings_dialog.find_child("AudioHeader", true, false) as Label
 	if audio_hdr:
@@ -894,13 +928,17 @@ func _update_settings_dialog_controls() -> void:
 		data_hdr.add_theme_font_size_override("font_size", header_sz)
 		data_hdr.add_theme_color_override("font_color", Color(0.114, 0.306, 0.847, 1.0))
 	
+	var master_box = settings_dialog.find_child("MasterVolBox", true, false) as BoxContainer
+	if master_box:
+		master_box.add_theme_constant_override("separation", 8 if is_portrait_mode else 4)
+	
 	var master_lbl = settings_dialog.find_child("MasterVolLabel", true, false) as Label
 	if master_lbl:
 		master_lbl.add_theme_font_size_override("font_size", font_sz)
 		master_lbl.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 	
 	if slider_master:
-		var track_h = 18 if is_portrait_mode else 10
+		var track_h = 20 if is_portrait_mode else 10
 		var track_margin = 8 if is_portrait_mode else 5
 		var slider_track_sb = StyleBoxFlat.new()
 		slider_track_sb.bg_color = Color(0.88, 0.91, 0.94, 1.0)
@@ -919,9 +957,9 @@ func _update_settings_dialog_controls() -> void:
 		slider_master.add_theme_stylebox_override("grabber_area_highlight", slider_fill_sb)
 		slider_master.add_theme_icon_override("grabber", ICON_SLIDER_GRABBER)
 		slider_master.add_theme_icon_override("grabber_highlight", ICON_SLIDER_GRABBER_HL)
-		slider_master.custom_minimum_size = Vector2(0, 56 if is_portrait_mode else 36)
+		slider_master.custom_minimum_size = Vector2(0, 58 if is_portrait_mode else 36)
 	
-	var chk_sep = 16 if is_portrait_mode else 10
+	var chk_sep = 18 if is_portrait_mode else 10
 	for chk in [check_mute, check_grid_lines, check_night_mode]:
 		if chk:
 			chk.add_theme_icon_override("checked", ICON_CHECK_CHECKED)
@@ -965,6 +1003,10 @@ func _update_settings_dialog_controls() -> void:
 		btn_reset_cam_settings.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		btn_reset_cam_settings.add_theme_font_size_override("font_size", font_sz)
 		btn_reset_cam_settings.custom_minimum_size = Vector2(0, btn_h)
+	
+	var saveload_box = settings_dialog.find_child("SaveLoadHBox", true, false) as BoxContainer
+	if saveload_box:
+		saveload_box.add_theme_constant_override("separation", 14 if is_portrait_mode else 8)
 	
 	if btn_save_settings:
 		btn_save_settings.text = "💾   Speichern"
@@ -1011,16 +1053,17 @@ func _update_credits_dialog_content() -> void:
 	if not credits_text:
 		return
 	credits_text.add_theme_color_override("default_color", Color(0.12, 0.16, 0.24, 1.0))
-	var font_sz = 22 if is_portrait_mode else 13
-	var title_sz = 28 if is_portrait_mode else 16
-	var sub_sz = 18 if is_portrait_mode else 11
+	var font_sz = 26 if is_portrait_mode else 13
+	var title_sz = 34 if is_portrait_mode else 16
+	var sub_sz = 20 if is_portrait_mode else 11
+	var icon_sz = 30 if is_portrait_mode else 16
 	credits_text.add_theme_font_size_override("normal_font_size", font_sz)
 	credits_text.add_theme_font_size_override("bold_font_size", font_sz + 2)
 	credits_text.add_theme_font_size_override("italics_font_size", font_sz)
+	credits_text.add_theme_constant_override("line_separation", 8 if is_portrait_mode else 2)
 	var ver = AppVersion.VERSION if ClassDB.class_exists(&"AppVersion") or "AppVersion" in get_tree().root else "0.1.0-beta.1"
 	if not ver.begins_with("v"):
 		ver = "v" + ver
-	var icon_sz = 26 if is_portrait_mode else 16
 	credits_text.text = "[center][b][font_size=%d]🏝️   Diorama Sandbox[/font_size][/b]\n[font_size=%d][color=#2563eb]Native Edition %s • Cross-Platform (Linux / Windows / Android)[/color][/font_size][/center]\n\n[font_size=%d][img=%d]res://assets/icons/team.svg[/img]  [b]Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[img=%d]res://assets/icons/license.svg[/img]  [b]Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem[/font_size]" % [title_sz, sub_sz, ver, font_sz, icon_sz, icon_sz]
 
 # -----------------------------------------------------------------------------
@@ -1037,10 +1080,10 @@ func _on_settings_pressed() -> void:
 	
 	_apply_dialog_responsive_styling(settings_dialog)
 	_update_settings_dialog_controls()
-	var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 820))
+	var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 800))
 	var margin = settings_dialog.find_child("SettingsMargin") as Control
 	if margin:
-		margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
+		margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
 	settings_dialog.reset_size()
 	settings_dialog.popup_centered(dsize)
 
@@ -1157,20 +1200,20 @@ func _on_reset_canceled() -> void:
 	if settings_dialog:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 820))
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 800))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
-			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
+			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
 		settings_dialog.reset_size()
 		settings_dialog.popup_centered(dsize)
 
 func _on_info_pressed() -> void:
 	_apply_dialog_responsive_styling(credits_dialog)
 	_update_credits_dialog_content()
-	var dsize = _get_responsive_dialog_size(Vector2i(560, 420), Vector2i(900, 720))
+	var dsize = _get_responsive_dialog_size(Vector2i(560, 420), Vector2i(900, 680))
 	var cmargin = credits_dialog.find_child("CreditsMargin") as Control
 	if cmargin:
-		cmargin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 80)
+		cmargin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
 	credits_dialog.reset_size()
 	credits_dialog.popup_centered(dsize)
 
@@ -1588,6 +1631,34 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	btn_toggle_sidebar.add_theme_color_override("font_color", Color(0.06, 0.09, 0.16, 1.0))
 	btn_toggle_sidebar.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 	btn_toggle_sidebar.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+	
+	# If any dialog is currently visible, update styling and resize to current orientation
+	if settings_dialog and settings_dialog.visible:
+		_apply_dialog_responsive_styling(settings_dialog)
+		_update_settings_dialog_controls()
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 800))
+		var margin = settings_dialog.find_child("SettingsMargin") as Control
+		if margin:
+			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+		settings_dialog.reset_size()
+		settings_dialog.popup_centered(dsize)
+	if credits_dialog and credits_dialog.visible:
+		_apply_dialog_responsive_styling(credits_dialog)
+		_update_credits_dialog_content()
+		var dsize = _get_responsive_dialog_size(Vector2i(560, 420), Vector2i(900, 640))
+		var cmargin = credits_dialog.find_child("CreditsMargin") as Control
+		if cmargin:
+			cmargin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
+		credits_dialog.reset_size()
+		credits_dialog.popup_centered(dsize)
+	if reset_confirm_dialog and reset_confirm_dialog.visible:
+		_apply_dialog_responsive_styling(reset_confirm_dialog)
+		var dsize = _get_responsive_dialog_size(Vector2i(480, 240), Vector2i(850, 320))
+		var rlabel = reset_confirm_dialog.get_label()
+		if rlabel:
+			rlabel.custom_minimum_size = Vector2(dsize.x - 48, 0)
+		reset_confirm_dialog.reset_size()
+		reset_confirm_dialog.popup_centered(dsize)
 
 func _toggle_sidebar() -> void:
 	is_sidebar_open = not is_sidebar_open
