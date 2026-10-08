@@ -90,6 +90,9 @@ signal reset_island_requested()
 # Settings Controls
 @onready var slider_master: HSlider = %SliderMaster
 @onready var check_mute: CheckBox = %CheckMute
+@onready var display_mode_box: HBoxContainer = get_node_or_null("%DisplayModeBox")
+@onready var display_mode_label: Label = get_node_or_null("%DisplayModeLabel")
+@onready var option_display_mode: OptionButton = get_node_or_null("%OptionDisplayMode")
 @onready var check_grid_lines: CheckBox = %CheckGridLines
 @onready var check_night_mode: CheckBox = %CheckNightMode
 @onready var btn_reset_cam_settings: Button = %BtnResetCamSettings
@@ -166,6 +169,17 @@ func _ready() -> void:
 	if not get_viewport().size_changed.is_connected(_on_viewport_size_changed):
 		get_viewport().size_changed.connect(_on_viewport_size_changed)
 	_on_viewport_size_changed()
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event is InputEventKey and event.is_pressed() and not event.is_echo():
+		if event.keycode == KEY_F11 or (event.keycode == KEY_ENTER and event.alt_pressed):
+			var new_mode = SettingsManager.toggle_fullscreen()
+			if option_display_mode:
+				option_display_mode.selected = new_mode
+			var mode_name = SettingsManager.DISPLAY_MODE_NAMES.get(new_mode, "")
+			show_toast("Bildschirmmodus: %s [F11] ✓" % mode_name)
+			AudioManager.play("switch")
+			get_viewport().set_input_as_handled()
 
 func setup_all(
 	pc: PlacementController,
@@ -452,6 +466,16 @@ func _connect_signals() -> void:
 	# Settings Dialog controls
 	slider_master.value_changed.connect(_on_master_slider_changed)
 	check_mute.toggled.connect(_on_check_mute_toggled)
+	if option_display_mode:
+		option_display_mode.clear()
+		option_display_mode.add_item("🪟   Fenstermodus", SettingsManager.DisplayMode.WINDOWED)
+		option_display_mode.add_item("🖥️   Randloses Vollbild", SettingsManager.DisplayMode.FULLSCREEN_BORDERLESS)
+		option_display_mode.add_item("⚡   Exklusives Vollbild", SettingsManager.DisplayMode.FULLSCREEN_EXCLUSIVE)
+		option_display_mode.add_item("🔲   Randloses Fenster", SettingsManager.DisplayMode.BORDERLESS_WINDOW)
+		option_display_mode.item_selected.connect(_on_display_mode_selected)
+		option_display_mode.selected = SettingsManager.get_display_mode()
+	if display_mode_box and OS.has_feature("mobile"):
+		display_mode_box.visible = false
 	check_grid_lines.toggled.connect(_on_check_grid_lines_toggled)
 	check_night_mode.toggled.connect(_on_check_night_mode_toggled)
 	btn_reset_cam_settings.pressed.connect(_on_reset_camera_pressed)
@@ -986,6 +1010,53 @@ func _update_settings_dialog_controls() -> void:
 		check_mute.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 		check_mute.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
 	
+	if display_mode_box:
+		display_mode_box.visible = not OS.has_feature("mobile")
+		display_mode_box.add_theme_constant_override("separation", 12 if is_portrait_mode else 8)
+	
+	if display_mode_label:
+		display_mode_label.text = "🖥️  Bildschirmmodus"
+		display_mode_label.add_theme_font_size_override("font_size", font_sz)
+		display_mode_label.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+	
+	if option_display_mode:
+		option_display_mode.add_theme_stylebox_override("normal", _style_dialog_btn)
+		option_display_mode.add_theme_stylebox_override("hover", _style_dialog_btn_hover)
+		option_display_mode.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
+		option_display_mode.add_theme_stylebox_override("focus", _style_dialog_btn)
+		option_display_mode.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+		option_display_mode.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		option_display_mode.add_theme_color_override("font_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		option_display_mode.add_theme_font_size_override("font_size", font_sz)
+		option_display_mode.custom_minimum_size = Vector2(220 if not is_portrait_mode else 280, btn_h)
+		option_display_mode.selected = SettingsManager.get_display_mode()
+		
+		var popup = option_display_mode.get_popup()
+		if popup:
+			var popup_sb = StyleBoxFlat.new()
+			popup_sb.bg_color = Color(0.99, 0.995, 1.0, 1.0)
+			popup_sb.border_width_left = 1
+			popup_sb.border_width_top = 1
+			popup_sb.border_width_right = 1
+			popup_sb.border_width_bottom = 1
+			popup_sb.border_color = Color(0.82, 0.86, 0.91, 1.0)
+			popup_sb.set_corner_radius_all(10)
+			popup_sb.shadow_size = 10
+			popup_sb.shadow_color = Color(0, 0, 0, 0.15)
+			popup_sb.content_margin_left = 10
+			popup_sb.content_margin_right = 10
+			popup_sb.content_margin_top = 8
+			popup_sb.content_margin_bottom = 8
+			popup.add_theme_stylebox_override("panel", popup_sb)
+			popup.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+			popup.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+			popup.add_theme_font_size_override("font_size", font_sz)
+			
+			var popup_hover_sb = StyleBoxFlat.new()
+			popup_hover_sb.bg_color = Color(0.91, 0.95, 1.0, 1.0)
+			popup_hover_sb.set_corner_radius_all(6)
+			popup.add_theme_stylebox_override("hover", popup_hover_sb)
+	
 	if check_grid_lines:
 		check_grid_lines.text = "📐  3D-Gitterlinien anzeigen"
 		check_grid_lines.add_theme_font_size_override("font_size", font_sz)
@@ -1085,15 +1156,23 @@ func _on_settings_pressed() -> void:
 		check_grid_lines.button_pressed = island_base.is_grid_lines_visible()
 	if day_night_ctrl:
 		check_night_mode.button_pressed = day_night_ctrl.is_night
+	if option_display_mode:
+		option_display_mode.selected = SettingsManager.get_display_mode()
 	
 	_apply_dialog_responsive_styling(settings_dialog)
 	_update_settings_dialog_controls()
-	var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 800))
+	var dsize = _get_responsive_dialog_size(Vector2i(540, 540), Vector2i(900, 840))
 	var margin = settings_dialog.find_child("SettingsMargin") as Control
 	if margin:
 		margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
 	settings_dialog.reset_size()
 	settings_dialog.popup_centered(dsize)
+
+func _on_display_mode_selected(index: int) -> void:
+	SettingsManager.set_display_mode(index)
+	var mode_name = SettingsManager.DISPLAY_MODE_NAMES.get(index, "")
+	show_toast("Bildschirmmodus: %s ✓" % mode_name)
+	AudioManager.play("switch")
 
 func _on_master_slider_changed(val: float) -> void:
 	AudioManager.set_master_volume(val)
@@ -1208,7 +1287,7 @@ func _on_reset_canceled() -> void:
 	if settings_dialog:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 800))
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 540), Vector2i(900, 840))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
 			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)
@@ -1644,7 +1723,7 @@ func _apply_portrait_layout(left_inset: float, right_inset: float, bottom_inset:
 	if settings_dialog and settings_dialog.visible:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 500), Vector2i(900, 800))
+		var dsize = _get_responsive_dialog_size(Vector2i(540, 540), Vector2i(900, 840))
 		var margin = settings_dialog.find_child("SettingsMargin") as Control
 		if margin:
 			margin.custom_minimum_size = Vector2(dsize.x - 32, dsize.y - 90)

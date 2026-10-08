@@ -16,6 +16,9 @@ extends Node3D
 @onready var hud: HUD = $CanvasLayer/HUD
 
 func _ready() -> void:
+	# 0. Apply saved display/graphics settings
+	SettingsManager.apply_saved_settings()
+	
 	# 1. Setup Island Base and Grid dimensions
 	grid_manager.grid_size = default_grid_size
 	island_base.setup_grid(default_grid_size)

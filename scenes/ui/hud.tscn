@@ -587,6 +587,24 @@ theme_override_colors/font_color = Color(0.2, 0.25, 0.33, 1)
 theme_override_font_sizes/font_size = 13
 text = "🏝️ ANSICHT & GRAPHIK"
 
+[node name="DisplayModeBox" type="HBoxContainer" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DisplayModeLabel" type="Label" parent="SettingsDialog/SettingsMargin/SettingsVBox/DisplayModeBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_font_sizes/font_size = 12
+text = "🖥️ Bildschirmmodus"
+
+[node name="OptionDisplayMode" type="OptionButton" parent="SettingsDialog/SettingsMargin/SettingsVBox/DisplayModeBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(210, 32)
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+
 [node name="CheckGridLines" type="CheckBox" parent="SettingsDialog/SettingsMargin/SettingsVBox"]
 unique_name_in_owner = true
 layout_mode = 2

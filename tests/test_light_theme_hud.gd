@@ -97,13 +97,30 @@ func _run_suite() -> void:
 	
 	pc_test.queue_free()
 	
-	# Test Settings Dialog
+	# Test Settings Dialog & Display Modes
 	hud_node._on_settings_pressed()
 	assert(hud_node.settings_dialog.visible == true, "Settings dialog should open")
+	if not OS.has_feature("mobile"):
+		assert(hud_node.display_mode_box != null, "Display mode box should exist")
+		assert(hud_node.option_display_mode != null, "OptionDisplayMode should exist")
+		assert(hud_node.option_display_mode.item_count == 4, "OptionDisplayMode should have 4 display options")
+		hud_node._on_display_mode_selected(SettingsManager.DisplayMode.FULLSCREEN_BORDERLESS)
+		assert(SettingsManager.get_display_mode() == SettingsManager.DisplayMode.FULLSCREEN_BORDERLESS, "Display mode should update to FULLSCREEN_BORDERLESS")
+		hud_node._on_display_mode_selected(SettingsManager.DisplayMode.WINDOWED)
+		assert(SettingsManager.get_display_mode() == SettingsManager.DisplayMode.WINDOWED, "Display mode should update to WINDOWED")
+		
+		# Test F11 shortcut toggle
+		var key_ev = InputEventKey.new()
+		key_ev.pressed = true
+		key_ev.keycode = KEY_F11
+		hud_node._unhandled_input(key_ev)
+		assert(SettingsManager.get_display_mode() == SettingsManager.DisplayMode.FULLSCREEN_BORDERLESS, "F11 should toggle to FULLSCREEN_BORDERLESS")
+		hud_node._unhandled_input(key_ev)
+		assert(SettingsManager.get_display_mode() == SettingsManager.DisplayMode.WINDOWED, "F11 should toggle back to WINDOWED")
 	hud_node.settings_dialog.hide()
 	
 	hud_node.queue_free()
-	print("  PASS: HUD controllers, grid pills, and settings dialog verified OK")
+	print("  PASS: HUD controllers, grid pills, settings dialog, and display modes verified OK")
 	
 	# Test 5: Main scene instantiation & starter island & speech bubbles
 	print("Test 5: Main Scene Integration & Explore Mode Creature Click...")
