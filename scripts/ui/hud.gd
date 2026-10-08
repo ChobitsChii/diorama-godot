@@ -371,7 +371,7 @@ func _init_styles() -> void:
 	
 	# 6. Dialog Light Theme Styles
 	_style_dialog_panel = StyleBoxFlat.new()
-	_style_dialog_panel.bg_color = Color(0.985, 0.988, 0.995, 0.98)
+	_style_dialog_panel.bg_color = Color(0.985, 0.988, 0.995, 1.0)
 	_style_dialog_panel.border_width_left = 1
 	_style_dialog_panel.border_width_top = 0
 	_style_dialog_panel.border_width_right = 1
@@ -381,6 +381,8 @@ func _init_styles() -> void:
 	_style_dialog_panel.corner_radius_top_right = 0
 	_style_dialog_panel.corner_radius_bottom_left = 16
 	_style_dialog_panel.corner_radius_bottom_right = 16
+	_style_dialog_panel.shadow_color = Color(0, 0, 0, 0.18)
+	_style_dialog_panel.shadow_size = 14
 	_style_dialog_panel.content_margin_left = 18
 	_style_dialog_panel.content_margin_top = 14
 	_style_dialog_panel.content_margin_right = 18
@@ -810,8 +812,8 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 	dlg.add_theme_color_override("title_color", Color(0.96, 0.98, 1.0, 1.0))
 	var t_size = 28 if is_portrait_mode else 15
 	var t_height = 54 if is_portrait_mode else 42
-	var close_v = 45 if is_portrait_mode else 35
-	var close_h = 32 if is_portrait_mode else 28
+	var close_v = 39 if is_portrait_mode else 33
+	var close_h = 42 if is_portrait_mode else 40
 	dlg.add_theme_font_size_override("title_font_size", t_size)
 	dlg.add_theme_font_size_override("title_size", t_size)
 	dlg.add_theme_constant_override("title_height", t_height)
@@ -823,13 +825,21 @@ func _apply_dialog_responsive_styling(dlg: Window) -> void:
 		dlg.add_theme_icon_override("close_pressed", ICON_WIN_CLOSE_HL)
 	
 	var eb = StyleBoxFlat.new()
-	eb.bg_color = Color(0.18, 0.22, 0.30, 1.0)
-	eb.set_corner_radius_all(16)
+	eb.draw_center = false
+	eb.border_color = Color(0.18, 0.22, 0.30, 1.0)
+	eb.border_width_top = t_height
+	eb.border_width_bottom = 0
+	eb.border_width_left = 0
+	eb.border_width_right = 0
+	eb.corner_radius_top_left = 16
+	eb.corner_radius_top_right = 16
+	eb.corner_radius_bottom_left = 0
+	eb.corner_radius_bottom_right = 0
 	eb.expand_margin_top = t_height
 	eb.expand_margin_bottom = 0
 	eb.expand_margin_left = 0
 	eb.expand_margin_right = 0
-	eb.shadow_color = Color(0, 0, 0, 0.25)
+	eb.shadow_color = Color(0, 0, 0, 0.18)
 	eb.shadow_size = 14
 	dlg.add_theme_stylebox_override("embedded_border", eb)
 	dlg.add_theme_stylebox_override("embedded_unfocused_border", eb)
