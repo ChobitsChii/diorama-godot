@@ -40,6 +40,14 @@ var _original_gz: int = 0
 var hovered_cell: Vector2i = Vector2i(-1, -1)
 var is_pointer_on_grid: bool = false
 
+# Gesture & Touch Tracking (Prevents multi-touch & camera drag placement)
+var _mouse_press_pos: Vector2 = Vector2.ZERO
+var _mouse_is_down: bool = false
+var _mouse_dragged: bool = false
+var _touch_records: Dictionary = {}
+var _multi_touch_active: bool = false
+const DRAG_THRESHOLD_PX: float = 14.0
+
 # Visual materials for ghost
 var _valid_ghost_mat: StandardMaterial3D
 var _invalid_ghost_mat: StandardMaterial3D
@@ -206,11 +214,46 @@ func _unhandled_input(event: InputEvent) -> void:
 				get_viewport().set_input_as_handled()
 				return
 	
-	# Left Mouse Button / Tap interaction
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
-		_process_click_or_tap(event.position)
-	elif event is InputEventScreenTouch and event.pressed:
-		_process_click_or_tap(event.position)
+	# Left Mouse Button (click-on-release without drag)
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT:
+		if event.pressed:
+			_mouse_is_down = true
+			_mouse_press_pos = event.position
+			_mouse_dragged = false
+		else:
+			if _mouse_is_down and not _mouse_dragged:
+				_process_click_or_tap(event.position)
+			_mouse_is_down = false
+		return
+	
+	if event is InputEventMouseMotion and _mouse_is_down:
+		if event.position.distance_to(_mouse_press_pos) > DRAG_THRESHOLD_PX:
+			_mouse_dragged = true
+		return
+	
+	# Mobile Touch handling (prevents 2-finger pinch placement & camera scroll placement)
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			_touch_records[event.index] = {"start_pos": event.position, "dragged": false}
+			if _touch_records.size() >= 2:
+				_multi_touch_active = true
+		else:
+			var rec = _touch_records.get(event.index, {})
+			_touch_records.erase(event.index)
+			if not _multi_touch_active and not rec.get("dragged", false):
+				_process_click_or_tap(event.position)
+			if _touch_records.is_empty():
+				_multi_touch_active = false
+		return
+	
+	if event is InputEventScreenDrag:
+		if _touch_records.has(event.index):
+			var start_p: Vector2 = _touch_records[event.index]["start_pos"]
+			if event.position.distance_to(start_p) > DRAG_THRESHOLD_PX:
+				_touch_records[event.index]["dragged"] = true
+		if _touch_records.size() >= 2:
+			_multi_touch_active = true
+		return
 
 func _process_click_or_tap(screen_pos: Vector2) -> void:
 	if not camera or not grid_manager:

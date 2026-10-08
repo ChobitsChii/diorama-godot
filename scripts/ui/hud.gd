@@ -125,6 +125,12 @@ var _style_card_selected: StyleBoxFlat
 var _style_sidebar_landscape: StyleBoxFlat
 var _style_sidebar_portrait: StyleBoxFlat
 
+var _style_dialog_panel: StyleBoxFlat
+var _style_dialog_btn: StyleBoxFlat
+var _style_dialog_btn_hover: StyleBoxFlat
+var _style_dialog_btn_danger: StyleBoxFlat
+var _style_dialog_ok_btn: StyleBoxFlat
+
 func _ready() -> void:
 	_init_styles()
 	_connect_signals()
@@ -337,6 +343,57 @@ func _init_styles() -> void:
 	_style_sidebar_portrait.corner_radius_top_right = 18
 	_style_sidebar_portrait.shadow_color = Color(0, 0, 0, 0.1)
 	_style_sidebar_portrait.shadow_size = 12
+	
+	# 6. Dialog Light Theme Styles
+	_style_dialog_panel = StyleBoxFlat.new()
+	_style_dialog_panel.bg_color = Color(0.985, 0.988, 0.995, 0.98)
+	_style_dialog_panel.border_width_left = 1
+	_style_dialog_panel.border_width_top = 1
+	_style_dialog_panel.border_width_right = 1
+	_style_dialog_panel.border_width_bottom = 1
+	_style_dialog_panel.border_color = Color(0.85, 0.88, 0.92, 1.0)
+	_style_dialog_panel.set_corner_radius_all(18)
+	_style_dialog_panel.shadow_color = Color(0, 0, 0, 0.18)
+	_style_dialog_panel.shadow_size = 16
+	_style_dialog_panel.content_margin_left = 18
+	_style_dialog_panel.content_margin_top = 14
+	_style_dialog_panel.content_margin_right = 18
+	_style_dialog_panel.content_margin_bottom = 32
+	
+	_style_dialog_btn = StyleBoxFlat.new()
+	_style_dialog_btn.bg_color = Color(1.0, 1.0, 1.0, 0.95)
+	_style_dialog_btn.border_width_left = 1
+	_style_dialog_btn.border_width_top = 1
+	_style_dialog_btn.border_width_right = 1
+	_style_dialog_btn.border_width_bottom = 1
+	_style_dialog_btn.border_color = Color(0.82, 0.86, 0.91, 1.0)
+	_style_dialog_btn.set_corner_radius_all(10)
+	_style_dialog_btn.shadow_size = 2
+	_style_dialog_btn.shadow_color = Color(0, 0, 0, 0.04)
+	
+	_style_dialog_btn_hover = StyleBoxFlat.new()
+	_style_dialog_btn_hover.bg_color = Color(0.93, 0.96, 1.0, 1.0)
+	_style_dialog_btn_hover.border_width_left = 1
+	_style_dialog_btn_hover.border_width_top = 1
+	_style_dialog_btn_hover.border_width_right = 1
+	_style_dialog_btn_hover.border_width_bottom = 1
+	_style_dialog_btn_hover.border_color = Color(0.25, 0.55, 0.95, 0.8)
+	_style_dialog_btn_hover.set_corner_radius_all(10)
+	
+	_style_dialog_btn_danger = StyleBoxFlat.new()
+	_style_dialog_btn_danger.bg_color = Color(0.99, 0.95, 0.95, 1.0)
+	_style_dialog_btn_danger.border_width_left = 1
+	_style_dialog_btn_danger.border_width_top = 1
+	_style_dialog_btn_danger.border_width_right = 1
+	_style_dialog_btn_danger.border_width_bottom = 1
+	_style_dialog_btn_danger.border_color = Color(0.95, 0.65, 0.65, 0.9)
+	_style_dialog_btn_danger.set_corner_radius_all(10)
+	
+	_style_dialog_ok_btn = StyleBoxFlat.new()
+	_style_dialog_ok_btn.bg_color = Color(0.145, 0.388, 0.922, 1.0)
+	_style_dialog_ok_btn.set_corner_radius_all(12)
+	_style_dialog_ok_btn.shadow_size = 6
+	_style_dialog_ok_btn.shadow_color = Color(0.145, 0.388, 0.922, 0.35)
 
 func _connect_signals() -> void:
 	# Tools
@@ -705,88 +762,141 @@ func show_speech_bubble(text: String, world_pos: Vector3) -> void:
 func _get_responsive_dialog_size(landscape_size: Vector2i, portrait_size: Vector2i) -> Vector2i:
 	var vp_size = get_viewport().get_visible_rect().size
 	if is_portrait_mode:
-		var max_w = int(vp_size.x * 0.94)
-		var max_h = int(vp_size.y * 0.78)
-		var target_w = clampi(portrait_size.x, 500, max_w)
-		var target_h = clampi(portrait_size.y, 600, max_h)
+		var target_w = clampi(portrait_size.x, 480, int(vp_size.x * 0.90))
+		var target_h = clampi(portrait_size.y, 320, int(vp_size.y * 0.72))
 		return Vector2i(target_w, target_h)
 	else:
-		var max_w = int(vp_size.x * 0.85)
-		var max_h = int(vp_size.y * 0.85)
-		var target_w = clampi(landscape_size.x, 400, max_w)
-		var target_h = clampi(landscape_size.y, 350, max_h)
+		var target_w = clampi(landscape_size.x, 400, int(vp_size.x * 0.85))
+		var target_h = clampi(landscape_size.y, 240, int(vp_size.y * 0.85))
 		return Vector2i(target_w, target_h)
 
 func _apply_dialog_responsive_styling(dlg: Window) -> void:
 	if not dlg:
 		return
-	if is_portrait_mode:
-		dlg.add_theme_font_size_override("title_size", 28)
-		if dlg is AcceptDialog:
-			var ok_btn = (dlg as AcceptDialog).get_ok_button()
-			if ok_btn:
-				ok_btn.custom_minimum_size = Vector2(220, 64)
-				ok_btn.add_theme_font_size_override("font_size", 24)
-		if dlg is ConfirmationDialog:
-			var cancel_btn = (dlg as ConfirmationDialog).get_cancel_button()
-			if cancel_btn:
-				cancel_btn.custom_minimum_size = Vector2(220, 64)
-				cancel_btn.add_theme_font_size_override("font_size", 24)
-			var lbl = (dlg as ConfirmationDialog).get_label()
-			if lbl:
-				lbl.add_theme_font_size_override("font_size", 24)
-				lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	else:
-		dlg.add_theme_font_size_override("title_size", 14)
-		if dlg is AcceptDialog:
-			var ok_btn = (dlg as AcceptDialog).get_ok_button()
-			if ok_btn:
-				ok_btn.custom_minimum_size = Vector2(100, 32)
-				ok_btn.add_theme_font_size_override("font_size", 13)
-		if dlg is ConfirmationDialog:
-			var cancel_btn = (dlg as ConfirmationDialog).get_cancel_button()
-			if cancel_btn:
-				cancel_btn.custom_minimum_size = Vector2(100, 32)
-				cancel_btn.add_theme_font_size_override("font_size", 13)
-			var lbl = (dlg as ConfirmationDialog).get_label()
-			if lbl:
-				lbl.add_theme_font_size_override("font_size", 13)
+	dlg.add_theme_stylebox_override("panel", _style_dialog_panel)
+	dlg.add_theme_color_override("title_color", Color(0.95, 0.97, 1.0, 1.0))
+	dlg.add_theme_font_size_override("title_size", 20 if is_portrait_mode else 14)
+	
+	if dlg is AcceptDialog:
+		var ok_btn = (dlg as AcceptDialog).get_ok_button()
+		if ok_btn:
+			ok_btn.add_theme_stylebox_override("normal", _style_dialog_ok_btn)
+			ok_btn.add_theme_stylebox_override("hover", _style_dialog_ok_btn)
+			ok_btn.add_theme_stylebox_override("pressed", _style_dialog_ok_btn)
+			ok_btn.add_theme_stylebox_override("focus", _style_dialog_ok_btn)
+			ok_btn.add_theme_color_override("font_color", Color(1.0, 1.0, 1.0, 1.0))
+			ok_btn.add_theme_color_override("font_hover_color", Color(1.0, 1.0, 1.0, 1.0))
+			ok_btn.custom_minimum_size = Vector2(180, 44 if is_portrait_mode else 34)
+			ok_btn.add_theme_font_size_override("font_size", 16 if is_portrait_mode else 13)
+			ok_btn.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+	
+	if dlg is ConfirmationDialog:
+		var cancel_btn = (dlg as ConfirmationDialog).get_cancel_button()
+		if cancel_btn:
+			cancel_btn.add_theme_stylebox_override("normal", _style_dialog_btn)
+			cancel_btn.add_theme_stylebox_override("hover", _style_dialog_btn_hover)
+			cancel_btn.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+			cancel_btn.custom_minimum_size = Vector2(160, 50 if is_portrait_mode else 36)
+			cancel_btn.add_theme_font_size_override("font_size", 18 if is_portrait_mode else 13)
+		var ok_btn = (dlg as ConfirmationDialog).get_ok_button()
+		if ok_btn:
+			ok_btn.add_theme_stylebox_override("normal", _style_dialog_btn_danger)
+			ok_btn.add_theme_stylebox_override("hover", _style_dialog_btn_danger)
+			ok_btn.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15, 1.0))
+			ok_btn.custom_minimum_size = Vector2(160, 50 if is_portrait_mode else 36)
+			ok_btn.add_theme_font_size_override("font_size", 18 if is_portrait_mode else 13)
+		var lbl = (dlg as ConfirmationDialog).get_label()
+		if lbl:
+			lbl.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+			lbl.add_theme_font_size_override("font_size", 18 if is_portrait_mode else 13)
+			lbl.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 
 func _update_settings_dialog_controls() -> void:
-	var font_sz = 24 if is_portrait_mode else 12
-	var header_sz = 26 if is_portrait_mode else 13
-	var btn_h = 64 if is_portrait_mode else 32
-	var chk_h = 56 if is_portrait_mode else 28
+	var font_sz = 17 if is_portrait_mode else 12
+	var header_sz = 19 if is_portrait_mode else 13
+	var btn_h = 50 if is_portrait_mode else 32
+	var chk_h = 46 if is_portrait_mode else 28
 	
-	for hdr_name in ["AudioHeader", "ViewHeader", "DataHeader"]:
-		var hdr = settings_dialog.find_child(hdr_name, true, false) as Label
-		if hdr:
-			hdr.add_theme_font_size_override("font_size", header_sz)
+	var audio_hdr = settings_dialog.find_child("AudioHeader", true, false) as Label
+	if audio_hdr:
+		audio_hdr.text = "🔊  AUDIO & LAUTSTÄRKE"
+		audio_hdr.add_theme_font_size_override("font_size", header_sz)
+		audio_hdr.add_theme_color_override("font_color", Color(0.114, 0.306, 0.847, 1.0))
+	
+	var view_hdr = settings_dialog.find_child("ViewHeader", true, false) as Label
+	if view_hdr:
+		view_hdr.text = "🏝️  ANSICHT & KAMERA"
+		view_hdr.add_theme_font_size_override("font_size", header_sz)
+		view_hdr.add_theme_color_override("font_color", Color(0.114, 0.306, 0.847, 1.0))
+	
+	var data_hdr = settings_dialog.find_child("DataHeader", true, false) as Label
+	if data_hdr:
+		data_hdr.text = "💾  SPEICHERSTAND & INSEL"
+		data_hdr.add_theme_font_size_override("font_size", header_sz)
+		data_hdr.add_theme_color_override("font_color", Color(0.114, 0.306, 0.847, 1.0))
 	
 	var master_lbl = settings_dialog.find_child("MasterVolLabel", true, false) as Label
 	if master_lbl:
 		master_lbl.add_theme_font_size_override("font_size", font_sz)
+		master_lbl.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
 	
 	if slider_master:
-		slider_master.custom_minimum_size = Vector2(0, 52 if is_portrait_mode else 24)
+		slider_master.custom_minimum_size = Vector2(0, 44 if is_portrait_mode else 24)
 	
-	for chk in [check_mute, check_grid_lines, check_night_mode]:
-		if chk:
-			chk.add_theme_font_size_override("font_size", font_sz)
-			chk.custom_minimum_size = Vector2(0, chk_h)
+	if check_mute:
+		check_mute.text = "🔇 Ton stummschalten (Mute)"
+		check_mute.add_theme_font_size_override("font_size", font_sz)
+		check_mute.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+		check_mute.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
+		check_mute.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_mute.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_mute.custom_minimum_size = Vector2(0, chk_h)
 	
-	for btn in [btn_reset_cam_settings, btn_save_settings, btn_load_settings, btn_reset_island_settings]:
+	if check_grid_lines:
+		check_grid_lines.text = "📐 3D-Gitterlinien anzeigen"
+		check_grid_lines.add_theme_font_size_override("font_size", font_sz)
+		check_grid_lines.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+		check_grid_lines.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
+		check_grid_lines.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_grid_lines.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_grid_lines.custom_minimum_size = Vector2(0, chk_h)
+	
+	if check_night_mode:
+		check_night_mode.text = "🌙 Nachtmodus (Tag/Nacht)"
+		check_night_mode.add_theme_font_size_override("font_size", font_sz)
+		check_night_mode.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+		check_night_mode.add_theme_color_override("font_pressed_color", Color(0.12, 0.16, 0.24, 1.0))
+		check_night_mode.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_night_mode.add_theme_color_override("font_hover_pressed_color", Color(0.14, 0.38, 0.92, 1.0))
+		check_night_mode.custom_minimum_size = Vector2(0, chk_h)
+	
+	for btn in [btn_reset_cam_settings, btn_save_settings, btn_load_settings]:
 		if btn:
+			btn.add_theme_stylebox_override("normal", _style_dialog_btn)
+			btn.add_theme_stylebox_override("hover", _style_dialog_btn_hover)
+			btn.add_theme_stylebox_override("pressed", _style_dialog_btn_hover)
+			btn.add_theme_color_override("font_color", Color(0.12, 0.16, 0.24, 1.0))
+			btn.add_theme_color_override("font_hover_color", Color(0.14, 0.38, 0.92, 1.0))
 			btn.add_theme_font_size_override("font_size", font_sz)
 			btn.custom_minimum_size = Vector2(0, btn_h)
+	
+	if btn_reset_island_settings:
+		btn_reset_island_settings.add_theme_stylebox_override("normal", _style_dialog_btn_danger)
+		btn_reset_island_settings.add_theme_stylebox_override("hover", _style_dialog_btn_danger)
+		btn_reset_island_settings.add_theme_stylebox_override("pressed", _style_dialog_btn_danger)
+		btn_reset_island_settings.add_theme_color_override("font_color", Color(0.85, 0.15, 0.15, 1.0))
+		btn_reset_island_settings.add_theme_color_override("font_hover_color", Color(0.7, 0.1, 0.1, 1.0))
+		btn_reset_island_settings.add_theme_font_size_override("font_size", font_sz)
+		btn_reset_island_settings.custom_minimum_size = Vector2(0, btn_h)
 
 func _update_credits_dialog_content() -> void:
 	if not credits_text:
 		return
-	if is_portrait_mode:
-		credits_text.text = "[center][b][font_size=32]🏝️ Diorama Sandbox[/font_size][/b]\n[font_size=24][color=#2563eb]Native Edition v1.0 • Cross-Platform (Linux / Windows / Android)[/color][/font_size][/center]\n\n[font_size=24][b]👥 Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[b]📜 Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (kenney.nl, CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem[/font_size]"
-	else:
-		credits_text.text = "[center][b][font_size=17]🏝️ Diorama Sandbox[/font_size][/b]\n[color=#2563eb]Native Edition v1.0 • Cross-Platform (Linux / Windows / Android)[/color][/center]\n\n[b]👥 Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[b]📜 Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (kenney.nl, CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem"
+	credits_text.add_theme_color_override("default_color", Color(0.12, 0.16, 0.24, 1.0))
+	var font_sz = 17 if is_portrait_mode else 13
+	var title_sz = 22 if is_portrait_mode else 16
+	var sub_sz = 14 if is_portrait_mode else 11
+	credits_text.text = "[center][b][font_size=%d]🏝️ Diorama Sandbox[/font_size][/b]\n[font_size=%d][color=#2563eb]Native Edition v1.0 • Cross-Platform (Linux / Windows / Android)[/color][/font_size][/center]\n\n[font_size=%d][b]👥  Team & Entwicklung:[/b]\n• [b]Jennifer Graßl:[/b] Architektur & Software-Entwicklung\n• [b]Sara Graßl:[/b] Ideen, Content-Beiträge & Playtesting\n• [b]Gemini:[/b] Konzept & KI-Entwicklungspartner\n\n[b]📜  Third-Party Credits & Lizenzen:[/b]\n• [b]Engine:[/b] Godot Engine 4 (MIT Lizenz)\n• [b]SFX & Audio:[/b] Kenney (CC0) & Wikimedia Commons (CC0)\n• [b]Design:[/b] Zero-Asset Low-Poly Modulsystem[/font_size]" % [title_sz, sub_sz, font_sz]
 
 # -----------------------------------------------------------------------------
 # Top Controls & Settings Handlers
@@ -802,7 +912,7 @@ func _on_settings_pressed() -> void:
 	
 	_apply_dialog_responsive_styling(settings_dialog)
 	_update_settings_dialog_controls()
-	var dsize = _get_responsive_dialog_size(Vector2i(540, 520), Vector2i(1040, 1450))
+	var dsize = _get_responsive_dialog_size(Vector2i(520, 480), Vector2i(780, 560))
 	settings_dialog.popup_centered(dsize)
 
 func _on_master_slider_changed(val: float) -> void:
@@ -845,7 +955,7 @@ func _on_reset_pressed() -> void:
 	if settings_dialog:
 		settings_dialog.hide()
 	_apply_dialog_responsive_styling(reset_confirm_dialog)
-	var dsize = _get_responsive_dialog_size(Vector2i(480, 260), Vector2i(960, 520))
+	var dsize = _get_responsive_dialog_size(Vector2i(460, 220), Vector2i(720, 260))
 	reset_confirm_dialog.popup_centered(dsize)
 
 func _on_reset_confirmed() -> void:
@@ -860,13 +970,13 @@ func _on_reset_canceled() -> void:
 	if settings_dialog:
 		_apply_dialog_responsive_styling(settings_dialog)
 		_update_settings_dialog_controls()
-		var dsize = _get_responsive_dialog_size(Vector2i(540, 520), Vector2i(1040, 1450))
+		var dsize = _get_responsive_dialog_size(Vector2i(520, 480), Vector2i(780, 560))
 		settings_dialog.popup_centered(dsize)
 
 func _on_info_pressed() -> void:
 	_apply_dialog_responsive_styling(credits_dialog)
 	_update_credits_dialog_content()
-	var dsize = _get_responsive_dialog_size(Vector2i(540, 440), Vector2i(1040, 1300))
+	var dsize = _get_responsive_dialog_size(Vector2i(520, 380), Vector2i(780, 420))
 	credits_dialog.popup_centered(dsize)
 
 func _on_undo_pressed() -> void:
