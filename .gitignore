@@ -3,4 +3,5 @@
 *.translation
 export_presets.cfg.bak
 build/
+builds/
 android/build/
