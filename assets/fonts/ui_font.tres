@@ -1,0 +1,8 @@
+[gd_resource type="SystemFont" format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/NotoEmoji-Regular.ttf" id="1_k5mwe"]
+[ext_resource type="FontFile" path="res://assets/fonts/NotoSymbols-Regular.ttf" id="2_1rwpg"]
+
+[resource]
+fallbacks = Array[Font]([ExtResource("1_k5mwe"), ExtResource("2_1rwpg")])
+font_names = PackedStringArray("Open Sans", "Noto Sans", "DejaVu Sans", "sans-serif")
