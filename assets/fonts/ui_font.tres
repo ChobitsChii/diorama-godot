@@ -1,9 +1,0 @@
-[gd_resource type="FontVariation" format=3]
-
-[ext_resource type="FontFile" path="res://assets/fonts/NotoSans-Regular.ttf" id="1_1rwpg"]
-[ext_resource type="FontFile" path="res://assets/fonts/NotoEmoji-Regular.ttf" id="1_k5mwe"]
-[ext_resource type="FontFile" path="res://assets/fonts/NotoSymbols-Regular.ttf" id="2_1rwpg"]
-
-[resource]
-fallbacks = Array[Font]([ExtResource("1_k5mwe"), ExtResource("2_1rwpg")])
-base_font = ExtResource("1_1rwpg")
