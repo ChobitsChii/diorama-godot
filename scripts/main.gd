@@ -15,17 +15,6 @@ extends Node3D
 @onready var sync_manager: SyncManager = $SyncManager
 @onready var hud: HUD = $CanvasLayer/HUD
 
-func _enter_tree() -> void:
-	_setup_font_fallbacks()
-
-func _setup_font_fallbacks() -> void:
-	var emoji_font = load("res://assets/fonts/NotoEmoji-Regular.ttf")
-	var symbol_font = load("res://assets/fonts/NotoSymbols-Regular.ttf")
-	if emoji_font and not ThemeDB.fallback_font.fallbacks.has(emoji_font):
-		ThemeDB.fallback_font.fallbacks.append(emoji_font)
-	if symbol_font and not ThemeDB.fallback_font.fallbacks.has(symbol_font):
-		ThemeDB.fallback_font.fallbacks.append(symbol_font)
-
 func _ready() -> void:
 	# 0. Apply saved display/graphics settings
 	SettingsManager.apply_saved_settings()
