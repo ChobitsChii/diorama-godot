@@ -8,5 +8,13 @@
   "android": {
     "packageName": "de.chobitschii.diorama",
     "signingCertificateSha256": "a36a3326986f9c6da099df5f9ea9ad914f48aae26a5a9dd47684c5e25b1e428f"
-  }
+  },
+  "coverImage": "store-media/cover.webp",
+  "screenshots": [
+    "store-media/01-inselbau.webp",
+    "store-media/02-baukatalog.webp",
+    "store-media/03-dorfleben.webp",
+    "store-media/04-nachtmodus.webp",
+    "store-media/05-mobil-portrait.webp"
+  ]
 }
