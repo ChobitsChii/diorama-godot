@@ -40,7 +40,8 @@ def main():
     if not keystore_path.is_file():
         raise SystemExit(f"Keystore file {keystore_path} not found.")
 
-    output_apk = ROOT / "builds/android/diorama-0.1.0-beta.12.apk"
+    version_str = (ROOT / "VERSION").read_text(encoding="utf-8").strip() if (ROOT / "VERSION").is_file() else "0.1.0-beta.13"
+    output_apk = ROOT / f"builds/android/diorama-{version_str}.apk"
     output_apk.parent.mkdir(parents=True, exist_ok=True)
 
     env = os.environ.copy()

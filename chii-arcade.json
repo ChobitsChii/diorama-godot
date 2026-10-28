@@ -3,7 +3,7 @@
   "title": "Diorama Sandbox",
   "category": "Kreativ",
   "teaser": "Gemütliches 3D-Diorama-Bauspiel im Low-Poly-Voxelstil.",
-  "description": "Erschaffe deine eigene Miniatur-Inselwelt mit 38 verschiedenen Objekten, dynamischen Rastergrößen von 8×8 bis 24×24, Tag- & Nacht-Atmosphäre und interaktivem Erkunden-Modus. Gestalte Böden, Gebäude, Natur, Tiere und Dekorationen mit vollem Undo/Redo und lokaler Speicherung für Touch und Tastatur.",
+  "description": "Erschaffe deine eigene Miniatur-Inselwelt mit 42 verschiedenen Objekten, dynamischen Rastergrößen von 8×8 bis 24×24, Tag- & Nacht-Atmosphäre, Erntekorb zum Ernten & Füttern der Tiere und interaktivem Erkunden-Modus. Gestalte Böden, Gebäude, Natur, Tiere und Dekorationen mit vollem Undo/Redo, 5 Snapshot-Slots und lokaler Speicherung für Touch und Tastatur.",
   "symbol": "🏝️",
   "android": {
     "packageName": "de.chobitschii.diorama",

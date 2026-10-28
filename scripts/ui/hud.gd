@@ -559,6 +559,7 @@ func _build_harvest_basket_slots() -> void:
 		
 		# Top-right count badge
 		var badge_panel := PanelContainer.new()
+		badge_panel.name = "BadgePanel"
 		badge_panel.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		badge_panel.add_theme_stylebox_override("panel", _style_basket_badge)
 		badge_panel.anchor_left = 1.0
@@ -1741,16 +1742,110 @@ func _apply_landscape_layout() -> void:
 		return
 	if sidebar_panel:
 		sidebar_panel.add_theme_stylebox_override("panel", _style_sidebar_landscape)
+	
+	# TopBar height & margins in Landscape
+	if top_bar:
+		top_bar.custom_minimum_size = Vector2(0, 42)
+		top_bar.offset_left = 14.0
+		top_bar.offset_top = 12.0
+		top_bar.offset_right = -14.0
+		top_bar.offset_bottom = 54.0
+	var brand_title := get_node_or_null("%BrandPill/BrandMargin/BrandHBox/BrandTitle") as Label
+	if brand_title:
+		brand_title.text = "🏝️ Diorama-Sandbox"
+		brand_title.add_theme_font_size_override("font_size", 13)
 	if save_status_pill: save_status_pill.visible = true
-	if btn_save_now: btn_save_now.visible = true
-	if btn_snapshots: btn_snapshots.visible = true
+	if btn_save_now:
+		btn_save_now.visible = true
+		btn_save_now.custom_minimum_size = Vector2(36, 36)
+		btn_save_now.add_theme_font_size_override("font_size", 14)
+	
+	# Grid size buttons in Landscape
+	for grid_btn in [btn_grid_8, btn_grid_12, btn_grid_16, btn_grid_20, btn_grid_24]:
+		if grid_btn:
+			grid_btn.custom_minimum_size = Vector2(46, 28)
+			grid_btn.add_theme_font_size_override("font_size", 11)
+	
+	# TopControls in Landscape
+	for ctrl_btn in [btn_night_mode, btn_grid_lines, btn_reset_cam, btn_sound_toggle, btn_snapshots, btn_reset_island, btn_info, btn_settings]:
+		if ctrl_btn:
+			ctrl_btn.visible = true
+			ctrl_btn.custom_minimum_size = Vector2(36, 36)
+			ctrl_btn.add_theme_font_size_override("font_size", 14)
+	if btn_snapshot:
+		btn_snapshot.text = "📸 Foto"
+		btn_snapshot.custom_minimum_size = Vector2(76, 36)
+		btn_snapshot.add_theme_font_size_override("font_size", 12)
+	
+	# Harvest Basket in Landscape (Bottom-Left)
 	if harvest_basket_panel:
+		harvest_basket_panel.anchor_top = 1.0
+		harvest_basket_panel.anchor_bottom = 1.0
+		harvest_basket_panel.grow_vertical = Control.GROW_DIRECTION_BEGIN
 		harvest_basket_panel.offset_left = 18.0
 		harvest_basket_panel.offset_top = -132.0
 		harvest_basket_panel.offset_right = 266.0
 		harvest_basket_panel.offset_bottom = -18.0
+	if selection_hint:
+		selection_hint.offset_left = -220.0
+		selection_hint.offset_top = 60.0
+		selection_hint.offset_right = 220.0
+		selection_hint.offset_bottom = 94.0
+	if selection_hint_label:
+		selection_hint_label.add_theme_font_size_override("font_size", 12)
+	if toast_panel:
+		toast_panel.offset_left = -170.0
+		toast_panel.offset_top = -60.0
+		toast_panel.offset_right = 170.0
+		toast_panel.offset_bottom = -22.0
+	if toast_label:
+		toast_label.add_theme_font_size_override("font_size", 12)
+	var basket_title := get_node_or_null("HarvestBasketPanel/Margin/VBox/BasketTitle") as Label
+	if basket_title:
+		basket_title.add_theme_font_size_override("font_size", 11)
+	if basket_hint_label:
+		basket_hint_label.add_theme_font_size_override("font_size", 10)
+	for k in _basket_slot_buttons:
+		var slot_btn: Button = _basket_slot_buttons[k]
+		if slot_btn:
+			slot_btn.custom_minimum_size = Vector2(48, 48)
+			slot_btn.add_theme_font_size_override("font_size", 20)
+			var bp := slot_btn.get_node_or_null("BadgePanel") as Control
+			if bp:
+				bp.offset_left = -20.0
+				bp.offset_top = -5.0
+				bp.offset_right = 4.0
+				bp.offset_bottom = 13.0
+	for k in _basket_badge_labels:
+		var badge_lbl: Label = _basket_badge_labels[k]
+		if badge_lbl:
+			badge_lbl.add_theme_font_size_override("font_size", 10)
+	
+	# Sidebar labels, tools, and categories in Landscape
+	if tools_label: tools_label.visible = true
+	if cat_section_label: cat_section_label.visible = true
+	if h_separator_1: h_separator_1.visible = true
+	var tool_spacer := get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/ToolsGrid/ToolGridSpacer") as Control
+	if tool_spacer: tool_spacer.visible = true
+	
+	for t_btn in [btn_tool_select, btn_tool_explore, btn_tool_place, btn_tool_rotate, btn_tool_demolish]:
+		if t_btn:
+			t_btn.custom_minimum_size = Vector2(0, 32)
+			t_btn.add_theme_font_size_override("font_size", 12)
+	if btn_undo:
+		btn_undo.custom_minimum_size = Vector2(0, 28)
+		btn_undo.add_theme_font_size_override("font_size", 12)
+	if btn_redo:
+		btn_redo.custom_minimum_size = Vector2(0, 28)
+		btn_redo.add_theme_font_size_override("font_size", 12)
+	for c_btn in [cat_ground_btn, cat_buildings_btn, cat_nature_btn, cat_creatures_btn, cat_deco_btn]:
+		if c_btn:
+			c_btn.custom_minimum_size = Vector2(0, 32)
+			c_btn.add_theme_font_size_override("font_size", 14)
+	
 	if tools_grid: tools_grid.columns = 2
 	if catalog_grid: catalog_grid.columns = 2
+	if scroll_container: scroll_container.custom_minimum_size = Vector2(0, 220)
 	
 	sidebar_wrapper.anchor_left = 1.0
 	sidebar_wrapper.anchor_top = 0.0
@@ -1770,18 +1865,120 @@ func _apply_landscape_layout() -> void:
 	btn_toggle_sidebar.offset_top = 18.0
 	btn_toggle_sidebar.offset_bottom = 52.0
 	btn_toggle_sidebar.text = "▶" if is_sidebar_open else "◀"
+	btn_toggle_sidebar.add_theme_font_size_override("font_size", 12)
 
 func _apply_portrait_layout() -> void:
 	if not sidebar_wrapper or not btn_toggle_sidebar:
 		return
 	if sidebar_panel:
 		sidebar_panel.add_theme_stylebox_override("panel", _style_sidebar_portrait)
+	
+	# TopBar height & margins in Portrait (enlarged for smartphone displays due to canvas_items expand stretch)
+	if top_bar:
+		top_bar.custom_minimum_size = Vector2(0, 84)
+		top_bar.offset_left = 12.0
+		top_bar.offset_top = 12.0
+		top_bar.offset_right = -12.0
+		top_bar.offset_bottom = 96.0
+	var brand_title := get_node_or_null("%BrandPill/BrandMargin/BrandHBox/BrandTitle") as Label
+	if brand_title:
+		brand_title.text = "🏝️ Diorama"
+		brand_title.add_theme_font_size_override("font_size", 24)
 	if save_status_pill: save_status_pill.visible = false
 	if btn_save_now: btn_save_now.visible = false
+	
+	# Grid size buttons in Portrait - large, legible thumb targets
+	for grid_btn in [btn_grid_8, btn_grid_12, btn_grid_16, btn_grid_20, btn_grid_24]:
+		if grid_btn:
+			grid_btn.custom_minimum_size = Vector2(88, 66)
+			grid_btn.add_theme_font_size_override("font_size", 21)
+	
+	# Hide secondary shortcut icons in Portrait (all accessible via ⚙️ Settings) so TopBar fits cleanly
+	for sec_btn in [btn_night_mode, btn_grid_lines, btn_reset_cam, btn_sound_toggle, btn_reset_island]:
+		if sec_btn:
+			sec_btn.visible = false
+	for vis_btn in [btn_snapshots, btn_info, btn_settings]:
+		if vis_btn:
+			vis_btn.visible = true
+			vis_btn.custom_minimum_size = Vector2(76, 72)
+			vis_btn.add_theme_font_size_override("font_size", 28)
+	if btn_snapshot:
+		btn_snapshot.text = "📸"
+		btn_snapshot.custom_minimum_size = Vector2(80, 72)
+		btn_snapshot.add_theme_font_size_override("font_size", 28)
+	
+	# Harvest Basket in Portrait (Top-Left directly below TopBar so bottom dock never covers it!)
+	if harvest_basket_panel:
+		harvest_basket_panel.anchor_top = 0.0
+		harvest_basket_panel.anchor_bottom = 0.0
+		harvest_basket_panel.grow_vertical = Control.GROW_DIRECTION_END
+		harvest_basket_panel.offset_left = 14.0
+		harvest_basket_panel.offset_top = 112.0
+		harvest_basket_panel.offset_right = 430.0
+		harvest_basket_panel.offset_bottom = 290.0
+	if selection_hint:
+		selection_hint.offset_left = -380.0
+		selection_hint.offset_top = 310.0
+		selection_hint.offset_right = 380.0
+		selection_hint.offset_bottom = 368.0
+	if selection_hint_label:
+		selection_hint_label.add_theme_font_size_override("font_size", 20)
+	if toast_panel:
+		toast_panel.offset_left = -320.0
+		toast_panel.offset_top = -825.0
+		toast_panel.offset_right = 320.0
+		toast_panel.offset_bottom = -767.0
+	if toast_label:
+		toast_label.add_theme_font_size_override("font_size", 22)
+	var basket_title := get_node_or_null("HarvestBasketPanel/Margin/VBox/BasketTitle") as Label
+	if basket_title:
+		basket_title.add_theme_font_size_override("font_size", 20)
+	if basket_hint_label:
+		basket_hint_label.add_theme_font_size_override("font_size", 18)
+	for k in _basket_slot_buttons:
+		var slot_btn: Button = _basket_slot_buttons[k]
+		if slot_btn:
+			slot_btn.custom_minimum_size = Vector2(82, 82)
+			slot_btn.add_theme_font_size_override("font_size", 34)
+			var bp := slot_btn.get_node_or_null("BadgePanel") as Control
+			if bp:
+				bp.offset_left = -32.0
+				bp.offset_top = -6.0
+				bp.offset_right = 6.0
+				bp.offset_bottom = 24.0
+	for k in _basket_badge_labels:
+		var badge_lbl: Label = _basket_badge_labels[k]
+		if badge_lbl:
+			badge_lbl.add_theme_font_size_override("font_size", 18)
+	
+	# Hide decorative labels & separators in compact Portrait bottom dock
+	if tools_label: tools_label.visible = false
+	if cat_section_label: cat_section_label.visible = false
+	if h_separator_1: h_separator_1.visible = false
+	var tool_spacer := get_node_or_null("SidebarWrapper/SidebarPanel/Margin/VBox/ToolsGrid/ToolGridSpacer") as Control
+	if tool_spacer: tool_spacer.visible = false
+	
+	# Large, super readable Tool, Undo/Redo, and Category buttons for small smartphone screens
+	for t_btn in [btn_tool_select, btn_tool_explore, btn_tool_place, btn_tool_rotate, btn_tool_demolish]:
+		if t_btn:
+			t_btn.custom_minimum_size = Vector2(0, 68)
+			t_btn.add_theme_font_size_override("font_size", 24)
+	if btn_undo:
+		btn_undo.custom_minimum_size = Vector2(0, 56)
+		btn_undo.add_theme_font_size_override("font_size", 28)
+	if btn_redo:
+		btn_redo.custom_minimum_size = Vector2(0, 56)
+		btn_redo.add_theme_font_size_override("font_size", 28)
+	for c_btn in [cat_ground_btn, cat_buildings_btn, cat_nature_btn, cat_creatures_btn, cat_deco_btn]:
+		if c_btn:
+			c_btn.custom_minimum_size = Vector2(0, 74)
+			c_btn.add_theme_font_size_override("font_size", 38)
+	
 	if tools_grid: tools_grid.columns = 3
 	if catalog_grid: catalog_grid.columns = 4
+	if scroll_container: scroll_container.custom_minimum_size = Vector2(0, 310)
 	
-	var dock_height := 520.0
+	var dock_height := 690.0
 	sidebar_wrapper.anchor_left = 0.0
 	sidebar_wrapper.anchor_top = 1.0
 	sidebar_wrapper.anchor_right = 1.0
@@ -1795,17 +1992,19 @@ func _apply_portrait_layout() -> void:
 	btn_toggle_sidebar.anchor_top = 0.0
 	btn_toggle_sidebar.anchor_right = 0.5
 	btn_toggle_sidebar.anchor_bottom = 0.0
-	btn_toggle_sidebar.offset_left = -80.0
-	btn_toggle_sidebar.offset_right = 80.0
-	btn_toggle_sidebar.offset_top = -38.0
+	btn_toggle_sidebar.offset_left = -140.0
+	btn_toggle_sidebar.offset_right = 140.0
+	btn_toggle_sidebar.offset_top = -58.0
 	btn_toggle_sidebar.offset_bottom = 0.0
 	btn_toggle_sidebar.text = "▼ Schließen" if is_sidebar_open else "▲ Werkzeuge"
+	btn_toggle_sidebar.add_theme_font_size_override("font_size", 24)
+	btn_toggle_sidebar.add_theme_color_override("font_color", Color("#0f172a"))
 
 func _toggle_sidebar() -> void:
 	is_sidebar_open = not is_sidebar_open
 	var tween := create_tween().set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
 	if is_portrait_mode:
-		var dock_height := 520.0
+		var dock_height := 690.0
 		tween.tween_property(sidebar_wrapper, "offset_top", -dock_height if is_sidebar_open else 0.0, 0.22)
 		tween.tween_property(sidebar_wrapper, "offset_bottom", 0.0 if is_sidebar_open else dock_height, 0.22)
 		btn_toggle_sidebar.text = "▼ Schließen" if is_sidebar_open else "▲ Werkzeuge"

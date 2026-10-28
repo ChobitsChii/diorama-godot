@@ -56,7 +56,20 @@ func _init():
 	img.save_png("%s/screenshot_landscape_creatures.png" % out_dir)
 	print("Captured screenshot_landscape_creatures.png")
 	
+	# 3. Portrait / Smartphone Display Check (480x1040)
+	DisplayServer.window_set_size(Vector2i(480, 1040))
+	root.size = Vector2i(480, 1040)
+	if main.get("hud"):
+		main.hud._on_viewport_size_changed()
+	for i in range(24):
+		await process_frame
+	img = root.get_texture().get_image()
+	img.save_png("%s/screenshot_portrait_hud.png" % out_dir)
+	print("Captured screenshot_portrait_hud.png")
+	
 	# Restore clean starter island & empty basket so user save stays clean
+	DisplayServer.window_set_size(Vector2i(1280, 720))
+	root.size = Vector2i(1280, 720)
 	main.hud.basket = {"strawberry": 0, "potato": 0, "mushroom": 0, "nut": 0}
 	main.hud.selected_food = ""
 	main.hud._update_harvest_basket_ui()
