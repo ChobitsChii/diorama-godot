@@ -1,78 +1,85 @@
-[gd_scene load_steps=13 format=3]
+[gd_scene load_steps=11 format=3]
 
-[ext_resource type="Script" path="res://scripts/main.gd" id="1_main_script"]
-[ext_resource type="Script" path="res://scripts/day_night_controller.gd" id="2_day_night"]
-[ext_resource type="Script" path="res://scripts/camera_controller.gd" id="3_camera_ctrl"]
-[ext_resource type="Script" path="res://scripts/island_base.gd" id="4_island_base"]
-[ext_resource type="Script" path="res://scripts/grid_manager.gd" id="5_grid_mgr"]
-[ext_resource type="Script" path="res://scripts/placement_controller.gd" id="6_place_ctrl"]
-[ext_resource type="Script" path="res://scripts/storage_manager.gd" id="7_storage_mgr"]
-[ext_resource type="Script" path="res://scripts/history_manager.gd" id="8_history_mgr"]
-[ext_resource type="Script" path="res://scripts/sync_manager.gd" id="9_sync_mgr"]
-[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="10_hud_scene"]
-[ext_resource type="Script" path="res://scripts/audio_manager.gd" id="11_audio_mgr"]
+[ext_resource type="Script" path="res://scripts/main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/camera_controller.gd" id="2_cam"]
+[ext_resource type="Script" path="res://scripts/day_night_controller.gd" id="3_daynight"]
+[ext_resource type="Script" path="res://scripts/island_base.gd" id="4_island"]
+[ext_resource type="Script" path="res://scripts/grid_manager.gd" id="5_grid"]
+[ext_resource type="Script" path="res://scripts/placement_controller.gd" id="6_placement"]
+[ext_resource type="Script" path="res://scripts/history_manager.gd" id="7_history"]
+[ext_resource type="Script" path="res://scripts/storage_manager.gd" id="8_storage"]
+[ext_resource type="PackedScene" path="res://scenes/ui/hud.tscn" id="9_hud"]
 
-[sub_resource type="Environment" id="Environment_main"]
+[sub_resource type="Environment" id="Environment_diorama"]
 background_mode = 1
-background_color = Color(0.796078, 0.898039, 1, 1)
+background_color = Color(0.803922, 0.905882, 1, 1)
 ambient_light_source = 2
 ambient_light_color = Color(0.858824, 0.917647, 0.996078, 1)
-ambient_light_energy = 0.75
-tonemap_mode = 2
+ambient_light_energy = 0.14
+reflected_light_source = 1
+tonemap_mode = 0
+ssao_enabled = false
+glow_enabled = false
 
 [node name="Main" type="Node3D"]
-script = ExtResource("1_main_script")
+script = ExtResource("1_main")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
-environment = SubResource("Environment_main")
+environment = SubResource("Environment_diorama")
 
 [node name="SunLight" type="DirectionalLight3D" parent="."]
-transform = Transform3D(0.707107, 0.477714, -0.521334, 0, 0.737277, 0.67559, 0.707107, -0.477714, 0.521334, 0, 20, 0)
+transform = Transform3D(0.707107, -0.514496, 0.485071, 0, 0.685994, 0.727607, -0.707107, -0.514496, 0.485071, 16, 24, 16)
 light_color = Color(1, 0.972549, 0.933333, 1)
-light_energy = 1.05
+light_energy = 0.25
 shadow_enabled = true
-shadow_bias = 0.04
-directional_shadow_max_distance = 60.0
+shadow_bias = 0.02
+shadow_normal_bias = 1.2
+shadow_opacity = 0.75
+shadow_blur = 1.5
+directional_shadow_mode = 0
+directional_shadow_max_distance = 55.0
 
-[node name="DayNightController" type="Node" parent="." node_paths=PackedStringArray("world_environment", "sun_light")]
-script = ExtResource("2_day_night")
+[node name="FillLight" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.650791, 0.371391, -0.662266, 0, 0.872295, 0.488979, 0.759257, 0.318223, -0.567657, -14, 10, -12)
+light_color = Color(0.576471, 0.772549, 0.992157, 1)
+light_energy = 0.07
+shadow_enabled = false
+
+[node name="DayNightController" type="Node" parent="." node_paths=PackedStringArray("world_environment", "sun_light", "fill_light")]
+script = ExtResource("3_daynight")
 world_environment = NodePath("../WorldEnvironment")
 sun_light = NodePath("../SunLight")
+fill_light = NodePath("../FillLight")
 
-[node name="AudioManager" type="Node" parent="."]
-script = ExtResource("11_audio_mgr")
+[node name="CameraRig" type="Node3D" parent="."]
+script = ExtResource("2_cam")
 
-[node name="CameraController" type="Node3D" parent="."]
-script = ExtResource("3_camera_ctrl")
-
-[node name="Camera3D" type="Camera3D" parent="CameraController"]
-projection = 1
-size = 13.0
-current = true
+[node name="Camera3D" type="Camera3D" parent="CameraRig"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 23.68)
+fov = 45.0
+near = 0.1
+far = 200.0
 
 [node name="IslandBase" type="Node3D" parent="."]
-script = ExtResource("4_island_base")
+script = ExtResource("4_island")
 
 [node name="GridManager" type="Node3D" parent="."]
-script = ExtResource("5_grid_mgr")
+script = ExtResource("5_grid")
 
 [node name="HistoryManager" type="Node" parent="." node_paths=PackedStringArray("grid_manager")]
-script = ExtResource("8_history_mgr")
+script = ExtResource("7_history")
+grid_manager = NodePath("../GridManager")
+
+[node name="StorageManager" type="Node" parent="." node_paths=PackedStringArray("grid_manager")]
+script = ExtResource("8_storage")
 grid_manager = NodePath("../GridManager")
 
 [node name="PlacementController" type="Node3D" parent="." node_paths=PackedStringArray("grid_manager", "camera", "history_manager")]
-script = ExtResource("6_place_ctrl")
+script = ExtResource("6_placement")
 grid_manager = NodePath("../GridManager")
-camera = NodePath("../CameraController/Camera3D")
+camera = NodePath("../CameraRig/Camera3D")
 history_manager = NodePath("../HistoryManager")
 
-[node name="StorageManager" type="Node" parent="." node_paths=PackedStringArray("grid_manager")]
-script = ExtResource("7_storage_mgr")
-grid_manager = NodePath("../GridManager")
+[node name="UILayer" type="CanvasLayer" parent="."]
 
-[node name="SyncManager" type="Node" parent="."]
-script = ExtResource("9_sync_mgr")
-
-[node name="CanvasLayer" type="CanvasLayer" parent="."]
-
-[node name="HUD" parent="CanvasLayer" instance=ExtResource("10_hud_scene")]
+[node name="HUD" parent="UILayer" instance=ExtResource("9_hud")]

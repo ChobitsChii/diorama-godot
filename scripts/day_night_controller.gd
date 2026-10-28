@@ -1,60 +1,89 @@
 class_name DayNightController
 extends Node
 
-## Handles Day/Night cycles, environment background, directional sunlight, and streetlamp / window emissions.
+## Manages smooth transitions between Day and Night lighting modes,
+## matching the exact Three.js scene.js lighting parameters.
 
-signal time_changed(is_night: bool)
+signal mode_changed(is_night: bool)
 
 @export var world_environment: WorldEnvironment
 @export var sun_light: DirectionalLight3D
-@export var transition_duration: float = 0.6
+@export var fill_light: DirectionalLight3D
+@export var transition_duration: float = 0.5
 
 var is_night: bool = false
 var _tween: Tween
 
 func _ready() -> void:
-	apply_state(false, true)
+	apply_mode_instant(is_night)
 
-func toggle() -> void:
-	set_night(not is_night)
+func toggle_mode() -> void:
+	set_night_mode(not is_night)
 
-func set_night(value: bool) -> void:
-	if is_night == value:
-		return
-	is_night = value
-	apply_state(is_night, false)
-	time_changed.emit(is_night)
-
-func apply_state(night: bool, immediate: bool = false) -> void:
-	var target_bg: Color = Palette.get_color("nightBg") if night else Palette.get_color("dayBg")
-	var target_sun_color: Color = Palette.get_color("nightSun") if night else Palette.get_color("daySun")
-	var target_sun_energy: float = 0.35 if night else 1.05
-	var target_amb_color: Color = Palette.get_color("nightAmbient") if night else Palette.get_color("dayAmbient")
-	var target_amb_energy: float = 0.35 if night else 0.75
-	
-	if immediate or not is_inside_tree():
-		if world_environment and world_environment.environment:
-			var env = world_environment.environment
-			env.background_color = target_bg
-			env.ambient_light_color = target_amb_color
-			env.ambient_light_energy = target_amb_energy
-		if sun_light:
-			sun_light.light_color = target_sun_color
-			sun_light.light_energy = target_sun_energy
+func set_night_mode(night: bool, animate: bool = true) -> void:
+	is_night = night
+	if animate and is_inside_tree():
+		_animate_to_mode(is_night)
 	else:
-		if _tween and _tween.is_valid():
-			_tween.kill()
-		_tween = create_tween().set_parallel(true)
-		
-		if world_environment and world_environment.environment:
-			var env = world_environment.environment
-			_tween.tween_property(env, "background_color", target_bg, transition_duration)
-			_tween.tween_property(env, "ambient_light_color", target_amb_color, transition_duration)
-			_tween.tween_property(env, "ambient_light_energy", target_amb_energy, transition_duration)
-			
+		apply_mode_instant(is_night)
+	mode_changed.emit(is_night)
+
+func apply_mode_instant(night: bool) -> void:
+	if not world_environment or not world_environment.environment:
+		return
+	var env := world_environment.environment
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	if night:
+		env.background_color = Color("#0e1628")
+		env.ambient_light_color = Color("#151d2f")
+		env.ambient_light_energy = 0.08
 		if sun_light:
-			_tween.tween_property(sun_light, "light_color", target_sun_color, transition_duration)
-			_tween.tween_property(sun_light, "light_energy", target_sun_energy, transition_duration)
+			sun_light.light_color = Color("#60a5fa")
+			sun_light.light_energy = 0.10
+		if fill_light:
+			fill_light.light_color = Color("#1e3a8a")
+			fill_light.light_energy = 0.04
+	else:
+		env.background_color = Color("#cde7ff")
+		env.ambient_light_color = Color("#dbeafe")
+		env.ambient_light_energy = 0.14
+		if sun_light:
+			sun_light.light_color = Color("#fff8ee")
+			sun_light.light_energy = 0.25
+		if fill_light:
+			fill_light.light_color = Color("#93c5fd")
+			fill_light.light_energy = 0.07
+
+func _animate_to_mode(night: bool) -> void:
+	if not world_environment or not world_environment.environment:
+		return
+	if _tween and _tween.is_valid():
+		_tween.kill()
 	
-	# Notify any placed lamps or buildings in group "night_lights"
-	get_tree().call_group("night_lights", "set_night_mode", night)
+	var env := world_environment.environment
+	env.ambient_light_source = Environment.AMBIENT_SOURCE_COLOR
+	env.reflected_light_source = Environment.REFLECTION_SOURCE_DISABLED
+	env.tonemap_mode = Environment.TONE_MAPPER_LINEAR
+	
+	_tween = create_tween().set_parallel(true).set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	
+	var target_bg := Color("#0e1628") if night else Color("#cde7ff")
+	var target_amb := Color("#151d2f") if night else Color("#dbeafe")
+	var target_amb_energy := 0.08 if night else 0.14
+	var target_sun_col := Color("#60a5fa") if night else Color("#fff8ee")
+	var target_sun_energy := 0.10 if night else 0.25
+	var target_fill_col := Color("#1e3a8a") if night else Color("#93c5fd")
+	var target_fill_energy := 0.04 if night else 0.07
+	
+	_tween.tween_property(env, "background_color", target_bg, transition_duration)
+	_tween.tween_property(env, "ambient_light_color", target_amb, transition_duration)
+	_tween.tween_property(env, "ambient_light_energy", target_amb_energy, transition_duration)
+	
+	if sun_light:
+		_tween.tween_property(sun_light, "light_color", target_sun_col, transition_duration)
+		_tween.tween_property(sun_light, "light_energy", target_sun_energy, transition_duration)
+	if fill_light:
+		_tween.tween_property(fill_light, "light_color", target_fill_col, transition_duration)
+		_tween.tween_property(fill_light, "light_energy", target_fill_energy, transition_duration)

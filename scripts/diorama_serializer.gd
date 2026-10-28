@@ -3,8 +3,11 @@ extends RefCounted
 
 ## Serializes and rehydrates diorama scenes to/from the Modulon JSON specification.
 
+const CURRENT_SCHEMA_VERSION: int = 2
+
 static func serialize(grid_mgr: GridManager) -> Dictionary:
-	var state = {
+	var state := {
+		"schemaVersion": CURRENT_SCHEMA_VERSION,
 		"gridSize": grid_mgr.grid_size,
 		"ground": [],
 		"objects": [],
@@ -22,19 +25,30 @@ static func serialize(grid_mgr: GridManager) -> Dictionary:
 	
 	# Serialize objects / props (Layer 1)
 	for obj in grid_mgr.objects.values():
-		state["objects"].append({
+		var item_dict := {
 			"id": obj.get("id", ""),
 			"type": Catalog.normalize_type(obj.get("type", "")),
 			"gx": obj.get("gx", 0),
 			"gz": obj.get("gz", 0),
 			"rotation": obj.get("rotation", 0.0),
 			"size": obj.get("size", 1),
-		})
+		}
+		var node = obj.get("node")
+		if is_instance_valid(node) and node is DioramaProp:
+			var dp := node as DioramaProp
+			if dp.prop_type == "human":
+				item_dict["gender"] = dp.gender
+				item_dict["shirtColor"] = dp.shirt_color
+			elif dp.prop_type == "streetlamp":
+				item_dict["lampMode"] = dp.lamp_mode
+			elif dp.prop_type == "cat":
+				item_dict["isSleeping"] = dp.is_sleeping
+		state["objects"].append(item_dict)
 	
 	return state
 
 static func serialize_to_json(grid_mgr: GridManager, indent: bool = true) -> String:
-	var dict = serialize(grid_mgr)
+	var dict := serialize(grid_mgr)
 	return JSON.stringify(dict, "\t" if indent else "")
 
 static func deserialize_from_dict(data: Dictionary, grid_mgr: GridManager) -> bool:
@@ -42,10 +56,10 @@ static func deserialize_from_dict(data: Dictionary, grid_mgr: GridManager) -> bo
 		push_warning("Invalid diorama data: missing standard fields")
 		return false
 	
-	grid_mgr.clear()
+	grid_mgr.clear(false)
 	
 	if data.has("gridSize"):
-		var new_size = int(data["gridSize"])
+		var new_size := int(data["gridSize"])
 		if new_size > 0:
 			grid_mgr.grid_size = new_size
 	
@@ -54,7 +68,7 @@ static func deserialize_from_dict(data: Dictionary, grid_mgr: GridManager) -> bo
 		for item in data["ground"]:
 			if item is Dictionary:
 				var raw_type: String = item.get("type", "grass")
-				var type_id = Catalog.normalize_type(raw_type)
+				var type_id := Catalog.normalize_type(raw_type)
 				var gx: int = int(item.get("gx", 0))
 				var gz: int = int(item.get("gz", 0))
 				var rot_val = item.get("rotation", 0.0)
@@ -71,7 +85,7 @@ static func deserialize_from_dict(data: Dictionary, grid_mgr: GridManager) -> bo
 		for item in data["objects"]:
 			if item is Dictionary:
 				var raw_type: String = item.get("type", "")
-				var type_id = Catalog.normalize_type(raw_type)
+				var type_id := Catalog.normalize_type(raw_type)
 				var gx: int = int(item.get("gx", 0))
 				var gz: int = int(item.get("gz", 0))
 				var rot_val = item.get("rotation", 0.0)
@@ -81,13 +95,14 @@ static func deserialize_from_dict(data: Dictionary, grid_mgr: GridManager) -> bo
 				else:
 					rot_step = int(round(float(rot_val) / (PI * 0.5))) % 4
 				var custom_id: String = item.get("id", "")
-				grid_mgr.place(type_id, gx, gz, rot_step, custom_id)
+				grid_mgr.place(type_id, gx, gz, rot_step, custom_id, item)
 	
+	grid_mgr.grid_changed.emit()
 	return true
 
 static func deserialize_from_json(json_str: String, grid_mgr: GridManager) -> bool:
-	var json = JSON.new()
-	var error = json.parse(json_str)
+	var json := JSON.new()
+	var error := json.parse(json_str)
 	if error != OK:
 		push_error("JSON Parse Error: %s at line %d" % [json.get_error_message(), json.get_error_line()])
 		return false

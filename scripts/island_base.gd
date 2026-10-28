@@ -1,109 +1,121 @@
 class_name IslandBase
 extends Node3D
 
-## Procedural island pedestal and ground collider supporting dynamic grid sizes (8x8, 12x12, 16x16, 20x20, 24x24)
-## and toggleable 3D surface grid lines matching Three.js GridHelper.
+## Builds the 3-layer tapered floating island pedestal and subtle grid overlay,
+## matching grid.js `createIslandBase(width, depth)` and `THREE.GridHelper` 1:1.
 
-@export var cell_size: float = 1.0
+@export var grid_size: int = 12:
+	set(value):
+		grid_size = clampi(value, 4, 32)
+		if is_inside_tree():
+			rebuild()
 
-var _top_mesh: MeshInstance3D
-var _bottom_mesh: MeshInstance3D
-var _grid_lines_mesh: MeshInstance3D
-var _static_body: StaticBody3D
+@export var show_grid_lines: bool = true:
+	set(value):
+		show_grid_lines = value
+		if _grid_lines_instance:
+			_grid_lines_instance.visible = show_grid_lines
+
+var _top_soil_instance: MeshInstance3D
+var _deep_earth_instance: MeshInstance3D
+var _bedrock_instance: MeshInstance3D
+var _grid_lines_instance: MeshInstance3D
+var _collision_body: StaticBody3D
 var _collision_shape: CollisionShape3D
 
-var _grid_lines_visible: bool = true
-
 func _ready() -> void:
-	_create_nodes()
-	setup_grid(12)
+	rebuild()
 
-func _create_nodes() -> void:
-	if not _top_mesh:
-		_top_mesh = MeshInstance3D.new()
-		_top_mesh.name = "TopPedestal"
-		add_child(_top_mesh)
+func rebuild() -> void:
+	for child in get_children():
+		child.queue_free()
 	
-	if not _bottom_mesh:
-		_bottom_mesh = MeshInstance3D.new()
-		_bottom_mesh.name = "BottomRockPedestal"
-		add_child(_bottom_mesh)
+	var w := float(grid_size)
+	var d := float(grid_size)
 	
-	if not _grid_lines_mesh:
-		_grid_lines_mesh = MeshInstance3D.new()
-		_grid_lines_mesh.name = "GridLines"
-		var line_mat = StandardMaterial3D.new()
-		line_mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-		line_mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
-		line_mat.albedo_color = Color(1.0, 1.0, 1.0, 0.35)
-		line_mat.render_priority = 2
-		_grid_lines_mesh.material_override = line_mat
-		add_child(_grid_lines_mesh)
+	# 1. Top Soil Layer (Mutterboden) - grid.js lines 142-149
+	# BoxGeometry(width + 0.3, 0.3, depth + 0.3) at y = -0.15, color 0x5c4033, roughness 0.9
+	_top_soil_instance = MeshInstance3D.new()
+	_top_soil_instance.name = "TopSoilMesh"
+	var top_box := BoxMesh.new()
+	top_box.size = Vector3(w + 0.3, 0.3, d + 0.3)
+	var top_mat := StandardMaterial3D.new()
+	top_mat.albedo_color = Color("#5c4033")
+	top_mat.roughness = 0.9
+	top_mat.metallic = 0.0
+	top_mat.metallic_specular = 0.1
+	top_box.material = top_mat
+	_top_soil_instance.mesh = top_box
+	_top_soil_instance.position = Vector3(0.0, -0.15, 0.0)
+	add_child(_top_soil_instance)
 	
-	if not _static_body:
-		_static_body = StaticBody3D.new()
-		_static_body.name = "GroundCollider"
-		# Layer 1 for ground raycasting
-		_static_body.collision_layer = 1
-		_static_body.collision_mask = 0
-		add_child(_static_body)
-		
-		_collision_shape = CollisionShape3D.new()
-		_collision_shape.name = "CollisionShape"
-		_static_body.add_child(_collision_shape)
-
-func setup_grid(grid_size: int) -> void:
-	_create_nodes()
+	# 2. Deep Earth Layer (Erdreich) - grid.js lines 151-158
+	# BoxGeometry(width + 0.15, 0.9, depth + 0.15) at y = -0.75, color 0x6d4c41, roughness 0.95
+	_deep_earth_instance = MeshInstance3D.new()
+	_deep_earth_instance.name = "DeepEarthMesh"
+	var mid_box := BoxMesh.new()
+	mid_box.size = Vector3(w + 0.15, 0.9, d + 0.15)
+	var mid_mat := StandardMaterial3D.new()
+	mid_mat.albedo_color = Color("#6d4c41")
+	mid_mat.roughness = 0.95
+	mid_mat.metallic = 0.0
+	mid_mat.metallic_specular = 0.1
+	mid_box.material = mid_mat
+	_deep_earth_instance.mesh = mid_box
+	_deep_earth_instance.position = Vector3(0.0, -0.75, 0.0)
+	add_child(_deep_earth_instance)
 	
-	var island_width = float(grid_size) * cell_size
-	var island_depth = float(grid_size) * cell_size
+	# 3. Bedrock / Rocky Bottom Layer (Fels-Boden, verjüngt nach unten) - grid.js lines 160-167
+	# BoxGeometry(width - 0.4, 0.9, depth - 0.4) at y = -1.65, color 0x475569, roughness 1.0
+	_bedrock_instance = MeshInstance3D.new()
+	_bedrock_instance.name = "BedrockMesh"
+	var bot_box := BoxMesh.new()
+	bot_box.size = Vector3(w - 0.4, 0.9, d - 0.4)
+	var bot_mat := StandardMaterial3D.new()
+	bot_mat.albedo_color = Color("#475569")
+	bot_mat.roughness = 1.0
+	bot_mat.metallic = 0.0
+	bot_mat.metallic_specular = 0.05
+	bot_box.material = bot_mat
+	_bedrock_instance.mesh = bot_box
+	_bedrock_instance.position = Vector3(0.0, -1.65, 0.0)
+	add_child(_bedrock_instance)
 	
-	# Top soil layer (Warm earth-brown)
-	var top_box = BoxMesh.new()
-	top_box.size = Vector3(island_width + 0.3, 0.3, island_depth + 0.3)
-	top_box.material = Palette.create_material(Color("#5c4033"), 0.85, 0.05)
-	_top_mesh.mesh = top_box
-	_top_mesh.position = Vector3(0.0, -0.15, 0.0)
+	# 4. Subtle Grid Lines (GridHelper) - grid.js lines 113-118
+	# THREE.GridHelper(width, width, 0x334155, 0x475569) at y = 0.025, opacity 0.22
+	_grid_lines_instance = MeshInstance3D.new()
+	_grid_lines_instance.name = "GridLines"
+	_grid_lines_instance.mesh = _build_grid_lines_mesh(grid_size)
+	_grid_lines_instance.position = Vector3(0.0, 0.025, 0.0)
+	_grid_lines_instance.visible = show_grid_lines
+	_grid_lines_instance.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
+	add_child(_grid_lines_instance)
 	
-	# Bottom sub-surface stone/cliff layer (Dark earth)
-	var bottom_box = BoxMesh.new()
-	bottom_box.size = Vector3(island_width + 0.1, 0.6, island_depth + 0.1)
-	bottom_box.material = Palette.create_material(Color("#3d2817"), 0.9, 0.05)
-	_bottom_mesh.mesh = bottom_box
-	_bottom_mesh.position = Vector3(0.0, -0.55, 0.0)
-	
-	# 3D Grid Lines Overlay (Matching Web Three.js GridHelper at y = 0.025)
-	var imm = ImmediateMesh.new()
-	imm.clear_surfaces()
-	imm.surface_begin(Mesh.PRIMITIVE_LINES)
-	var half: float = (float(grid_size) * cell_size) * 0.5
-	var y_line: float = 0.025
-	for i in range(grid_size + 1):
-		var coord: float = float(i) * cell_size - half
-		# Lines parallel to Z
-		imm.surface_add_vertex(Vector3(coord, y_line, -half))
-		imm.surface_add_vertex(Vector3(coord, y_line, half))
-		# Lines parallel to X
-		imm.surface_add_vertex(Vector3(-half, y_line, coord))
-		imm.surface_add_vertex(Vector3(half, y_line, coord))
-	imm.surface_end()
-	_grid_lines_mesh.mesh = imm
-	_grid_lines_mesh.visible = _grid_lines_visible
-	
-	# Physics collision box for raycasting placement
-	var col_box = BoxShape3D.new()
-	col_box.size = Vector3(island_width, 0.1, island_depth)
-	_collision_shape.shape = col_box
+	# 5. Raycast Collision Plane at y = 0
+	_collision_body = StaticBody3D.new()
+	_collision_body.name = "GridRaycastBody"
+	_collision_shape = CollisionShape3D.new()
+	var shape := BoxShape3D.new()
+	shape.size = Vector3(w, 0.1, d)
+	_collision_shape.shape = shape
 	_collision_shape.position = Vector3(0.0, -0.05, 0.0)
+	_collision_body.add_child(_collision_shape)
+	add_child(_collision_body)
 
-func set_grid_lines_visible(val: bool) -> void:
-	_grid_lines_visible = val
-	if _grid_lines_mesh:
-		_grid_lines_mesh.visible = val
-
-func is_grid_lines_visible() -> bool:
-	return _grid_lines_visible
-
-func toggle_grid_lines() -> bool:
-	set_grid_lines_visible(not _grid_lines_visible)
-	return _grid_lines_visible
+func _build_grid_lines_mesh(size: int) -> ImmediateMesh:
+	var im := ImmediateMesh.new()
+	var mat := StandardMaterial3D.new()
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.albedo_color = Color(0.278, 0.333, 0.412, 0.25) # #475569 with 0.25 alpha
+	
+	var half := float(size) * 0.5
+	im.surface_begin(Mesh.PRIMITIVE_LINES, mat)
+	for i in range(size + 1):
+		var offset := -half + float(i)
+		im.surface_add_vertex(Vector3(offset, 0.0, -half))
+		im.surface_add_vertex(Vector3(offset, 0.0, half))
+		im.surface_add_vertex(Vector3(-half, 0.0, offset))
+		im.surface_add_vertex(Vector3(half, 0.0, offset))
+	im.surface_end()
+	return im

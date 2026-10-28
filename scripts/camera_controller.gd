@@ -1,169 +1,143 @@
 class_name CameraController
 extends Node3D
 
-## Isometric Orthographic Camera Controller with smooth orbit, zoom, pan, and dynamic aspect ratio scaling.
+## Orbit / Pan / Zoom camera rig matching the Modulon Three.js OrbitControls perspective:
+## - Camera position (14, 13, 14) looking at (0, 0, 0) -> yaw 45°, pitch 33.3°, distance 23.68
+## - Left drag (in Explore mode) or Right drag: Orbit
+## - Middle drag or Shift+Right drag: Pan
+## - Mouse wheel: Smooth zoom
+## - Touch: 1-finger orbit (in Explore mode), 2-finger pinch zoom & pan
 
-@export var target: Vector3 = Vector3(0, 0.4, 0)
-@export var base_size: float = 13.0
-@export var min_size: float = 4.0
-@export var max_size: float = 28.0
-@export var orbit_speed: float = 0.005
-@export var zoom_speed: float = 0.8
-@export var damping: float = 10.0
+@export var orbit_yaw: float = 45.0 # degrees
+@export var orbit_pitch: float = 33.3 # degrees (matches atan2(13, sqrt(14^2+14^2)))
+@export var orbit_distance: float = 23.68 # matches length(14, 13, 14)
+
+@export var min_pitch: float = 12.0
+@export var max_pitch: float = 82.0
+@export var min_distance: float = 5.0
+@export var max_distance: float = 45.0
+
+@export var orbit_sensitivity: float = 0.32
+@export var pan_sensitivity: float = 0.018
+@export var zoom_step: float = 1.6
+@export var smoothing_speed: float = 12.0
+@export var pan_limit: float = 16.0
+
+var target_position: Vector3 = Vector3.ZERO
+var left_drag_orbit_enabled: bool = false
+
+var _current_yaw: float = 45.0
+var _current_pitch: float = 33.3
+var _current_distance: float = 23.68
+var _current_target: Vector3 = Vector3.ZERO
+
+var _is_orbiting: bool = false
+var _is_panning: bool = false
+var _touches: Dictionary = {} # touch_index -> Vector2
 
 @onready var camera: Camera3D = $Camera3D
 
-var _yaw: float = PI / 4.0        # 45 degrees
-var _pitch: float = deg_to_rad(35.264) # Classic isometric elevation
-var _target_yaw: float = PI / 4.0
-var _target_pitch: float = deg_to_rad(35.264)
-var _target_size: float = 13.0
-var _current_size: float = 13.0
-
-var _is_orbiting: bool = false
-var _last_mouse_pos: Vector2 = Vector2.ZERO
-
-# Touch tracking for mobile
-var _touch_points: Dictionary = {}
-var _initial_pinch_distance: float = 0.0
-var _initial_pinch_size: float = 13.0
-
 func _ready() -> void:
-	_target_size = base_size
-	_current_size = base_size
-	
-	if camera:
-		camera.projection = Camera3D.PROJECTION_ORTHOGONAL
-		camera.size = _current_size
-	
-	get_viewport().size_changed.connect(_on_viewport_size_changed)
-	_update_aspect_compensation()
-	_update_camera_transform(true)
+	_current_yaw = orbit_yaw
+	_current_pitch = orbit_pitch
+	_current_distance = orbit_distance
+	_current_target = target_position
+	_apply_transform_immediate()
 
-func _process(delta: float) -> void:
-	_yaw = lerp_angle(_yaw, _target_yaw, damping * delta)
-	_pitch = lerp(_pitch, _target_pitch, damping * delta)
-	_current_size = lerp(_current_size, _target_size, damping * delta)
-	
-	_update_camera_transform(false)
+func reset_view(grid_size: int = 12) -> void:
+	target_position = Vector3.ZERO
+	orbit_yaw = 45.0
+	orbit_pitch = 33.3
+	# At grid_size 12, distance is 23.68 (position 14, 13, 14); scales proportionally for other sizes
+	orbit_distance = clampf(float(grid_size) * 1.973, min_distance, max_distance)
 
-func _update_camera_transform(force: bool = false) -> void:
-	if not camera:
-		return
-	
-	if force:
-		_yaw = _target_yaw
-		_pitch = _target_pitch
-		_current_size = _target_size
-	
-	# Clamp pitch so camera never goes below the island or directly top-down flip
-	_target_pitch = clamp(_target_pitch, deg_to_rad(10.0), deg_to_rad(80.0))
-	
-	var distance: float = 40.0
-	var offset: Vector3 = Vector3(
-		distance * cos(_pitch) * sin(_yaw),
-		distance * sin(_pitch),
-		distance * cos(_pitch) * cos(_yaw)
-	)
-	
-	camera.global_position = target + offset
-	camera.look_at(target, Vector3.UP)
-	camera.size = _current_size
-
-var is_explore_mode: bool = true
-var _left_mouse_down: bool = false
-var _left_mouse_origin: Vector2 = Vector2.ZERO
-var _left_drag_threshold: float = 6.0
+func reset_view_immediate(grid_size: int = 12) -> void:
+	reset_view(grid_size)
+	_current_yaw = orbit_yaw
+	_current_pitch = orbit_pitch
+	_current_distance = orbit_distance
+	_current_target = target_position
+	_apply_transform_immediate()
 
 func _unhandled_input(event: InputEvent) -> void:
-	# 1. Mouse Dragging (Right/Middle click, or Left click in Explore mode)
 	if event is InputEventMouseButton:
-		if event.button_index == MOUSE_BUTTON_RIGHT or event.button_index == MOUSE_BUTTON_MIDDLE:
-			if event.pressed:
-				_is_orbiting = true
-				_last_mouse_pos = event.position
-			else:
+		var mb := event as InputEventMouseButton
+		if mb.button_index == MOUSE_BUTTON_RIGHT:
+			if mb.shift_pressed:
+				_is_panning = mb.pressed
 				_is_orbiting = false
-		elif event.button_index == MOUSE_BUTTON_LEFT:
-			if event.pressed:
-				_left_mouse_down = true
-				_left_mouse_origin = event.position
-				_last_mouse_pos = event.position
 			else:
-				_left_mouse_down = false
-				if _is_orbiting:
-					_is_orbiting = false
-		
-		# Mouse Wheel Zoom
-		elif event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
-			zoom(-zoom_speed)
-		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
-			zoom(zoom_speed)
-	
+				_is_orbiting = mb.pressed
+				_is_panning = false
+		elif mb.button_index == MOUSE_BUTTON_MIDDLE:
+			_is_panning = mb.pressed
+		elif mb.button_index == MOUSE_BUTTON_LEFT and left_drag_orbit_enabled:
+			_is_orbiting = mb.pressed
+		elif mb.button_index == MOUSE_BUTTON_WHEEL_UP and mb.pressed:
+			orbit_distance = clampf(orbit_distance - zoom_step, min_distance, max_distance)
+		elif mb.button_index == MOUSE_BUTTON_WHEEL_DOWN and mb.pressed:
+			orbit_distance = clampf(orbit_distance + zoom_step, min_distance, max_distance)
+
 	elif event is InputEventMouseMotion:
-		if _left_mouse_down and is_explore_mode and not _is_orbiting:
-			if event.position.distance_to(_left_mouse_origin) > _left_drag_threshold:
-				_is_orbiting = true
-				_last_mouse_pos = event.position
-		
+		var mm := event as InputEventMouseMotion
 		if _is_orbiting:
-			var delta_pos = event.position - _last_mouse_pos
-			_last_mouse_pos = event.position
-			_target_yaw -= delta_pos.x * orbit_speed
-			_target_pitch += delta_pos.y * orbit_speed
-	
-	# 2. Touch Screen Input (Mobile gestures)
+			_apply_orbit_delta(mm.relative)
+		elif _is_panning:
+			_apply_pan_delta(mm.relative)
+
 	elif event is InputEventScreenTouch:
-		if event.pressed:
-			_touch_points[event.index] = event.position
+		var st := event as InputEventScreenTouch
+		if st.pressed:
+			_touches[st.index] = st.position
 		else:
-			_touch_points.erase(event.index)
-		
-		if _touch_points.size() == 2:
-			var pts = _touch_points.values()
-			_initial_pinch_distance = pts[0].distance_to(pts[1])
-			_initial_pinch_size = _target_size
-		
+			_touches.erase(st.index)
+
 	elif event is InputEventScreenDrag:
-		_touch_points[event.index] = event.position
+		var sd := event as InputEventScreenDrag
+		var prev_pos: Vector2 = _touches.get(sd.index, sd.position - sd.relative)
+		_touches[sd.index] = sd.position
 		
-		if _touch_points.size() == 1:
-			# Single-finger orbit (when permitted)
-			_target_yaw -= event.relative.x * orbit_speed * 0.8
-			_target_pitch += event.relative.y * orbit_speed * 0.8
-		elif _touch_points.size() >= 2:
-			# Two-finger pinch to zoom
-			var pts = _touch_points.values()
-			var current_dist = pts[0].distance_to(pts[1])
-			if _initial_pinch_distance > 0.0:
-				var factor = _initial_pinch_distance / max(current_dist, 1.0)
-				_target_size = clamp(_initial_pinch_size * factor, min_size, max_size)
+		if _touches.size() == 1 and left_drag_orbit_enabled:
+			_apply_orbit_delta(sd.relative)
+		elif _touches.size() >= 2:
+			var keys = _touches.keys()
+			var idx0: int = keys[0]
+			var idx1: int = keys[1]
+			var p0: Vector2 = _touches[idx0]
+			var p1: Vector2 = _touches[idx1]
+			
+			var old_p0: Vector2 = prev_pos if sd.index == idx0 else p0
+			var old_p1: Vector2 = prev_pos if sd.index == idx1 else p1
+			
+			var old_dist := old_p0.distance_to(old_p1)
+			var new_dist := p0.distance_to(p1)
+			var pinch_delta := old_dist - new_dist
+			orbit_distance = clampf(orbit_distance + pinch_delta * 0.04, min_distance, max_distance)
+			_apply_pan_delta(sd.relative * 0.5)
 
-func zoom(amount: float) -> void:
-	_target_size = clamp(_target_size + amount, min_size, max_size)
+func _apply_orbit_delta(relative: Vector2) -> void:
+	orbit_yaw -= relative.x * orbit_sensitivity
+	orbit_pitch = clampf(orbit_pitch + relative.y * orbit_sensitivity, min_pitch, max_pitch)
 
-func reset_view() -> void:
-	_target_yaw = PI / 4.0
-	_target_pitch = deg_to_rad(35.264)
-	target = Vector3(0, 0.4, 0)
-	_update_aspect_compensation()
+func _apply_pan_delta(relative: Vector2) -> void:
+	var scale_factor := orbit_distance * 0.06
+	var right_vec := global_transform.basis.x
+	var forward_flat := Vector3(global_transform.basis.z.x, 0.0, global_transform.basis.z.z).normalized()
+	target_position -= right_vec * (relative.x * pan_sensitivity * scale_factor)
+	target_position -= forward_flat * (relative.y * pan_sensitivity * scale_factor)
+	target_position.x = clampf(target_position.x, -pan_limit, pan_limit)
+	target_position.z = clampf(target_position.z, -pan_limit, pan_limit)
 
-func _on_viewport_size_changed() -> void:
-	_update_aspect_compensation()
-	_current_size = _target_size
-	_update_camera_transform(true)
+func _process(delta: float) -> void:
+	var weight := clampf(delta * smoothing_speed, 0.0, 1.0)
+	_current_yaw = lerpf(_current_yaw, orbit_yaw, weight)
+	_current_pitch = lerpf(_current_pitch, orbit_pitch, weight)
+	_current_distance = lerpf(_current_distance, orbit_distance, weight)
+	_current_target = _current_target.lerp(target_position, weight)
+	_apply_transform_immediate()
 
-func _update_aspect_compensation() -> void:
-	var vp_size = get_viewport().get_visible_rect().size
-	if vp_size.y <= 0.0:
-		return
-	var current_aspect = vp_size.x / vp_size.y
-	
-	# If viewport is narrower than landscape (especially in Portrait 9:16),
-	# scale the orthographic size up proportionally so the diorama island stays fully in view.
-	if current_aspect < 1.0:
-		# Portrait mode (Smartphone upright)
-		var scale_factor = (1.0 / current_aspect) * 0.95
-		_target_size = base_size * scale_factor
-	else:
-		_target_size = base_size
+func _apply_transform_immediate() -> void:
+	global_position = _current_target
+	rotation_degrees = Vector3(-_current_pitch, _current_yaw, 0.0)
+	if camera:
+		camera.position = Vector3(0.0, 0.0, _current_distance)

@@ -1,8 +1,8 @@
 class_name AudioManager
 extends Node
 
-## Central Audio Manager playing real CC0 sound assets via AudioStreamPlayer.
-## Supports one-shot polyphonic playback, audio caching, volume boost, and master volume control.
+## Central Audio Manager playing both real CC0 sound assets (.ogg) and procedural
+## synthesized sound effects (harvest, eat_crunch, doorbell, leaf_rustle, and creature sounds).
 
 static var _instance: AudioManager
 
@@ -24,7 +24,7 @@ const SOUND_PATHS: Dictionary = {
 }
 
 const SOUND_VOLUME_DB: Dictionary = {
-	"cat_meow": 4.0, # +4 dB boost for distinct clarity
+	"cat_meow": 4.0,
 	"dog_bark": 1.5,
 	"duck_quack": 2.0,
 }
@@ -48,35 +48,44 @@ static func play(sound_name: String, extra_db: float = 0.0) -> void:
 		_instance.play_sound(sound_name, extra_db)
 
 func play_sound(sound_name: String, extra_db: float = 0.0) -> void:
+	var stream: AudioStream = null
 	var path: String = SOUND_PATHS.get(sound_name, "")
-	if path.is_empty():
-		return
-	var stream: AudioStream = _streams.get(path, null)
-	if not stream and ResourceLoader.exists(path):
-		stream = load(path)
-		_streams[path] = stream
+	if not path.is_empty():
+		stream = _streams.get(path, null)
+		if not stream and ResourceLoader.exists(path):
+			stream = load(path)
+			_streams[path] = stream
+	else:
+		# Check procedural synthesizer cache
+		if _streams.has(sound_name):
+			stream = _streams[sound_name]
+		else:
+			stream = AudioSynthesizer.generate_sound(sound_name)
+			if stream:
+				_streams[sound_name] = stream
+	
 	if stream:
-		var player = AudioStreamPlayer.new()
+		var player := AudioStreamPlayer.new()
 		player.stream = stream
 		player.bus = "Master"
-		var base_vol = SOUND_VOLUME_DB.get(sound_name, 0.0)
+		var base_vol: float = SOUND_VOLUME_DB.get(sound_name, 0.0)
 		player.volume_db = base_vol + extra_db
 		player.finished.connect(player.queue_free)
 		add_child(player)
 		player.play()
 
 static func toggle_mute() -> bool:
-	var bus_idx = AudioServer.get_bus_index("Master")
-	var currently_muted = AudioServer.is_bus_mute(bus_idx)
+	var bus_idx := AudioServer.get_bus_index("Master")
+	var currently_muted := AudioServer.is_bus_mute(bus_idx)
 	AudioServer.set_bus_mute(bus_idx, not currently_muted)
 	return not currently_muted
 
 static func is_muted() -> bool:
-	var bus_idx = AudioServer.get_bus_index("Master")
+	var bus_idx := AudioServer.get_bus_index("Master")
 	return AudioServer.is_bus_mute(bus_idx)
 
 static func set_master_volume(linear: float) -> void:
-	var bus_idx = AudioServer.get_bus_index("Master")
+	var bus_idx := AudioServer.get_bus_index("Master")
 	if bus_idx >= 0:
 		if linear <= 0.001:
 			AudioServer.set_bus_mute(bus_idx, true)
@@ -85,7 +94,7 @@ static func set_master_volume(linear: float) -> void:
 			AudioServer.set_bus_volume_db(bus_idx, linear_to_db(clampf(linear, 0.001, 1.0)))
 
 static func get_master_volume() -> float:
-	var bus_idx = AudioServer.get_bus_index("Master")
+	var bus_idx := AudioServer.get_bus_index("Master")
 	if bus_idx >= 0:
 		if AudioServer.is_bus_mute(bus_idx):
 			return 0.0
