@@ -61,7 +61,9 @@ func _init():
 	if main.get("camera_rig"):
 		main.camera_rig.orbit_yaw = 52.0
 		main.camera_rig.orbit_distance = 17.5
-		main.camera_rig._update_camera_transform()
+		main.camera_rig._current_yaw = 52.0
+		main.camera_rig._current_distance = 17.5
+		main.camera_rig._apply_transform_immediate()
 	for i in range(25):
 		await process_frame
 	var img3 = root.get_texture().get_image()
@@ -79,7 +81,9 @@ func _init():
 	if main.get("camera_rig"):
 		main.camera_rig.orbit_yaw = 38.0
 		main.camera_rig.orbit_distance = 22.0
-		main.camera_rig._update_camera_transform()
+		main.camera_rig._current_yaw = 38.0
+		main.camera_rig._current_distance = 22.0
+		main.camera_rig._apply_transform_immediate()
 	for i in range(25):
 		await process_frame
 	var img4 = root.get_texture().get_image()
@@ -94,7 +98,7 @@ func _init():
 	if main.get("hud"):
 		main.hud._set_category("buildings")
 	if main.get("camera_rig"):
-		main.camera_rig.reset_view(12)
+		main.camera_rig.reset_view_immediate(12)
 	if main.get("hud"):
 		main.hud._on_viewport_size_changed()
 	for i in range(25):
