@@ -27,6 +27,9 @@ func record_state_before_action() -> void:
 	_redo_stack.clear()
 	history_changed.emit(can_undo(), can_redo())
 
+func record_State() -> void:
+	record_state_before_action()
+
 func undo() -> bool:
 	if not can_undo() or not grid_manager:
 		return false
